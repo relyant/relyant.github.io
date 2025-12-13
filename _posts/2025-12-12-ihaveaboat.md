@@ -5,7 +5,7 @@ date: 2025-12-12
 image: "/assets/images/2025-12-12-scheme-01.webp" 
 ---
 
-Kiruna habe ich zum ersten Mal im September (oder sogar vorher) im Internet gesehen und heute habe ich die letzte Zahlung ausgelöst. Es werden zwar sicher noch viele Zahlungen dazu kommen. Wie der Broker sagte: Der einzige Ort, wo ein Boot keine laufenden Kosten generiert ist auf Überfahrt.
+Kiruna habe ich zum ersten Mal im September (oder sogar vorher) im Internet gesehen und heute habe ich die letzte Zahlung ausgelöst. Es werden zwar sicher noch viele Zahlungen dazu kommen. Wie der Broker sagte: Der einzige Ort, wo ein Boot keine laufenden Kosten generiert, ist auf Überfahrt.
 
 Mittlerweile war ich zwei Mal im Port Napoleon wo Kiruna im Moment auf dem Trockenen steht.
 
