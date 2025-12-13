@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: "Sailing Kiruna" }}</title>
+    <link rel="icon" type="image/png" href="/assets/images/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -293,13 +294,15 @@
         }
 
         .blog-thumb {
-            width: 120px; /* Made thumb slightly larger since container is 80% */
-            height: 90px;
+            width: 120px;       /* Fixed Width */
+            height: 120px;      /* Same Fixed Height = Square */
+            object-fit: cover;  /* MAGIC: This cuts/crops the image to fill the square */
             border-radius: 12px;
-            object-fit: cover;
             margin-right: 25px;
-            flex-shrink: 0;
+            flex-shrink: 0;     /* Prevents the image from getting squished */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+
 
         .blog-details {
             display: flex;
@@ -340,9 +343,9 @@
                 align-items: flex-start;
             }
             .blog-thumb {
-                width: 100%;
-                height: 180px;
-                margin-bottom: 15px;
+                width: 80px;  /* Smaller for mobile */
+                height: 80px; /* Still square */
+                margin-right: 15px;
             }
             .blog-title {
                 font-size: 1.2rem;
