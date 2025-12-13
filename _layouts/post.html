@@ -1,0 +1,20 @@
+---
+layout: default
+---
+<!-- Back button -->
+<div style="text-align: left; margin-bottom: 20px;">
+    <a href="/" style="color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center;">
+        <span class="material-icons" style="font-size: 1.2rem; margin-right: 5px;">arrow_back</span> Back
+    </a>
+</div>
+
+<h2>{{ page.title }}</h2>
+<p style="color: var(--text-secondary); margin-bottom: 30px;">{{ page.date | date_to_string }}</p>
+
+{% if page.image %}
+<img src="{{ page.image }}" style="width: 100%; border-radius: 12px; margin-bottom: 30px;" alt="{{ page.title }}">
+{% endif %}
+
+<div class="description" style="text-align: left;">
+    {{ content }}
+</div>
