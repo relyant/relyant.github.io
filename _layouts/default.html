@@ -212,7 +212,6 @@
             border: 4px solid var(--primary-color);
             overflow: hidden;
             position: relative;
-            /* FIXED: Ensures image is perfectly centered */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -224,7 +223,7 @@
             height: 100%; 
             margin-top: 0px;
             object-fit: cover; 
-            object-position: center; /* FIXED: Ensures center crop */
+            object-position: center; 
             display: block;
         }
 
@@ -307,17 +306,16 @@
         .blog-thumb {
             width: 120px;       
             height: 120px;
-            aspect-ratio: 1 / 1; /* FIXED: Forces strict square ratio */
+            aspect-ratio: 1 / 1; 
             object-fit: cover;
             border-radius: 12px;
-            margin-right: 32px; /* FIXED: Increased from 25px for more space */
+            margin-right: 40px; /* INCREASED: Adds bigger gap on desktop */
             flex-shrink: 0;   
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-
         .blog-details {
-            margin-left: 10px;
+            margin-left: 20px; /* INCREASED: Adds more gap on desktop */
             display: flex;
             flex-direction: column;
             text-align: left;
@@ -353,13 +351,17 @@
             
             .blog-row {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: center; /* Centers items in the column */
             }
             .blog-thumb {
-                width: 80px;  
-                height: 80px; 
-                margin-right: 0; /* Reset side margin */
-                margin-bottom: 16px; /* FIXED: Adds space between image and title on mobile */
+                width: 100%;  /* Full Width */
+                height: auto; 
+                margin-right: 0; 
+                margin-bottom: 20px; /* Space below image on mobile */
+            }
+            .blog-details {
+                margin-left: 0; /* Reset desktop margins */
+                width: 100%;    /* Details take full width */
             }
             .blog-title {
                 font-size: 1.2rem;
