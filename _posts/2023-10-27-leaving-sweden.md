@@ -1,14 +1,16 @@
 ---
 layout: post
-title: "Leaving Sweden"
-date: 2023-10-27
-image: "https://your-image-url.com/boat.jpg" 
+title: "Endlich mein!"
+date: 2025-12-12
+image: "/assets/images/2025-12-12-scheme-01.webp" 
 ---
 
-We threw off the bowlines today at 0800. The wind was stiff from the North.
+Kiruna habe ich zum ersten Mal im September (oder sogar vorher) im Internet gesehen und heute habe ich die letzte Zahlung ausgelöst. Es werden zwar sicher noch viele Zahlungen dazu kommen. Wie der Broker sagte: Der einzige Ort, wo ein Boot keine laufenden Kosten generiert ist auf Überfahrt.
 
-You can write normal text here.
-- You can make lists
-- **Bold text**
+Mittlerweile war ich zwei Mal im Port Napoleon wo Kiruna im Moment auf dem Trockenen steht.
 
-It is super easy.
+Einmal um das Boot einfach mal anzusehen und das zweite Mal mit einem Experten, um Kiruna auch auf dem Meer auf Herz und Nieren zu prüfen.
+
+Ein nächstes Mal wird schon bald, am 30. Dezember, sein.
+
+Bis dahin 
