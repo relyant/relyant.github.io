@@ -9,9 +9,12 @@ Kiruna habe ich zum ersten Mal im September (oder sogar vorher) im Internet gese
 
 Mittlerweile war ich zwei Mal im Port Napoleon wo Kiruna im Moment auf dem Trockenen steht.
 
+
 - Einmal um das Boot einfach mal anzusehen im September
+  
 
 - Das zweite Mal im November mit einem Experten, um Kiruna auch auf dem Meer auf Herz und Nieren zu prüfen.
+  
 
 Ein nächstes Mal wird schon am 30. Dezember sein.
 
