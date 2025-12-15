@@ -12,7 +12,7 @@ Die ersten Schritte machte ich 2016 auf dem Vierwaldstättersee mit der Motorboo
 
 Der nächste Schritt war die Segelprüfung. Doch zuerst mussten ein paar Dinge in meinem Leben stimmen. Ich war schon 2022 ins Aargau gezogen und hatte meine Stelle dort angetreten. Aber erst 2023 schien der Zeitpunkt richtig, um mit dem Segeln anzufangen. Ich hatte mich im Beruf eingelebt und hatte die Zeit um mich zu informieren. Es fing mit einem wöchigen Segelkurs im Sommer an und noch im gleichen Jahr absolvierte ich erfolgreich die praktische Prüfung. Damit fing auch das regelmässige Segeln auf dem Hallwilersee an.
 
-![Hallwilersee](/assets/images/2025-12-15-hallwilersee.jpg)
+![Hallwilersee](/assets/images/2025-12-15-hallwilersee_01.jpg)
 
 Sehr schnell merkte ich, dass mich nicht nur die Freiheit, die das Segeln versprach, lockte. Auf dem Hallwilersee ist die Freiheit schliesslich recht eingeschränkt. Mir gefiel es auch einfach auf dem Wasser zu sein, die Segel einzustellen, den Wind zu spüren und besonders auch mit meinen Leuten ein Boot zu managen.
 
