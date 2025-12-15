@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Der Weg bis hierher"
-date: 2025-12-12
+date: 2025-12-15
 image: "/assets/images/2025-12-15-kreuzfahrt.webp" 
 ---
 Gibt es einen besseren Anlass zurückzuschauen, als wenn ein Meilenstein erreicht ist? Noch dazu habe ich dieses Jahr viel erreicht, was mich meinem Ziel näher gebracht hat und schaue damit auch auf 2025 zurück.
