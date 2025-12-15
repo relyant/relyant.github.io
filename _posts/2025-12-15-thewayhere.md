@@ -29,5 +29,3 @@ Noch Anfangs Jahr, im Winter, stand ein Karibik-Törn von Sint Maarten nach Mart
 Im Frühling folgte ein Skipper-Training in Kroatien und im Sommer einen Griechenland- und Ostsee-Törn. Somit waren die 1000 Seemeilen geschafft und die Unterlagen wurden dem CCS geschickt. Gleichzeitig hatte ich mich im Sommer auch an der SRC/LRC-Funklizenz versucht. Allerdings schaffte ich es erst beim zweiten Versuch im Oktober. Die Vorbereitung im Selbststudium zeigte sich da als schwieriger.
 
 Jetzt hatte ich alles, um mit gutem Gewissen ein Boot zu kaufen.
-
-![Meilenbestätigung](/assets/images/2025-12-15-meilen.jpg)
