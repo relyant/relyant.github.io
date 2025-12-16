@@ -1,2 +1,4 @@
 title: Sailing Kiruna
 theme: null
+permalink: /:year/:month/:day/:title/
+
