@@ -1,6 +1,6 @@
-name: Auto Rename Posts with Slug
+name: Add Random ID to Filenames
 on:
-  workflow_dispatch: # This allows you to run it manually via a button
+  workflow_dispatch: # Run manually via button
 
 jobs:
   rename-files:
@@ -15,46 +15,55 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install dependencies
-        run: pip install python-frontmatter python-slugify
-
-      - name: Rename files based on Title
+      - name: Rename Files with Random Numbers
         run: |
           python3 -c "
           import os
-          import frontmatter
-          from slugify import slugify
           import re
+          import random
 
           posts_dir = '_posts'
           
-          # Regex to find files that created by GitJournal (just date.md)
-          # Format: YYYY-MM-DD.md or YYYY-MM-DD-HHMM.md
-          pattern = re.compile(r'^\d{4}-\d{2}-\d{2}(-\d{4})?\.md$')
+          # Regex matches ONLY 'YYYY-MM-DD.md'
+          # It will IGNORE files that already have the number added
+          pattern = re.compile(r'^\d{4}-\d{2}-\d{2}\.md$')
 
-          for filename in os.listdir(posts_dir):
-              if pattern.match(filename):
-                  filepath = os.path.join(posts_dir, filename)
-                  
-                  try:
-                      post = frontmatter.load(filepath)
-                      if post.get('title'):
-                          # Keep the date part (first 10 chars)
-                          date_part = filename[:10] 
-                          slug = slugify(post['title'])
-                          new_filename = f'{date_part}-{slug}.md'
-                          new_filepath = os.path.join(posts_dir, new_filename)
-                          
-                          print(f'Renaming: {filename} -> {new_filename}')
-                          os.rename(filepath, new_filepath)
-                  except Exception as e:
-                      print(f'Skipping {filename}: {e}')
+          files_changed = False
+
+          if os.path.exists(posts_dir):
+              for filename in os.listdir(posts_dir):
+                  if pattern.match(filename):
+                      old_path = os.path.join(posts_dir, filename)
+                      
+                      # Get the first 10 chars (The Date: 2024-05-21)
+                      date_part = filename[:10]
+                      
+                      # Generate a random 4-digit number
+                      rand_num = random.randint(1000, 9999)
+                      
+                      # New name: Date + Number (No Dash) + .md
+                      new_filename = f'{date_part}{rand_num}.md'
+                      new_path = os.path.join(posts_dir, new_filename)
+                      
+                      print(f'Renaming: {filename} -> {new_filename}')
+                      os.rename(old_path, new_path)
+                      files_changed = True
+          else:
+              print(f'Directory {posts_dir} not found.')
+
+          # Verify changes were made for the commit step
+          if not files_changed:
+              print('No files needed renaming.')
           "
 
-      - name: Commit and Push changes
+      - name: Commit and Push
         run: |
-          git config --global user.name "Renamer Bot"
-          git config --global user.email "bot@noreply.github.com"
-          git add _posts/*
-          git commit -m "Auto-renamed posts with slugs" || exit 0
-          git push
+          if [[ -n $(git status -s) ]]; then
+            git config --global user.name "Renamer Bot"
+            git config --global user.email "bot@noreply.github.com"
+            git add _posts/*
+            git commit -m "Appended random IDs to filenames"
+            git push
+          else
+            echo "No changes to commit."
+          fi
