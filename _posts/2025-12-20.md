@@ -1,0 +1,15 @@
+---
+layout: post
+title: "Sample Header"
+date: 2025-12-15
+image: "/assets/images/2025-12-15-kreuzfahrt.webp" 
+---
+
+Sample Header
+
+---
+layout: post
+title: "Der Weg bis hierher"
+date: 2025-12-15
+image: "/assets/images/2025-12-15-kreuzfahrt.webp" 
+---
