@@ -8,15 +8,6 @@
     <strong>A static site built with Jekyll, hosted on GitHub Pages, and updated via GitJournal.</strong>
   </p>
 
-  <p>
-    <a href="https://github.com/relyant/relyant.github.io/actions">
-      <img src="https://img.shields.io/github/actions/workflow/status/YOUR_USERNAME/YOUR_REPO/publish-journal.yml?label=Journal%20Bot&style=for-the-badge" alt="Bot Status" />
-    </a>
-    <a href="https://kiruna.schelbert.ml">
-      <img src="https://img.shields.io/website?label=website&style=for-the-badge&url=https%3A%2F%2FYOUR_CUSTOM_DOMAIN.com" alt="Website Check" />
-    </a>
-  </p>
-
 </div>
 
 ---
