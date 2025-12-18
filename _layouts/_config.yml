@@ -1,11 +1,8 @@
-title: Sailing Kiruna
-theme: null
-permalink: /:year/:month/:day/:title/
-# 1. Register the new collection
+# Add this to _config.yml
 collections:
   journal:
     output: true
-    permalink: /:year/:month/:day/:slug/  # Mimics standard blog URLs
+    permalink: /:year/:month/:day/:slug/
 
 # 2. Force settings for GitJournal files
 defaults:
@@ -14,3 +11,8 @@ defaults:
       type: "journal" # Applies to files in _journal folder
     values:
       layout: "post" # Finds your theme's post layout
+# Add this to _config.yml
+collections:
+  journal:
+    output: true
+    permalink: /:year/:month/:day/:slug/
