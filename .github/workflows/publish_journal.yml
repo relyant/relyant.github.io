@@ -3,6 +3,12 @@ on:
   push:
     paths:
       - '_incoming/**'
+      # We ignore assets here so the bot doesn't trigger itself when it commits the converted images
+      - '!assets/**'
+
+concurrency:
+  group: journal-processing
+  cancel-in-progress: false
 
 jobs:
   convert-and-publish:
@@ -11,74 +17,98 @@ jobs:
       contents: write
 
     steps:
+      - name: Wait for Sync (Safety Buffer)
+        run: sleep 30
+
       - name: Checkout code
         uses: actions/checkout@v3
-        
-      - name: Wait for Sync to Finish
-        run: sleep 30
-        
-      - name: Convert and Move Files
+        with:
+          fetch-depth: 0
+
+      - name: Install Image Tools
+        run: sudo apt-get update && sudo apt-get install -y imagemagick webp
+
+      - name: Process Journal Entries
         run: |
-          # 1. SETUP
+          # --- CONFIGURATION ---
           git config --global user.name 'Journal Bot'
           git config --global user.email 'bot@noreply.github.com'
+          
           mkdir -p _posts
           shopt -s nullglob
-          
+
           has_changes=false
 
           for file in _incoming/*.md; do
             echo "Processing $file..."
             
-            # Fix Line Endings (Change Windows CRLF to Linux LF)
-            sed -i 's/\r$//' "$file"
-
-            # 2. EXTRACT DATA
+            # 1. READ METADATA
+            raw_title=$(grep -m 1 "^# " "$file" | sed 's/^# //' | xargs || true)
+            title="${raw_title:-Journal Entry}"
             filename=$(basename "$file")
             
-            # Extract Title: Find first line starting with #. 
-            # "|| true" prevents crash if no title found.
-            raw_title=$(grep -m 1 "^# " "$file" | sed 's/^# //' | xargs || true)
-            
-            if [ -z "$raw_title" ]; then
-                title="Journal Entry"
-            else
-                title="$raw_title"
-            fi
-            
-            # Create Slug (URL-friendly title)
+            # Generate Slug
             slug=$(echo "$title" | sed -e 's/[^[:alnum:]]/-/g' | tr -s '-' | tr A-Z a-z | sed 's/^-//;s/-$//')
-            
-            # Get Date from filename
             date_part=$(echo "$filename" | cut -d. -f1)
             new_filename="${date_part}-${slug}.md"
             
-            # 3. CONSTRUCT NEW FILE ('temp_post.md')
+            # --- IMAGE PROCESSING STARTS HERE ---
+            # We look for markdown image links: ![Alt](../assets/images/file.jpg)
+            # We assume GitJournal creates links structure: ](..
+            
+            # Get list of image paths mentioned in file inside ( )
+            grep -oP '(?<=\]\(\.\./).*?(?=\))' "$file" | while read -r img_rel_path; do
+              
+              # Construct local file path (remove ../ to get from root)
+              local_img_path="${img_rel_path}"
+              
+              if [ -f "$local_img_path" ]; then
+                echo "Converting image: $local_img_path"
+                
+                # Create new filename (replace extension with .webp)
+                new_img_path="${local_img_path%.*}.webp"
+                
+                # Convert: Resize to max 1920x1080 (shrink only), Quality 80
+                convert "$local_img_path" -resize '1920x1080>' -quality 80 -define webp:lossless=false "$new_img_path"
+                
+                # Check if conversion worked
+                if [ -f "$new_img_path" ]; then
+                  # 1. Update the Markdown file immediately (in place)
+                  # Replace ../path/to/img.jpg with /path/to/img.webp
+                  # We use | as delimiter
+                  sed -i "s|\.\./$img_rel_path|/$new_img_path|g" "$file"
+                  
+                  # 2. Git operations for images
+                  git add "$new_img_path"
+                  git rm "$local_img_path"
+                fi
+              else
+                echo "Warning: Image $local_img_path not found on disk."
+              fi
+            done
+            # --- IMAGE PROCESSING ENDS ---
+
+            # 2. CREATE NEW POST CONTENT
             echo "---" > temp_post.md
             echo "layout: post" >> temp_post.md
-            # Use printf to handle special characters in title safely
             printf "title: \"%s\"\n" "$title" >> temp_post.md
             
-            # Extract existing YAML (metadata)
-            # rename 'created' to 'date', remove existing title/layout to avoid dupes
+            # Move created -> date
             sed -n '/^---$/,/^---$/p' "$file" | sed '1d;$d' | \
             sed 's/^created:/date:/' | \
             grep -v "^title:" | grep -v "^layout:" >> temp_post.md || true
             
             echo "---" >> temp_post.md
             
-            # 4. APPEND BODY CONTENT
-            # Use awk to reliably print everything AFTER the second '---' separator
+            # 3. APPEND BODY
+            # (Note: Valid image paths are already fixed inside $file by the loop above)
             awk 'BEGIN {count=0} /^---$/ {count++; next} count>=2 {print}' "$file" >> temp_body.md
             
-            # Remove the H1 Title from the body if it exists (so it doesn't show twice)
-            # We use a temp file logic to allow grep to fail gracefully
+            # Remove duplicate H1 title
             grep -v "^# $raw_title" temp_body.md >> temp_post.md || cat temp_body.md >> temp_post.md
-            
-            # Cleanup temp body
             rm temp_body.md
 
-            # 5. MOVE AND COMMIT
+            # 4. FINAL MOVE
             mv temp_post.md "_posts/$new_filename"
             git rm "$file"
             git add "_posts/$new_filename"
@@ -87,8 +117,9 @@ jobs:
           done
 
           if [ "$has_changes" = true ]; then
-            git commit -m "Auto-published journal entries"
+            git pull --rebase --autostash
+            git commit -m "Processed journal: converted images to WebP & moved posts"
             git push
           else
-            echo "No valid markdown files found to process."
+            echo "No markdown files to process."
           fi
