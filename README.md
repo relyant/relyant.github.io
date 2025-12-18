@@ -9,10 +9,10 @@
   </p>
 
   <p>
-    <a href="https://github.com/YOUR_USERNAME/YOUR_REPO/actions">
+    <a href="https://github.com/relyant/relyant.github.io/actions">
       <img src="https://img.shields.io/github/actions/workflow/status/YOUR_USERNAME/YOUR_REPO/publish-journal.yml?label=Journal%20Bot&style=for-the-badge" alt="Bot Status" />
     </a>
-    <a href="https://YOUR_CUSTOM_DOMAIN.com">
+    <a href="https://kiruna.schelbert.ml">
       <img src="https://img.shields.io/website?label=website&style=for-the-badge&url=https%3A%2F%2FYOUR_CUSTOM_DOMAIN.com" alt="Website Check" />
     </a>
   </p>
