@@ -1,3 +1,16 @@
 title: Sailing Kiruna
 theme: null
 permalink: /:year/:month/:day/:title/
+# 1. Register the new collection
+collections:
+  journal:
+    output: true
+    permalink: /:year/:month/:day/:slug/  # Mimics standard blog URLs
+
+# 2. Force settings for GitJournal files
+defaults:
+  - scope:
+      path: "" 
+      type: "journal" # Applies to files in _journal folder
+    values:
+      layout: "post" # Finds your theme's post layout
