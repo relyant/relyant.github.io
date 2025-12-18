@@ -13,7 +13,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+        
+      - name: Wait for Sync to Finish
+        run: sleep 30
+        
       - name: Convert and Move Files
         run: |
           # 1. SETUP
