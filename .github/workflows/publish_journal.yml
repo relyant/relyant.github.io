@@ -53,25 +53,31 @@ jobs:
             new_filename="${date_part}-${slug}.md"
             
             # --- IMAGE PROCESSING STARTS HERE ---
-            # Parse links like: ![Alt](../assets/images/file.jpg)
+            # We look for markdown image links: ![Alt](../assets/images/file.jpg)
+            # The regex extracts the path after '](../'
             
-            grep -oP '(?<=\]\(\.\./).*?(?=\))' "$file" | while read -r img_rel_path; do
-              local_img_path="${img_rel_path}"
+            grep -oP '(?<=\]\(\.\./).*?(?=\))' "$file" | while read -r match; do
+              # The match usually comes with a leading slash like /assets/..., we remove it to find the file
+              clean_path="${match#/}"
               
-              if [ -f "$local_img_path" ]; then
-                echo "Converting image: $local_img_path"
-                new_img_path="${local_img_path%.*}.webp"
+              if [ -f "$clean_path" ]; then
+                echo "Converting image: $clean_path"
+                new_img_path="${clean_path%.*}.webp"
                 
-                # Convert to Full HD WebP
-                convert "$local_img_path" -resize '1920x1080>' -quality 80 -define webp:lossless=false "$new_img_path"
+                # Convert to Full HD WebP (max 1920px wide/high)
+                convert "$clean_path" -resize '1920x1080>' -quality 80 -define webp:lossless=false "$new_img_path"
                 
                 if [ -f "$new_img_path" ]; then
                   # Update link in file: ../assets/img.jpg -> /assets/img.webp
-                  sed -i "s|\.\./$img_rel_path|/$new_img_path|g" "$file"
+                  # escape slashes for sed
+                  sed -i "s|\.\./$clean_path|/$new_img_path|g" "$file"
+                  sed -i "s|\.\./$match|/$new_img_path|g" "$file"
                   
                   git add "$new_img_path"
-                  git rm "$local_img_path"
+                  git rm "$clean_path"
                 fi
+              else
+                echo "Warning: Image $clean_path not found on disk."
               fi
             done
             # --- IMAGE PROCESSING ENDS ---
@@ -81,26 +87,25 @@ jobs:
             echo "layout: post" >> temp_post.md
             printf "title: \"%s\"\n" "$title" >> temp_post.md
             
-            # Move metadata
+            # Move created -> date
             sed -n '/^---$/,/^---$/p' "$file" | sed '1d;$d' | \
             sed 's/^created:/date:/' | \
             grep -v "^title:" | grep -v "^layout:" >> temp_post.md || true
             
             echo "---" >> temp_post.md
             
-            # 3. APPEND BODY (using the file we just modified with SED)
+            # 3. APPEND BODY
             awk 'BEGIN {count=0} /^---$/ {count++; next} count>=2 {print}' "$file" >> temp_body.md
             
-            # Remove duplicate H1 title
+            # Remove duplicate H1 title if present
             grep -v "^# $raw_title" temp_body.md >> temp_post.md || cat temp_body.md >> temp_post.md
             rm temp_body.md
 
             # 4. FINAL MOVE
             mv temp_post.md "_posts/$new_filename"
             
-            # FORCE REMOVE original (because we modified it during image processing)
+            # FORCE REMOVE original (added -f to fix your specific error)
             git rm -f "$file"
-            
             git add "_posts/$new_filename"
             
             has_changes=true
@@ -113,4 +118,3 @@ jobs:
           else
             echo "No markdown files to process."
           fi
-
