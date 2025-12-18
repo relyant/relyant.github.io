@@ -1,0 +1,95 @@
+name: Process Journal Entry
+on:
+  push:
+    paths:
+      - '_incoming/**'  # This triggers ONLY when GitJournal uploads a file here
+
+jobs:
+  convert-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # Gives the bot permission to move files and commit
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Convert and Move Files
+        run: |
+          # Configure Git
+          git config --global user.name 'Journal Bot'
+          git config --global user.email 'bot@noreply.github.com'
+          
+          # Create _posts if it doesn't exist
+          mkdir -p _posts
+          
+          # Enable execution even if no files match
+          shopt -s nullglob
+          
+          has_changes=false
+
+          for file in _incoming/*.md; do
+            echo "Processing $file..."
+            
+            # 1. EXTRACT DATA
+            filename=$(basename "$file")
+            
+            # Find the Title (first line starting with #)
+            # Remove the "# " and trim whitespace
+            raw_title=$(grep -m 1 "^# " "$file" | sed 's/^# //' | xargs)
+            
+            # Default title if missing
+            if [ -z "$raw_title" ]; then
+                title="Journal Entry"
+            else
+                title="$raw_title"
+            fi
+            
+            # 2. CREATE SLUG
+            # Clean title to make it URL friendly (lowercase, replace spaces with hyphens)
+            slug=$(echo "$title" | sed -e 's/[^[:alnum:]]/-/g' | tr -s '-' | tr A-Z a-z | sed 's/^-//;s/-$//')
+            
+            # Get Date from filename (assuming 2023-10-27.md format from GitJournal)
+            date_part=$(echo "$filename" | cut -d. -f1)
+            
+            # New Filename: 2023-10-27-my-post-title.md
+            new_filename="${date_part}-${slug}.md"
+            
+            # 3. CONSTRUCT NEW FILE
+            # Start Header
+            echo "---" > temp_post.md
+            echo "layout: post" >> temp_post.md
+            # Use quotes for title to handle special chars like colons
+            echo "title: \"$title\"" >> temp_post.md
+            
+            # Extract existing YAML (metadata) but rename 'created' to 'date'
+            # We filter out existing title or layout tags to avoid duplicates
+            sed -n '/^---$/,/^---$/p' "$file" | sed '1d;$d' | \
+            sed 's/^created:/date:/' | \
+            grep -v "^title:" | grep -v "^layout:" >> temp_post.md
+            
+            echo "---" >> temp_post.md
+            
+            # Append Body Content
+            # Skip valid YAML header
+            # Remove the duplicate H1 title line (# Title)
+            sed '1,/^---$/d' "$file" | sed '1,/^---$/d' | grep -v "^# $raw_title" >> temp_post.md
+            
+            # 4. MOVE TO _POSTS
+            mv temp_post.md "_posts/$new_filename"
+            
+            # 5. REMOVE ORIGINAL
+            git rm "$file"
+            
+            # Stage the new file
+            git add "_posts/$new_filename"
+            
+            has_changes=true
+          done
+
+          if [ "$has_changes" = true ]; then
+            git commit -m "Auto-published journal entries [skip ci]"
+            git push
+          else
+            echo "No valid markdown files found to process."
+          fi
