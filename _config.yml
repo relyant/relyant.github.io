@@ -1,0 +1,13 @@
+title: Sailing Kiruna
+url: "https://your-custom-domain.com" # Change this to your actual domain
+baseurl: ""
+
+# This setting allows the _journal folder to work
+collections:
+  journal:
+    output: true
+    permalink: /log/:year/:month/:day/:title/
+
+# Allow standard markdown parsing
+markdown: kramdown
+permalink: /:year/:month/:day/:title/
