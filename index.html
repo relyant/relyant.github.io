@@ -1,28 +1,49 @@
 ---
 layout: default
+title: Sailing Kiruna
 ---
 
 <div class="profile-image">
-    <!-- Make sure logo.png is in your repo root or update path -->
-    <img src="logo.png" alt="Profile">
+    <!-- Make sure logo.png is in your repo root -->
+    <img src="{{ site.baseurl }}/logo.png" alt="Profile">
 </div>
 
 <h1>Sailing Kiruna</h1>
 <div class="subtitle">Raphael Schelbert</div>
 
 <div class="description">
-    Come on a journey with my Ovni 43 "Kiruna".
+    Blegliete mich auf meiner Ovni 43 "Kiruna".
 </div>
 
 <!-- Blog Section -->
 <div class="blog-list">
     <h3 style="margin-bottom: 20px; text-align: left; margin-left:10px;">Ship's Log</h3>
     
+    <!-- Sort both standard posts and sidebar journal entries -->
     {% assign all_posts = site.posts | concat: site.journal | sort: 'date' | reverse %}
 
     {% for post in all_posts %}
-   <!-- Your existing code to display title/excerpt goes here -->
-   <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
+    <a href="{{ post.url | relative_url }}" class="blog-row">
+        <!-- Display Thumbnail if available, otherwise a placeholder color -->
+        {% if post.image %}
+            <img src="{{ post.image }}" alt="{{ post.title }}" class="blog-thumb">
+        {% else %}
+             <!-- Fallback if no image is set in YAML -->
+            <div class="blog-thumb" style="background: #333; display:flex; align-items:center; justify-content:center;">
+                <span class="material-icons">sailing</span>
+            </div>
+        {% endif %}
+
+        <div class="blog-details">
+            <span class="blog-date">{{ post.date | date_to_string }}</span>
+            <h4 class="blog-title">{{ post.title }}</h4>
+            <!-- Optional: Show excerpt 
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top:5px;">
+                {{ post.excerpt | strip_html | truncatewords: 20 }}
+            </p> 
+            -->
+        </div>
+    </a>
     {% endfor %}
 
 </div>
