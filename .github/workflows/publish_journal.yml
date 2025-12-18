@@ -16,7 +16,7 @@ jobs:
     permissions:
       contents: write
 
-        steps:
+    steps:
       - name: Wait for Sync (Safety Buffer)
         run: sleep 30
 
