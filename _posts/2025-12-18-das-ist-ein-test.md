@@ -1,8 +1,9 @@
 ---
-created: 2025-12-18
+layout: post
+title: "Das ist ein Test"
+date: 2025-12-18
 modified: 2025-12-18
 ---
 
-# Das ist ein Test
 
 Und das der Text dazu...
