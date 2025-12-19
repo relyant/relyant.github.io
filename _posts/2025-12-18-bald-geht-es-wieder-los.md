@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "Bald geht es wieder los..."
+image: "/assets/images/bc45e3c3925abed6d4cd508e2011b2a4.webp"
 date: 2025-12-18
 modified: 2025-12-18
 ---
