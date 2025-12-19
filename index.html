@@ -31,7 +31,24 @@ title: Sailing Kiruna
         {% endif %}
 
         <div class="blog-details">
-            <span class="blog-date">{{ post.date | date_to_string }}</span>
+            <span class="blog-date">{% assign m = page.date | date: "%-m" %}
+{{ page.date | date: "%d" }}. 
+{% case m %}
+  {% when '1' %}Januar
+  {% when '2' %}Februar
+  {% when '3' %}März
+  {% when '4' %}April
+  {% when '5' %}Mai
+  {% when '6' %}Juni
+  {% when '7' %}Juli
+  {% when '8' %}August
+  {% when '9' %}September
+  {% when '10' %}Oktober
+  {% when '11' %}November
+  {% when '12' %}Dezember
+{% endcase %} 
+{{ page.date | date: "%Y" }}
+</span>
             <h4 class="blog-title">{{ post.title }}</h4>
             <!-- Optional: Show excerpt 
             <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top:5px;">
