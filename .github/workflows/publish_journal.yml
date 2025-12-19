@@ -3,8 +3,8 @@ on:
   push:
     paths:
       - '_incoming/**'
-      # We ignore assets here so the bot doesn't trigger itself when it commits the converted images
       - '!assets/**'
+  workflow_dispatch:
 
 concurrency:
   group: journal-processing
@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Wait for Sync (Safety Buffer)
-        run: sleep 30
+        run: sleep 5
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -30,7 +30,6 @@ jobs:
 
       - name: Process Journal Entries
         run: |
-          # --- CONFIGURATION ---
           git config --global user.name 'Journal Bot'
           git config --global user.email 'bot@noreply.github.com'
           
@@ -52,59 +51,58 @@ jobs:
             date_part=$(echo "$filename" | cut -d. -f1)
             new_filename="${date_part}-${slug}.md"
             
-            # --- IMAGE PROCESSING STARTS HERE ---
-            # We look for markdown image links: ![Alt](../assets/images/file.jpg)
-            # The regex extracts the path after '](../'
-            
+            # --- IMAGE PROCESSING ---
+            # 1. Convert images and rewrite links in the $file
             grep -oP '(?<=\]\(\.\./).*?(?=\))' "$file" | while read -r match; do
-              # The match usually comes with a leading slash like /assets/..., we remove it to find the file
               clean_path="${match#/}"
               
               if [ -f "$clean_path" ]; then
                 echo "Converting image: $clean_path"
                 new_img_path="${clean_path%.*}.webp"
                 
-                # Convert to Full HD WebP (max 1920px wide/high)
+                # Convert: Resize to FHD, WebP format
                 convert "$clean_path" -resize '1920x1080>' -quality 80 -define webp:lossless=false "$new_img_path"
                 
                 if [ -f "$new_img_path" ]; then
-                  # Update link in file: ../assets/img.jpg -> /assets/img.webp
-                  # escape slashes for sed
-                  sed -i "s|\.\./$clean_path|/$new_img_path|g" "$file"
+                  # Update link in markdown: ../assets/img.jpg -> /assets/img.webp
                   sed -i "s|\.\./$match|/$new_img_path|g" "$file"
                   
                   git add "$new_img_path"
                   git rm "$clean_path"
                 fi
-              else
-                echo "Warning: Image $clean_path not found on disk."
               fi
             done
-            # --- IMAGE PROCESSING ENDS ---
+            
+            # 2. Extract First Image path (for YAML header)
+            # We look for the first markdown link that starts with /assets inside the processed file
+            featured_image=$(grep -oP -m 1 '(?<=\]\()/assets/.*?(?=\))' "$file" | head -n 1)
+            # ------------------------
 
-            # 2. CREATE NEW POST CONTENT
+            # 3. CREATE POST
             echo "---" > temp_post.md
             echo "layout: post" >> temp_post.md
             printf "title: \"%s\"\n" "$title" >> temp_post.md
             
-            # Move created -> date
+            # If we found an image, add it to YAML
+            if [ ! -z "$featured_image" ]; then
+               echo "image: $featured_image" >> temp_post.md
+            fi
+            
+            # Move metadata (excluding title, layout, and image to avoid dupes)
             sed -n '/^---$/,/^---$/p' "$file" | sed '1d;$d' | \
             sed 's/^created:/date:/' | \
-            grep -v "^title:" | grep -v "^layout:" >> temp_post.md || true
+            grep -v "^title:" | grep -v "^layout:" | grep -v "^image:" >> temp_post.md || true
             
             echo "---" >> temp_post.md
             
-            # 3. APPEND BODY
+            # 4. APPEND BODY
             awk 'BEGIN {count=0} /^---$/ {count++; next} count>=2 {print}' "$file" >> temp_body.md
-            
-            # Remove duplicate H1 title if present
             grep -v "^# $raw_title" temp_body.md >> temp_post.md || cat temp_body.md >> temp_post.md
             rm temp_body.md
 
-            # 4. FINAL MOVE
+            # 5. FINAL ACTIONS
             mv temp_post.md "_posts/$new_filename"
             
-            # FORCE REMOVE original (added -f to fix your specific error)
             git rm -f "$file"
             git add "_posts/$new_filename"
             
@@ -113,7 +111,7 @@ jobs:
 
           if [ "$has_changes" = true ]; then
             git pull --rebase --autostash
-            git commit -m "Processed journal: converted images to WebP & moved posts"
+            git commit -m "Processed: optimized images, added yaml cover & moved posts"
             git push
           else
             echo "No markdown files to process."
