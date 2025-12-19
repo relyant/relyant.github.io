@@ -4,39 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: "Sailing Kiruna" }}</title>
-    <!-- Use site.baseurl to fix broken image links on subpages -->
     <link rel="icon" type="image/png" href="{{ site.baseurl }}/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-        --primary-color: #2196F3;
-        --primary-dark: #1976D2;
-        --secondary-color: #FF9800;
-        --background-color: #121212;
-        /* UPDATED: Made surface semi-transparent for dark mode */
-        --surface-color: rgba(30, 30, 30, 0.7); 
-        --text-primary: #FFFFFF;
-        --text-secondary: #B3B3B3;
-        --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --primary-color: #2196F3;
+            --background-color: #121212;
+            /* More transparent surface for the "Glass" look */
+            --surface-color: rgba(30, 30, 30, 0.6); 
+            --text-primary: #FFFFFF;
+            --text-secondary: #B3B3B3;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
-        /* Logo color palette */
-        --logo-1: #4b3c6d;
-        --logo-2: #068ab8;
-        --logo-3: #046886;
-        --logo-4: #a5c048;
-        --logo-5: #f77102;
-        --logo-6: #cb1025;
+            /* Logo color palette */
+            --logo-1: #4b3c6d;
+            --logo-2: #068ab8;
+            --logo-3: #046886;
+            --logo-4: #a5c048;
+            --logo-5: #f77102;
+            --logo-6: #cb1025;
         }
 
         [data-theme="light"] {
             --background-color: #87CEEB;
-            /* UPDATED: Made surface semi-transparent for light mode */
-            --surface-color: rgba(255, 255, 255, 0.6);
+            --surface-color: rgba(255, 255, 255, 0.5);
             --text-primary: #212121;
-            --text-secondary: #424242; /* Darker for readability on glass */
+            --text-secondary: #424242;
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
         
@@ -49,14 +45,14 @@
             position: relative;
             overflow-x: hidden;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px; /* Reduced body padding slightly */
+            padding: 20px;
         }
 
-        /* --- ANIMATION / BACKGROUND ELEMENTS --- */
+        /* --- BACKGROUNDS/ANIMATION --- */
         .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; transition: var(--transition); }
+        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; transition: opacity 0.3s; }
         .star.bright { width: 3px; height: 3px; opacity: 1; box-shadow: 0 0 6px white; }
         .constellation-line { position: absolute; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent); transform-origin: left center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
         [data-theme="light"] .stars { display: none; }
@@ -65,97 +61,142 @@
         .cloud { position: absolute; background: white; border-radius: 100px; opacity: 0.8; animation: float-cloud linear infinite; display: none; }
         [data-theme="light"] .cloud { display: block; }
         .cloud:before, .cloud:after { content: ''; position: absolute; background: white; border-radius: 100px; }
-        .cloud1 { width: 100px; height: 40px; top: 20%; animation-duration: 30s; animation-delay: 0s; }
+        .cloud1 { width: 100px; height: 40px; top: 20%; animation-duration: 30s; }
         .cloud1:before { width: 50px; height: 50px; top: -25px; left: 10px; }
         .cloud1:after { width: 40px; height: 40px; top: -15px; left: 50px; }
         .cloud2 { width: 140px; height: 50px; top: 60%; animation-duration: 45s; animation-delay: -10s; }
         .cloud2:before { width: 70px; height: 70px; top: -35px; left: 20px; }
         .cloud2:after { width: 60px; height: 60px; top: -25px; left: 70px; }
         @keyframes float-cloud { from { left: -150px; } to { left: 100%; } }
-        .bird-container { position: absolute; top: 20%; left: -10%; transform: scale(0) translateX(-10vw); will-change: transform; animation-name: fly-right-one; animation-timing-function: linear; animation-iteration-count: infinite; display: none; }
-        [data-theme="light"] .bird-container { display: block; }
-        .bird-container--one { animation-duration: 15s; animation-delay: 0; }
-        .bird-container--two { animation-duration: 16s; animation-delay: 1s; top: 25%; }
-        .bird { background-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/174479/bird-cells-new.svg'); background-size: auto 100%; width: 88px; height: 125px; will-change: background-position; animation-name: fly-cycle; animation-timing-function: steps(10); animation-iteration-count: infinite; animation-duration: 1s; }
-        @keyframes fly-cycle { 100% { background-position: -900px 0; } }
-        @keyframes fly-right-one { 0% { left: -10%; transform: scale(0.3) translateX(-10vw); } 100% { left: 110%; transform: scale(0.3) translateX(100vw); } }
         
-        /* --- MAIN CARD --- */
-        .container { position: relative; z-index: 1; width: 85%; max-width: 1200px; }
+        /* --- LAYOUT STRUCTURE --- */
+        .container { 
+            position: relative; 
+            z-index: 1; 
+            width: 100%; 
+            max-width: 900px; 
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Space between Header, Content and Footer */
+        }
         
-        .content-card { 
-            background: var(--surface-color); 
-            /* UPDATED: Reduced vertical padding (was 40px) */
-            padding: 25px 40px; 
-            border-radius: 24px; 
-            box-shadow: var(--shadow); 
-            text-align: center; 
-            backdrop-filter: blur(10px); 
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            transition: var(--transition); 
+        /* The Glass Card Style (Repeated for Header and Footer) */
+        .glass-panel {
+            background: var(--surface-color);
+            padding: 25px 40px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
         }
 
-        .content-card p { margin-bottom: 1.2rem; line-height: 1.6; }
-        .content-card ul, .content-card ol { margin-bottom: 1.2rem; padding-left: 2rem; text-align: left; }
-        .content-card li { margin-bottom: 0.5rem; }
-        .content-card h1, .content-card h2, .content-card h3 { margin-top: 1.5rem; margin-bottom: 0.8rem; }
-        .content-card img { max-width: 100%; height: auto; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-
-        /* --- PROFILE --- */
-        .profile-image { width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 15px; border: 4px solid var(--primary-color); overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; background-color: rgba(255,255,255,0.1); }
-        .profile-image img { width: 100%; height: 100%; margin-top: 0px; object-fit: cover; object-position: center; display: block; }
-        
+        /* --- HEADER PROFILE SECTION --- */
+        .profile-image { width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 15px; border: 4px solid var(--primary-color); overflow: hidden; display: flex; justify-content: center; align-items: center; background-color: rgba(255,255,255,0.1); }
+        .profile-image img { width: 100%; height: 100%; object-fit: cover; }
         h1 { font-size: 2rem; margin-bottom: 6px; font-weight: 700; letter-spacing: -0.5px; }
-        h2 { margin-bottom: 0.8rem; }
         .subtitle { color: var(--primary-color); font-weight: 500; font-size: 1.1rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-        .description { color: var(--text-secondary); line-height: 1.6; margin-bottom: 25px; font-weight: 300; }
+        .description { color: var(--text-secondary); line-height: 1.6; margin-bottom: 25px; font-weight: 300; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+        /* --- CONTACT BUTTONS (Flow Animation) --- */
+        .contact-info { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 10px; }
         
-        /* --- CONTACT LINKS --- */
-        .contact-info { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 10px;}
-        .contact-item { display: flex; align-items: center; color: var(--text-secondary); text-decoration: none; transition: var(--transition); padding: 8px 16px; border-radius: 50px; background: rgba(255, 255, 255, 0.05); font-weight: 500; border: 1px solid transparent; }
-        .contact-item .material-icons { font-size: 20px; }
-        .contact-item span:not(.material-icons) { margin-left: 8px; }
-
-        /* UPDATED: Contact Links Rainbow Hover Logic 
-           Using nth-child(6n + X) to cycle through the 6 logo colors 
-        */
-        .contact-item:hover { color: white; transform: translateY(-3px); }
-        .contact-item:nth-child(6n+1):hover { background: var(--logo-1); border-color: var(--logo-1); box-shadow: 0 4px 15px rgba(75, 60, 109, 0.4); }
-        .contact-item:nth-child(6n+2):hover { background: var(--logo-2); border-color: var(--logo-2); box-shadow: 0 4px 15px rgba(6, 138, 184, 0.4); }
-        .contact-item:nth-child(6n+3):hover { background: var(--logo-3); border-color: var(--logo-3); box-shadow: 0 4px 15px rgba(4, 104, 134, 0.4); }
-        .contact-item:nth-child(6n+4):hover { background: var(--logo-4); border-color: var(--logo-4); box-shadow: 0 4px 15px rgba(165, 192, 72, 0.4); }
-        .contact-item:nth-child(6n+5):hover { background: var(--logo-5); border-color: var(--logo-5); box-shadow: 0 4px 15px rgba(247, 113, 2, 0.4); }
-        .contact-item:nth-child(6n+6):hover { background: var(--logo-6); border-color: var(--logo-6); box-shadow: 0 4px 15px rgba(203, 16, 37, 0.4); }
-
-        /* --- THEME TOGGLE --- */
-        .theme-toggle { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: none; color: var(--text-primary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); z-index: 100; backdrop-filter: blur(5px); }
-        .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(15deg); }
-
-        /* --- BLOG LIST --- */
-        .blog-list { margin-top: 30px; width: 100%; }
-        .blog-row { 
+        .contact-item { 
+            position: relative; /* Essential for the ::before element */
             display: flex; 
             align-items: center; 
-            padding: 15px; /* Reduced padding slightly */
+            color: var(--text-secondary); 
+            text-decoration: none; 
+            padding: 8px 16px; 
+            border-radius: 50px; 
             background: rgba(255, 255, 255, 0.05); 
+            font-weight: 500; 
+            border: 1px solid transparent; 
+            overflow: hidden; /* Clips the sliding color */
+            transition: transform 0.2s ease, color 0.3s ease;
+            z-index: 1;
+        }
+
+        .contact-item .material-icons { font-size: 20px; position: relative; z-index: 2; }
+        .contact-item span:not(.material-icons) { margin-left: 8px; position: relative; z-index: 2; }
+
+        /* The Sliding Color Layer */
+        .contact-item::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            opacity: 1;
+            transform: scaleX(0); /* Start hidden width-wise */
+            transform-origin: right; /* Grow from right */
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 1; 
+        }
+
+        .contact-item:hover { color: white; transform: translateY(-3px); }
+        .contact-item:hover::before { transform: scaleX(1); transform-origin: right; /* Keep right origin for flow in */ }
+
+        /* Rainbow Colors for Buttons (Applying to ::before) */
+        .contact-item:nth-child(6n+1)::before { background: var(--logo-1); }
+        .contact-item:nth-child(6n+2)::before { background: var(--logo-2); }
+        .contact-item:nth-child(6n+3)::before { background: var(--logo-3); }
+        .contact-item:nth-child(6n+4)::before { background: var(--logo-4); }
+        .contact-item:nth-child(6n+5)::before { background: var(--logo-5); }
+        .contact-item:nth-child(6n+6)::before { background: var(--logo-6); }
+
+        /* --- THEME TOGGLE --- */
+        .theme-toggle { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: none; color: var(--text-primary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); transition: 0.3s; z-index: 100; }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(15deg); }
+
+        /* --- BLOG LIST (NO CARD WRAPPER) --- */
+        .blog-list { width: 100%; }
+        
+        .blog-row { 
+            position: relative;
+            display: flex; 
+            align-items: center; 
+            padding: 15px; 
+            /* Semi-transparent background for readability */
+            background: var(--surface-color); 
+            backdrop-filter: blur(5px);
             border-radius: 16px; 
-            margin-bottom: 15px; 
+            margin-bottom: 20px; 
             text-decoration: none; 
             color: var(--text-primary); 
-            transition: var(--transition); 
             border: 1px solid rgba(255, 255, 255, 0.05); 
-            overflow: hidden; 
-            position: relative; /* Needed for positioning elements */
+            overflow: hidden; /* Handle the flow animation */
+            transition: transform 0.3s ease;
+            z-index: 1;
         }
-        [data-theme="light"] .blog-row { background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255,255,255,0.8); }
+
+        /* The Sliding Color Layer for Blogs */
+        .blog-row::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            transform: scaleX(0);
+            transform-origin: right center;
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: -1; /* Behind text */
+        }
+
+        .blog-row:hover { transform: translateY(-3px); border-color: transparent; }
+        .blog-row:hover::before { transform: scaleX(1); }
+        .blog-row:hover .blog-title, .blog-row:hover .blog-date { color: white; }
+
+        /* Rainbow Colors for Blog Rows */
+        .blog-row:nth-child(6n+1)::before { background: var(--logo-1); }
+        .blog-row:nth-child(6n+2)::before { background: var(--logo-2); }
+        .blog-row:nth-child(6n+3)::before { background: var(--logo-3); }
+        .blog-row:nth-child(6n+4)::before { background: var(--logo-4); }
+        .blog-row:nth-child(6n+5)::before { background: var(--logo-5); }
+        .blog-row:nth-child(6n+6)::before { background: var(--logo-6); }
         
-        .blog-thumb { width: 110px; height: 110px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; margin-right: 30px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* Thumbnails & Text */
+        .blog-thumb { width: 110px; height: 110px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; margin-right: 30px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 2; position: relative; }
+        .blog-details { margin-left: 10px; display: flex; flex-direction: column; text-align: left; flex-grow: 1; position: relative; justify-content: center; min-height: 80px; z-index: 2; }
         
-        /* UPDATED: Details area is now relative to handle absolute positioning of date */
-        .blog-details { margin-left: 10px; display: flex; flex-direction: column; text-align: left; flex-grow: 1; position: relative; justify-content: center; min-height: 80px; }
-        
-        /* UPDATED: Date moved to the right using absolute positioning */
         .blog-date { 
             font-size: 0.85rem; 
             color: var(--primary-color); 
@@ -167,49 +208,22 @@
             text-transform: uppercase;
             transition: color 0.3s ease;
         }
+        .blog-title { font-size: 1.4rem; font-weight: 500; margin: 0; padding-right: 90px; transition: color 0.3s ease; }
 
-        .blog-title { 
-            font-size: 1.4rem; 
-            font-weight: 500; 
-            margin: 0; 
-            /* Add right padding so long titles don't hit the date */
-            padding-right: 90px; 
-            transition: color 0.3s ease;
+        /* --- FOOTER --- */
+        .site-footer {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: auto;
         }
 
-        /* UPDATED: Blog Row Rainbow Hover Logic */
-        .blog-row:hover { transform: translateY(-3px); border-color: transparent; }
-        /* Make text white on hover for contrast */
-        .blog-row:hover .blog-title, 
-        .blog-row:hover .blog-date, 
-        .blog-row:hover { color: white; }
-        
-        /* Cycle colors */
-        .blog-row:nth-child(6n+1):hover { background: var(--logo-1); }
-        .blog-row:nth-child(6n+2):hover { background: var(--logo-2); }
-        .blog-row:nth-child(6n+3):hover { background: var(--logo-3); }
-        .blog-row:nth-child(6n+4):hover { background: var(--logo-4); }
-        .blog-row:nth-child(6n+5):hover { background: var(--logo-5); }
-        .blog-row:nth-child(6n+6):hover { background: var(--logo-6); }
-        
-        /* Hover override specifically for light mode to ensure we see the colors */
-        [data-theme="light"] .blog-row:hover { background: inherit; /* Reset first to allow specificity */ }
-        [data-theme="light"] .blog-row:nth-child(6n+1):hover { background: var(--logo-1); }
-        [data-theme="light"] .blog-row:nth-child(6n+2):hover { background: var(--logo-2); }
-        [data-theme="light"] .blog-row:nth-child(6n+3):hover { background: var(--logo-3); }
-        [data-theme="light"] .blog-row:nth-child(6n+4):hover { background: var(--logo-4); }
-        [data-theme="light"] .blog-row:nth-child(6n+5):hover { background: var(--logo-5); }
-        [data-theme="light"] .blog-row:nth-child(6n+6):hover { background: var(--logo-6); }
-
-
         @media (max-width: 600px) { 
-            .container { width: 95%; } 
-            .content-card { padding: 25px 20px; }
+            .container { padding: 0 10px; }
+            .glass-panel { padding: 25px 20px; }
             .blog-row { flex-direction: column; align-items: center; text-align: center; } 
             .blog-thumb { width: 100%; height: auto; margin-right: 0; margin-bottom: 20px; } 
             .blog-details { margin-left: 0; width: 100%; align-items: center; } 
             .blog-title { font-size: 1.2rem; padding-right: 0; margin-bottom: 5px; } 
-            /* On mobile, stack the date normally */
             .blog-date { position: static; margin-bottom: 5px; }
         }
     </style>
@@ -219,24 +233,59 @@
     <button class="theme-toggle" id="themeToggle">
         <span class="material-icons">light_mode</span>
     </button>
+    
+    <!-- Background Elements -->
     <div class="stars" id="stars"></div>
     <div class="sky-background"></div>
     <div class="cloud cloud1"></div>
     <div class="cloud cloud2"></div>
-    <div class="bird-container bird-container--one">
-        <div class="bird"></div>
-    </div>
-    <div class="bird-container bird-container--two">
-        <div class="bird"></div>
-    </div>
 
     <div class="container">
-        <div class="content-card" id="content-card">
+        
+        <!-- CARD 1: Header / Profile "Island" -->
+        <header class="glass-panel">
+            <div class="profile-image">
+                <!-- Replace with your actual image path -->
+                <img src="{{ site.baseurl }}/logo.png" alt="Profile">
+            </div>
+            <h1>Your Name or Blog Title</h1>
+            <div class="subtitle">Sailing Kiruna</div>
+            <p class="description">
+                Welcome to my journey. This is a short description about what this blog is about. 
+                Edit this text in default.html.
+            </p>
+            
+            <div class="contact-info">
+                <!-- Links with color flow hover -->
+                <a href="#" class="contact-item">
+                    <span class="material-icons">code</span>
+                    <span>GitHub</span>
+                </a>
+                <a href="mailto:example@email.com" class="contact-item">
+                    <span class="material-icons">email</span>
+                    <span>Email</span>
+                </a>
+                <a href="#" class="contact-item">
+                    <span class="material-icons">camera_alt</span>
+                    <span>Instagram</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- AREA 2: Main Content (The Blog List) - No Wrapping Card -->
+        <main>
             {{ content }}
-        </div>
+        </main>
+
+        <!-- CARD 3: Footer "Island" -->
+        <footer class="glass-panel site-footer">
+            <p>&copy; 2023 Sailing Kiruna. All rights reserved.</p>
+        </footer>
+
     </div>
 
     <script>
+        // JS remains largely the same, logic to generate stars and toggle theme
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
         const themeIcon = themeToggle.querySelector('.material-icons');
@@ -244,22 +293,16 @@
         function applyTheme(theme) {
             body.setAttribute('data-theme', theme);
             themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
-            
-            if (theme === 'dark') { 
-                generateStars(); 
-            } else {
-                const starsContainer = document.getElementById('stars');
-                if (starsContainer) starsContainer.innerHTML = '';
-            }
+            if (theme === 'dark') { generateStars(); } 
+            else { const starsContainer = document.getElementById('stars'); if (starsContainer) starsContainer.innerHTML = ''; }
         }
 
         function initTheme() {
             const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                applyTheme(savedTheme);
-            } else {
+            if (savedTheme) { applyTheme(savedTheme); } 
+            else { 
                 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                applyTheme(prefersDark ? 'dark' : 'light');
+                applyTheme(prefersDark ? 'dark' : 'light'); 
             }
         }
 
@@ -276,42 +319,32 @@
             const starsContainer = document.getElementById('stars');
             if (!starsContainer) return;
             starsContainer.innerHTML = '';
-            
             if(body.getAttribute('data-theme') !== 'dark') return;
 
             const numStars = 150;
             const stars = [];
             for (let i = 0; i < numStars; i++) {
-                // Ensure star isn't generated within the scrollbar area to prevent horizontal scroll
                 const x = Math.random() * (window.innerWidth - 10); 
                 const y = Math.random() * (window.innerHeight - 10);
-                
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = x + 'px';
                 star.style.top = y + 'px';
-                
                 if (Math.random() > 0.8) star.classList.add('bright');
-                
                 stars.push({ element: star, x, y });
                 starsContainer.appendChild(star);
             }
-            
-            let mouseX = 0;
-            let mouseY = 0;
-            
-            // Clean up previous listener to prevent duplication if function runs twice
+            // Mouse connection logic
+            let mouseX = 0, mouseY = 0;
             const existingHandler = window.mouseMoveHandler;
             if(existingHandler) document.removeEventListener('mousemove', existingHandler);
-
+            
             window.mouseMoveHandler = (e) => {
                 if (body.getAttribute('data-theme') !== 'dark') {
                     document.querySelectorAll('.constellation-line').forEach(line => line.remove());
                     return;
                 }
-                
-                mouseX = e.clientX;
-                mouseY = e.clientY;
+                mouseX = e.clientX; mouseY = e.clientY;
                 document.querySelectorAll('.constellation-line').forEach(line => line.remove());
                 stars.forEach(star => {
                     const distance = Math.sqrt(Math.pow(mouseX - star.x, 2) + Math.pow(mouseY - star.y, 2));
@@ -319,10 +352,9 @@
                         const line = document.createElement('div');
                         line.className = 'constellation-line';
                         const angle = Math.atan2(mouseY - star.y, mouseX - star.x) * 180 / Math.PI;
-                        const length = distance;
                         line.style.left = star.x + 'px';
                         line.style.top = star.y + 'px';
-                        line.style.width = length + 'px';
+                        line.style.width = distance + 'px';
                         line.style.transform = `rotate(${angle}deg)`;
                         line.style.opacity = (1 - distance / 150) * 0.6;
                         starsContainer.appendChild(line);
