@@ -181,9 +181,25 @@
             z-index: -1; /* Behind text */
         }
 
-        .blog-row:hover { transform: translateY(-3px); border-color: transparent; }
-        .blog-row:hover::before { transform: scaleX(1); }
-        .blog-row:hover .blog-title, .blog-row:hover .blog-date { color: white; }
+        .blog-row:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+            border-color: rgba(255, 255, 255, 0.4);
+
+            /* Full card gradient using logo colors */
+            background-image: linear-gradient(
+                135deg,
+                var(--logo-1),
+                var(--logo-2),
+                var(--logo-3),
+                var(--logo-4),
+                var(--logo-5),
+                var(--logo-6)
+            );
+            background-size: 200% 200%;
+            animation: blogGradient 6s ease infinite;
+            color: #ffffff;
+        }
 
         /* Rainbow Colors for Blog Rows */
         .blog-row:nth-child(6n+1)::before { background: var(--logo-1); }
