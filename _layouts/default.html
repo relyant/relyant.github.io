@@ -9,15 +9,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        /* PASTE YOUR EXISTING CSS HERE (From your message) */
-        
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
         --primary-color: #2196F3;
         --primary-dark: #1976D2;
         --secondary-color: #FF9800;
         --background-color: #121212;
-        --surface-color: #1E1E1E;
+        /* UPDATED: Made surface semi-transparent for dark mode */
+        --surface-color: rgba(30, 30, 30, 0.7); 
         --text-primary: #FFFFFF;
         --text-secondary: #B3B3B3;
         --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -34,11 +33,13 @@
 
         [data-theme="light"] {
             --background-color: #87CEEB;
-            --surface-color: rgba(255, 255, 255, 0.9);
+            /* UPDATED: Made surface semi-transparent for light mode */
+            --surface-color: rgba(255, 255, 255, 0.6);
             --text-primary: #212121;
-            --text-secondary: #757575;
+            --text-secondary: #424242; /* Darker for readability on glass */
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
+        
         body {
             font-family: 'Roboto', sans-serif;
             background: var(--background-color);
@@ -50,9 +51,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
+            padding: 20px; /* Reduced body padding slightly */
         }
-        /* ... INCLUDE THE REST OF YOUR ANIMATION/STARS CSS HERE ... */
+
+        /* --- ANIMATION / BACKGROUND ELEMENTS --- */
         .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
         .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; transition: var(--transition); }
         .star.bright { width: 3px; height: 3px; opacity: 1; box-shadow: 0 0 6px white; }
@@ -78,36 +80,138 @@
         @keyframes fly-cycle { 100% { background-position: -900px 0; } }
         @keyframes fly-right-one { 0% { left: -10%; transform: scale(0.3) translateX(-10vw); } 100% { left: 110%; transform: scale(0.3) translateX(100vw); } }
         
-        .content-card p { margin-bottom: 1.5rem; line-height: 1.6; }
-        .content-card ul, .content-card ol { margin-bottom: 1.5rem; padding-left: 2rem; text-align: left; }
+        /* --- MAIN CARD --- */
+        .container { position: relative; z-index: 1; width: 85%; max-width: 1200px; }
+        
+        .content-card { 
+            background: var(--surface-color); 
+            /* UPDATED: Reduced vertical padding (was 40px) */
+            padding: 25px 40px; 
+            border-radius: 24px; 
+            box-shadow: var(--shadow); 
+            text-align: center; 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            transition: var(--transition); 
+        }
+
+        .content-card p { margin-bottom: 1.2rem; line-height: 1.6; }
+        .content-card ul, .content-card ol { margin-bottom: 1.2rem; padding-left: 2rem; text-align: left; }
         .content-card li { margin-bottom: 0.5rem; }
-        .content-card h1, .content-card h2, .content-card h3 { margin-top: 2rem; margin-bottom: 1rem; }
-        .container { position: relative; z-index: 1; width: 80%; max-width: 1200px; }
-        .content-card { background: var(--surface-color); padding: 40px; border-radius: 24px; box-shadow: var(--shadow); text-align: center; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); transition: var(--transition); }
-        .profile-image { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 20px; border: 4px solid var(--primary-color); overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; background-color: var(--surface-color); }
+        .content-card h1, .content-card h2, .content-card h3 { margin-top: 1.5rem; margin-bottom: 0.8rem; }
+        .content-card img { max-width: 100%; height: auto; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+        /* --- PROFILE --- */
+        .profile-image { width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 15px; border: 4px solid var(--primary-color); overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; background-color: rgba(255,255,255,0.1); }
         .profile-image img { width: 100%; height: 100%; margin-top: 0px; object-fit: cover; object-position: center; display: block; }
-        h1 { font-size: 2rem; margin-bottom: 8px; font-weight: 700; letter-spacing: -0.5px; }
-        h2 { margin-bottom: 1rem; }
-        .subtitle { color: var(--primary-color); font-weight: 500; font-size: 1.1rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
-        .description { color: var(--text-secondary); line-height: 1.6; margin-bottom: 30px; font-weight: 300; }
-        .contact-info { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
-        .contact-item { display: flex; align-items: center; color: var(--text-secondary); text-decoration: none; transition: var(--transition); padding: 8px 16px; border-radius: 50px; background: rgba(255, 255, 255, 0.05); font-weight: 500; }
-        .contact-item:hover { color: var(--primary-color); background: rgba(33, 150, 243, 0.1); transform: translateY(-2px); }
+        
+        h1 { font-size: 2rem; margin-bottom: 6px; font-weight: 700; letter-spacing: -0.5px; }
+        h2 { margin-bottom: 0.8rem; }
+        .subtitle { color: var(--primary-color); font-weight: 500; font-size: 1.1rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .description { color: var(--text-secondary); line-height: 1.6; margin-bottom: 25px; font-weight: 300; }
+        
+        /* --- CONTACT LINKS --- */
+        .contact-info { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 10px;}
+        .contact-item { display: flex; align-items: center; color: var(--text-secondary); text-decoration: none; transition: var(--transition); padding: 8px 16px; border-radius: 50px; background: rgba(255, 255, 255, 0.05); font-weight: 500; border: 1px solid transparent; }
         .contact-item .material-icons { font-size: 20px; }
         .contact-item span:not(.material-icons) { margin-left: 8px; }
+
+        /* UPDATED: Contact Links Rainbow Hover Logic 
+           Using nth-child(6n + X) to cycle through the 6 logo colors 
+        */
+        .contact-item:hover { color: white; transform: translateY(-3px); }
+        .contact-item:nth-child(6n+1):hover { background: var(--logo-1); border-color: var(--logo-1); box-shadow: 0 4px 15px rgba(75, 60, 109, 0.4); }
+        .contact-item:nth-child(6n+2):hover { background: var(--logo-2); border-color: var(--logo-2); box-shadow: 0 4px 15px rgba(6, 138, 184, 0.4); }
+        .contact-item:nth-child(6n+3):hover { background: var(--logo-3); border-color: var(--logo-3); box-shadow: 0 4px 15px rgba(4, 104, 134, 0.4); }
+        .contact-item:nth-child(6n+4):hover { background: var(--logo-4); border-color: var(--logo-4); box-shadow: 0 4px 15px rgba(165, 192, 72, 0.4); }
+        .contact-item:nth-child(6n+5):hover { background: var(--logo-5); border-color: var(--logo-5); box-shadow: 0 4px 15px rgba(247, 113, 2, 0.4); }
+        .contact-item:nth-child(6n+6):hover { background: var(--logo-6); border-color: var(--logo-6); box-shadow: 0 4px 15px rgba(203, 16, 37, 0.4); }
+
+        /* --- THEME TOGGLE --- */
         .theme-toggle { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: none; color: var(--text-primary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); z-index: 100; backdrop-filter: blur(5px); }
         .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(15deg); }
-        .blog-list { margin-top: 40px; width: 100%; }
-        .blog-row { display: flex; align-items: center; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 16px; margin-bottom: 15px; text-decoration: none; color: var(--text-primary); transition: var(--transition); border: 1px solid rgba(255, 255, 255, 0.05); overflow: hidden; position: relative; }
+
+        /* --- BLOG LIST --- */
+        .blog-list { margin-top: 30px; width: 100%; }
+        .blog-row { 
+            display: flex; 
+            align-items: center; 
+            padding: 15px; /* Reduced padding slightly */
+            background: rgba(255, 255, 255, 0.05); 
+            border-radius: 16px; 
+            margin-bottom: 15px; 
+            text-decoration: none; 
+            color: var(--text-primary); 
+            transition: var(--transition); 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            overflow: hidden; 
+            position: relative; /* Needed for positioning elements */
+        }
         [data-theme="light"] .blog-row { background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255,255,255,0.8); }
-        .blog-row:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-3px); border-color: var(--primary-color); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        [data-theme="light"] .blog-row:hover { background: rgba(255, 255, 255, 0.9); }
-        .blog-thumb { width: 120px; height: 120px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; margin-right: 40px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .blog-details { margin-left: 20px; display: flex; flex-direction: column; text-align: left; flex-grow: 1; }
-        .blog-date { font-size: 0.85rem; color: var(--primary-color); margin-bottom: 6px; text-transform: uppercase; font-weight: 500; letter-spacing: 0.5px; }
-        .blog-title { font-size: 1.4rem; font-weight: 500; margin: 0; }
-        .content-card img { max-width: 100%; height: auto; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        @media (max-width: 600px) { .container { width: 95%; } .blog-row { flex-direction: column; align-items: center; } .blog-thumb { width: 100%; height: auto; margin-right: 0; margin-bottom: 20px; } .blog-details { margin-left: 0; width: 100%; } .blog-title { font-size: 1.2rem; } }
+        
+        .blog-thumb { width: 110px; height: 110px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; margin-right: 30px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* UPDATED: Details area is now relative to handle absolute positioning of date */
+        .blog-details { margin-left: 10px; display: flex; flex-direction: column; text-align: left; flex-grow: 1; position: relative; justify-content: center; min-height: 80px; }
+        
+        /* UPDATED: Date moved to the right using absolute positioning */
+        .blog-date { 
+            font-size: 0.85rem; 
+            color: var(--primary-color); 
+            font-weight: 500; 
+            letter-spacing: 0.5px;
+            position: absolute;
+            top: 2px;
+            right: 0px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        .blog-title { 
+            font-size: 1.4rem; 
+            font-weight: 500; 
+            margin: 0; 
+            /* Add right padding so long titles don't hit the date */
+            padding-right: 90px; 
+            transition: color 0.3s ease;
+        }
+
+        /* UPDATED: Blog Row Rainbow Hover Logic */
+        .blog-row:hover { transform: translateY(-3px); border-color: transparent; }
+        /* Make text white on hover for contrast */
+        .blog-row:hover .blog-title, 
+        .blog-row:hover .blog-date, 
+        .blog-row:hover { color: white; }
+        
+        /* Cycle colors */
+        .blog-row:nth-child(6n+1):hover { background: var(--logo-1); }
+        .blog-row:nth-child(6n+2):hover { background: var(--logo-2); }
+        .blog-row:nth-child(6n+3):hover { background: var(--logo-3); }
+        .blog-row:nth-child(6n+4):hover { background: var(--logo-4); }
+        .blog-row:nth-child(6n+5):hover { background: var(--logo-5); }
+        .blog-row:nth-child(6n+6):hover { background: var(--logo-6); }
+        
+        /* Hover override specifically for light mode to ensure we see the colors */
+        [data-theme="light"] .blog-row:hover { background: inherit; /* Reset first to allow specificity */ }
+        [data-theme="light"] .blog-row:nth-child(6n+1):hover { background: var(--logo-1); }
+        [data-theme="light"] .blog-row:nth-child(6n+2):hover { background: var(--logo-2); }
+        [data-theme="light"] .blog-row:nth-child(6n+3):hover { background: var(--logo-3); }
+        [data-theme="light"] .blog-row:nth-child(6n+4):hover { background: var(--logo-4); }
+        [data-theme="light"] .blog-row:nth-child(6n+5):hover { background: var(--logo-5); }
+        [data-theme="light"] .blog-row:nth-child(6n+6):hover { background: var(--logo-6); }
+
+
+        @media (max-width: 600px) { 
+            .container { width: 95%; } 
+            .content-card { padding: 25px 20px; }
+            .blog-row { flex-direction: column; align-items: center; text-align: center; } 
+            .blog-thumb { width: 100%; height: auto; margin-right: 0; margin-bottom: 20px; } 
+            .blog-details { margin-left: 0; width: 100%; align-items: center; } 
+            .blog-title { font-size: 1.2rem; padding-right: 0; margin-bottom: 5px; } 
+            /* On mobile, stack the date normally */
+            .blog-date { position: static; margin-bottom: 5px; }
+        }
     </style>
 </head>
 <body>
@@ -137,46 +241,35 @@
         const body = document.body;
         const themeIcon = themeToggle.querySelector('.material-icons');
         
-        // Function to apply specific theme
         function applyTheme(theme) {
             body.setAttribute('data-theme', theme);
             themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
             
-            // Only generate stars if dark mode
             if (theme === 'dark') { 
                 generateStars(); 
             } else {
-                // Optional: Clear stars if switching to light to save resources
                 const starsContainer = document.getElementById('stars');
                 if (starsContainer) starsContainer.innerHTML = '';
             }
         }
 
-        // 1. Check Local Storage (user manual override)
-        // 2. Check Browser/OS System Settings
-        // 3. Default to Dark
         function initTheme() {
             const savedTheme = localStorage.getItem('theme');
-            
             if (savedTheme) {
                 applyTheme(savedTheme);
             } else {
-                // Check system preference
                 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 applyTheme(prefersDark ? 'dark' : 'light');
             }
         }
 
-        // Event Listener for the button
         themeToggle.addEventListener('click', () => {
             const currentTheme = body.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
             applyTheme(newTheme);
-            localStorage.setItem('theme', newTheme); // Save choice
+            localStorage.setItem('theme', newTheme);
         });
 
-        // Initialize on load
         initTheme();
 
         function generateStars() {
@@ -184,26 +277,34 @@
             if (!starsContainer) return;
             starsContainer.innerHTML = '';
             
-            // Safety check: don't run heavy logic if theme changed mid-execution
             if(body.getAttribute('data-theme') !== 'dark') return;
 
             const numStars = 150;
             const stars = [];
             for (let i = 0; i < numStars; i++) {
+                // Ensure star isn't generated within the scrollbar area to prevent horizontal scroll
+                const x = Math.random() * (window.innerWidth - 10); 
+                const y = Math.random() * (window.innerHeight - 10);
+                
                 const star = document.createElement('div');
                 star.className = 'star';
-                const x = Math.random() * window.innerWidth;
-                const y = Math.random() * window.innerHeight;
                 star.style.left = x + 'px';
                 star.style.top = y + 'px';
+                
                 if (Math.random() > 0.8) star.classList.add('bright');
+                
                 stars.push({ element: star, x, y });
                 starsContainer.appendChild(star);
             }
+            
             let mouseX = 0;
             let mouseY = 0;
-            document.addEventListener('mousemove', (e) => {
-                // IMPORTANT: Stop constellation logic if theme switched to light
+            
+            // Clean up previous listener to prevent duplication if function runs twice
+            const existingHandler = window.mouseMoveHandler;
+            if(existingHandler) document.removeEventListener('mousemove', existingHandler);
+
+            window.mouseMoveHandler = (e) => {
                 if (body.getAttribute('data-theme') !== 'dark') {
                     document.querySelectorAll('.constellation-line').forEach(line => line.remove());
                     return;
@@ -227,7 +328,8 @@
                         starsContainer.appendChild(line);
                     }
                 });
-            });
+            };
+            document.addEventListener('mousemove', window.mouseMoveHandler);
         }
 
         window.addEventListener('resize', () => {
