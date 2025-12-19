@@ -10,8 +10,6 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         /* PASTE YOUR EXISTING CSS HERE (From your message) */
-        /* I am abbreviating it here for the sake of length, 
-           but paste the FULL CSS block you provided in your prompt. */
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -103,7 +101,7 @@
         @media (max-width: 600px) { .container { width: 95%; } .blog-row { flex-direction: column; align-items: center; } .blog-thumb { width: 100%; height: auto; margin-right: 0; margin-bottom: 20px; } .blog-details { margin-left: 0; width: 100%; } .blog-title { font-size: 1.2rem; } }
     </style>
 </head>
-<body data-theme="dark">
+<body>
 
     <button class="theme-toggle" id="themeToggle">
         <span class="material-icons">light_mode</span>
@@ -129,17 +127,57 @@
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
         const themeIcon = themeToggle.querySelector('.material-icons');
+        
+        // Function to apply specific theme
+        function applyTheme(theme) {
+            body.setAttribute('data-theme', theme);
+            themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+            
+            // Only generate stars if dark mode
+            if (theme === 'dark') { 
+                generateStars(); 
+            } else {
+                // Optional: Clear stars if switching to light to save resources
+                const starsContainer = document.getElementById('stars');
+                if (starsContainer) starsContainer.innerHTML = '';
+            }
+        }
+
+        // 1. Check Local Storage (user manual override)
+        // 2. Check Browser/OS System Settings
+        // 3. Default to Dark
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else {
+                // Check system preference
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                applyTheme(prefersDark ? 'dark' : 'light');
+            }
+        }
+
+        // Event Listener for the button
         themeToggle.addEventListener('click', () => {
             const currentTheme = body.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            body.setAttribute('data-theme', newTheme);
-            themeIcon.textContent = newTheme === 'dark' ? 'light_mode' : 'dark_mode';
-            if (newTheme === 'dark') { generateStars(); }
+            
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme); // Save choice
         });
+
+        // Initialize on load
+        initTheme();
+
         function generateStars() {
             const starsContainer = document.getElementById('stars');
             if (!starsContainer) return;
             starsContainer.innerHTML = '';
+            
+            // Safety check: don't run heavy logic if theme changed mid-execution
+            if(body.getAttribute('data-theme') !== 'dark') return;
+
             const numStars = 150;
             const stars = [];
             for (let i = 0; i < numStars; i++) {
@@ -156,7 +194,12 @@
             let mouseX = 0;
             let mouseY = 0;
             document.addEventListener('mousemove', (e) => {
-                if (body.getAttribute('data-theme') !== 'dark') return;
+                // IMPORTANT: Stop constellation logic if theme switched to light
+                if (body.getAttribute('data-theme') !== 'dark') {
+                    document.querySelectorAll('.constellation-line').forEach(line => line.remove());
+                    return;
+                }
+                
                 mouseX = e.clientX;
                 mouseY = e.clientY;
                 document.querySelectorAll('.constellation-line').forEach(line => line.remove());
@@ -177,7 +220,7 @@
                 });
             });
         }
-        generateStars();
+
         window.addEventListener('resize', () => {
             if (body.getAttribute('data-theme') === 'dark') { generateStars(); }
         });
