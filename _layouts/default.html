@@ -4,25 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: "Sailing Kiruna" }}</title>
+    <!-- Use site.baseurl to fix broken image links on subpages -->
     <link rel="icon" type="image/png" href="{{ site.baseurl }}/logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* PASTE YOUR EXISTING CSS HERE (From your message) */
         
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary-color: #2196F3;
-            --primary-dark: #1976D2;
-            --secondary-color: #FF9800;
-            --background-color: #121212;
-            --surface-color: #1E1E1E;
-            --text-primary: #FFFFFF;
-            --text-secondary: #B3B3B3;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        --primary-color: #2196F3;
+        --primary-dark: #1976D2;
+        --secondary-color: #FF9800;
+        --background-color: #121212;
+        --surface-color: #1E1E1E;
+        --text-primary: #FFFFFF;
+        --text-secondary: #B3B3B3;
+        --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        /* Logo color palette */
+        --logo-1: #4b3c6d;
+        --logo-2: #068ab8;
+        --logo-3: #046886;
+        --logo-4: #a5c048;
+        --logo-5: #f77102;
+        --logo-6: #cb1025;
         }
 
-        /* Light Mode Variables */
         [data-theme="light"] {
             --background-color: #87CEEB;
             --surface-color: rgba(255, 255, 255, 0.9);
@@ -30,7 +39,6 @@
             --text-secondary: #757575;
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
-
         body {
             font-family: 'Roboto', sans-serif;
             background: var(--background-color);
@@ -44,166 +52,139 @@
             justify-content: center;
             padding: 40px 20px;
         }
-
-        /* --- COLORFUL HOVER EFFECTS --- */
-        /* Takes generic List Items (li) or elements with class 'post-entry' */
-        ul li, .post-entry {
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            transition: transform 0.2s, box-shadow 0.2s, border-left-color 0.2s;
-            border-left: 5px solid transparent; /* Hidden border by default */
-            list-style: none;
-        }
-
-        /* 1. Purple */
-        ul li:nth-child(6n+1):hover, .post-entry:nth-child(6n+1):hover { 
-            border-left-color: #4b3c6d; 
-            box-shadow: 0 4px 15px -5px #4b3c6d;
-            background: rgba(75, 60, 109, 0.1); 
-            transform: translateX(8px);
-        }
-
-        /* 2. Light Blue */
-        ul li:nth-child(6n+2):hover, .post-entry:nth-child(6n+2):hover { 
-            border-left-color: #068ab8; 
-            box-shadow: 0 4px 15px -5px #068ab8; 
-            background: rgba(6, 138, 184, 0.1);
-            transform: translateX(8px);
-        }
-
-        /* 3. Dark Blue */
-        ul li:nth-child(6n+3):hover, .post-entry:nth-child(6n+3):hover { 
-            border-left-color: #046886; 
-            box-shadow: 0 4px 15px -5px #046886; 
-            background: rgba(4, 104, 134, 0.1);
-            transform: translateX(8px);
-        }
-
-        /* 4. Green */
-        ul li:nth-child(6n+4):hover, .post-entry:nth-child(6n+4):hover { 
-            border-left-color: #a5c048; 
-            box-shadow: 0 4px 15px -5px #a5c048; 
-            background: rgba(165, 192, 72, 0.1);
-            transform: translateX(8px);
-        }
-
-        /* 5. Orange */
-        ul li:nth-child(6n+5):hover, .post-entry:nth-child(6n+5):hover { 
-            border-left-color: #f77102; 
-            box-shadow: 0 4px 15px -5px #f77102; 
-            background: rgba(247, 113, 2, 0.1);
-            transform: translateX(8px);
-        }
-
-        /* 6. Red */
-        ul li:nth-child(6n+6):hover, .post-entry:nth-child(6n+6):hover { 
-            border-left-color: #cb1025; 
-            box-shadow: 0 4px 15px -5px #cb1025; 
-            background: rgba(203, 16, 37, 0.1);
-            transform: translateX(8px);
-        }
-
-        /* Star Animation / Theme Styles */
+        /* ... INCLUDE THE REST OF YOUR ANIMATION/STARS CSS HERE ... */
         .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
         .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; transition: var(--transition); }
-        .star.bright { width: 3px; height: 3px; box-shadow: 0 0 4px white; opacity: 1; }
-        .constellation-line { position: absolute; height: 1px; background: rgba(255, 255, 255, 0.2); transform-origin: 0 0; pointer-events: none; }
+        .star.bright { width: 3px; height: 3px; opacity: 1; box-shadow: 0 0 6px white; }
+        .constellation-line { position: absolute; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent); transform-origin: left center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+        [data-theme="light"] .stars { display: none; }
+        .sky-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 100%); z-index: -2; display: none; }
+        [data-theme="light"] .sky-background { display: block; }
+        .cloud { position: absolute; background: white; border-radius: 100px; opacity: 0.8; animation: float-cloud linear infinite; display: none; }
+        [data-theme="light"] .cloud { display: block; }
+        .cloud:before, .cloud:after { content: ''; position: absolute; background: white; border-radius: 100px; }
+        .cloud1 { width: 100px; height: 40px; top: 20%; animation-duration: 30s; animation-delay: 0s; }
+        .cloud1:before { width: 50px; height: 50px; top: -25px; left: 10px; }
+        .cloud1:after { width: 40px; height: 40px; top: -15px; left: 50px; }
+        .cloud2 { width: 140px; height: 50px; top: 60%; animation-duration: 45s; animation-delay: -10s; }
+        .cloud2:before { width: 70px; height: 70px; top: -35px; left: 20px; }
+        .cloud2:after { width: 60px; height: 60px; top: -25px; left: 70px; }
+        @keyframes float-cloud { from { left: -150px; } to { left: 100%; } }
+        .bird-container { position: absolute; top: 20%; left: -10%; transform: scale(0) translateX(-10vw); will-change: transform; animation-name: fly-right-one; animation-timing-function: linear; animation-iteration-count: infinite; display: none; }
+        [data-theme="light"] .bird-container { display: block; }
+        .bird-container--one { animation-duration: 15s; animation-delay: 0; }
+        .bird-container--two { animation-duration: 16s; animation-delay: 1s; top: 25%; }
+        .bird { background-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/174479/bird-cells-new.svg'); background-size: auto 100%; width: 88px; height: 125px; will-change: background-position; animation-name: fly-cycle; animation-timing-function: steps(10); animation-iteration-count: infinite; animation-duration: 1s; }
+        @keyframes fly-cycle { 100% { background-position: -900px 0; } }
+        @keyframes fly-right-one { 0% { left: -10%; transform: scale(0.3) translateX(-10vw); } 100% { left: 110%; transform: scale(0.3) translateX(100vw); } }
         
-        .container {
-            width: 100%;
-            max-width: 800px;
-            background: var(--surface-color);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            z-index: 1;
-            position: relative;
-        }
-        
-        /* Toggle Button */
-        .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-        .theme-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--primary-color);
-        }
-
-        /* Make links inherit color so they don't clash with hover */
-        a { text-decoration: none; color: inherit; display: block; }
+        .content-card p { margin-bottom: 1.5rem; line-height: 1.6; }
+        .content-card ul, .content-card ol { margin-bottom: 1.5rem; padding-left: 2rem; text-align: left; }
+        .content-card li { margin-bottom: 0.5rem; }
+        .content-card h1, .content-card h2, .content-card h3 { margin-top: 2rem; margin-bottom: 1rem; }
+        .container { position: relative; z-index: 1; width: 80%; max-width: 1200px; }
+        .content-card { background: var(--surface-color); padding: 40px; border-radius: 24px; box-shadow: var(--shadow); text-align: center; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); transition: var(--transition); }
+        .profile-image { width: 120px; height: 120px; border-radius: 50%; margin: 0 auto 20px; border: 4px solid var(--primary-color); overflow: hidden; position: relative; display: flex; justify-content: center; align-items: center; background-color: var(--surface-color); }
+        .profile-image img { width: 100%; height: 100%; margin-top: 0px; object-fit: cover; object-position: center; display: block; }
+        h1 { font-size: 2rem; margin-bottom: 8px; font-weight: 700; letter-spacing: -0.5px; }
+        h2 { margin-bottom: 1rem; }
+        .subtitle { color: var(--primary-color); font-weight: 500; font-size: 1.1rem; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .description { color: var(--text-secondary); line-height: 1.6; margin-bottom: 30px; font-weight: 300; }
+        .contact-info { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .contact-item { display: flex; align-items: center; color: var(--text-secondary); text-decoration: none; transition: var(--transition); padding: 8px 16px; border-radius: 50px; background: rgba(255, 255, 255, 0.05); font-weight: 500; }
+        .contact-item:hover { color: var(--primary-color); background: rgba(33, 150, 243, 0.1); transform: translateY(-2px); }
+        .contact-item .material-icons { font-size: 20px; }
+        .contact-item span:not(.material-icons) { margin-left: 8px; }
+        .theme-toggle { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: none; color: var(--text-primary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); z-index: 100; backdrop-filter: blur(5px); }
+        .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(15deg); }
+        .blog-list { margin-top: 40px; width: 100%; }
+        .blog-row { display: flex; align-items: center; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 16px; margin-bottom: 15px; text-decoration: none; color: var(--text-primary); transition: var(--transition); border: 1px solid rgba(255, 255, 255, 0.05); overflow: hidden; position: relative; }
+        [data-theme="light"] .blog-row { background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(255,255,255,0.8); }
+        .blog-row:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-3px); border-color: var(--primary-color); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        [data-theme="light"] .blog-row:hover { background: rgba(255, 255, 255, 0.9); }
+        .blog-thumb { width: 120px; height: 120px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; margin-right: 40px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .blog-details { margin-left: 20px; display: flex; flex-direction: column; text-align: left; flex-grow: 1; }
+        .blog-date { font-size: 0.85rem; color: var(--primary-color); margin-bottom: 6px; text-transform: uppercase; font-weight: 500; letter-spacing: 0.5px; }
+        .blog-title { font-size: 1.4rem; font-weight: 500; margin: 0; }
+        .content-card img { max-width: 100%; height: auto; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        @media (max-width: 600px) { .container { width: 95%; } .blog-row { flex-direction: column; align-items: center; } .blog-thumb { width: 100%; height: auto; margin-right: 0; margin-bottom: 20px; } .blog-details { margin-left: 0; width: 100%; } .blog-title { font-size: 1.2rem; } }
     </style>
 </head>
-<body id="body">
-    <div id="stars" class="stars"></div>
-    
+<body>
+
+    <button class="theme-toggle" id="themeToggle">
+        <span class="material-icons">light_mode</span>
+    </button>
+    <div class="stars" id="stars"></div>
+    <div class="sky-background"></div>
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
+    <div class="bird-container bird-container--one">
+        <div class="bird"></div>
+    </div>
+    <div class="bird-container bird-container--two">
+        <div class="bird"></div>
+    </div>
+
     <div class="container">
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-            <span class="material-icons" id="themeIcon">dark_mode</span>
-        </button>
-        
-        {{ content }}
+        <div class="content-card" id="content-card">
+            {{ content }}
+        </div>
     </div>
 
     <script>
         const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const body = document.getElementById('body');
-        const starsContainer = document.getElementById('stars');
-
-        // 1. Check Local Storage first
-        const savedTheme = localStorage.getItem('theme');
+        const body = document.body;
+        const themeIcon = themeToggle.querySelector('.material-icons');
         
-        // 2. Check System Preference second
-        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        // 3. Determine initial theme
-        let currentTheme;
-        if (savedTheme) {
-            currentTheme = savedTheme;
-        } else {
-            currentTheme = systemPrefersDark ? 'dark' : 'light';
-        }
-
-        // Apply theme on load
-        applyTheme(currentTheme);
-
+        // Function to apply specific theme
         function applyTheme(theme) {
             body.setAttribute('data-theme', theme);
             themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
             
-            // Handle stars
-            if (theme === 'dark') {
-                generateStars();
+            // Only generate stars if dark mode
+            if (theme === 'dark') { 
+                generateStars(); 
             } else {
-                if (starsContainer) starsContainer.innerHTML = ''; // clear stars in light mode
+                // Optional: Clear stars if switching to light to save resources
+                const starsContainer = document.getElementById('stars');
+                if (starsContainer) starsContainer.innerHTML = '';
             }
         }
 
-        // Toggle Event Listener
+        // 1. Check Local Storage (user manual override)
+        // 2. Check Browser/OS System Settings
+        // 3. Default to Dark
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else {
+                // Check system preference
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                applyTheme(prefersDark ? 'dark' : 'light');
+            }
+        }
+
+        // Event Listener for the button
         themeToggle.addEventListener('click', () => {
-            const isDark = body.getAttribute('data-theme') === 'dark';
-            const newTheme = isDark ? 'light' : 'dark';
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             
             applyTheme(newTheme);
-            localStorage.setItem('theme', newTheme);
+            localStorage.setItem('theme', newTheme); // Save choice
         });
 
-        // Star Logic
+        // Initialize on load
+        initTheme();
+
         function generateStars() {
+            const starsContainer = document.getElementById('stars');
             if (!starsContainer) return;
             starsContainer.innerHTML = '';
             
-            // Safety check
+            // Safety check: don't run heavy logic if theme changed mid-execution
             if(body.getAttribute('data-theme') !== 'dark') return;
 
             const numStars = 150;
@@ -219,13 +200,10 @@
                 stars.push({ element: star, x, y });
                 starsContainer.appendChild(star);
             }
-            
             let mouseX = 0;
             let mouseY = 0;
-            
-            // Clean up old listener if exists to prevent duplicates (optional optimization)
-            // For simplicity, we add the listener but perform checks inside
             document.addEventListener('mousemove', (e) => {
+                // IMPORTANT: Stop constellation logic if theme switched to light
                 if (body.getAttribute('data-theme') !== 'dark') {
                     document.querySelectorAll('.constellation-line').forEach(line => line.remove());
                     return;
