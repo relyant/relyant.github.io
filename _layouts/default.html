@@ -112,12 +112,6 @@
 
         .post-container p { margin-bottom: 20px; }
 
-        /* Double Image Fix attempt: If the post layout renders a featured image, 
-           and the first element in content is also that image, try to hide it. */
-        .post-featured-image + .post-container img:first-child {
-            display: none;
-        }
-
         /* --- HEADER PROFILE SECTION --- */
         .profile-image { width: 110px; height: 110px; border-radius: 50%; margin: 0 auto 15px; border: 4px solid var(--primary-color); overflow: hidden; display: flex; justify-content: center; align-items: center; background-color: rgba(255,255,255,0.1); }
         .profile-image img { width: 100%; height: 100%; object-fit: cover; }
@@ -270,7 +264,7 @@
         -->
 
         <!-- CARD: Main Content (Wrapped in glass-panel to fix broken view) -->
-        <main class="glass-panel post-container">
+        <main>
             {{ content }}
         </main>
 
