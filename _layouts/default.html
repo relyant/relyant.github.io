@@ -4,44 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: "Sailing Kiruna" }}</title>
-
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ site.baseurl }}/logo.png">
-
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root {
             --primary-color: #2196F3;
             --primary-dark: #1976D2;
             --secondary-color: #FF9800;
-
-            /* Dark theme defaults */
             --background-color: #121212;
             --surface-color: #1E1E1E;
             --text-primary: #FFFFFF;
             --text-secondary: #B3B3B3;
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-            /* Logo colors */
-            --logo-1: #4b3c6d;
-            --logo-2: #068ab8;
-            --logo-3: #046886;
-            --logo-4: #a5c048;
-            --logo-5: #f77102;
-            --logo-6: #cb1025;
         }
 
-        /* Light theme overrides */
+        /* Light Mode Variables */
         [data-theme="light"] {
             --background-color: #87CEEB;
             --surface-color: rgba(255, 255, 255, 0.9);
@@ -56,496 +37,224 @@
             color: var(--text-primary);
             transition: var(--transition);
             min-height: 100vh;
+            position: relative;
             overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Layout container */
-        .app {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 40px 20px 60px;
-            position: relative;
-            z-index: 1; /* above stars */
-        }
-
-        header.site-header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
+            justify-content: center;
+            padding: 40px 20px;
         }
 
-        .site-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        /* --- COLORFUL HOVER EFFECTS --- */
+        /* Takes generic List Items (li) or elements with class 'post-entry' */
+        ul li, .post-entry {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            transition: transform 0.2s, box-shadow 0.2s, border-left-color 0.2s;
+            border-left: 5px solid transparent; /* Hidden border by default */
+            list-style: none;
         }
 
-        .site-title img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            box-shadow: var(--shadow);
+        /* 1. Purple */
+        ul li:nth-child(6n+1):hover, .post-entry:nth-child(6n+1):hover { 
+            border-left-color: #4b3c6d; 
+            box-shadow: 0 4px 15px -5px #4b3c6d;
+            background: rgba(75, 60, 109, 0.1); 
+            transform: translateX(8px);
         }
 
-        .site-title-text {
-            font-size: 1.4rem;
-            font-weight: 600;
+        /* 2. Light Blue */
+        ul li:nth-child(6n+2):hover, .post-entry:nth-child(6n+2):hover { 
+            border-left-color: #068ab8; 
+            box-shadow: 0 4px 15px -5px #068ab8; 
+            background: rgba(6, 138, 184, 0.1);
+            transform: translateX(8px);
         }
 
-        .site-subtitle {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+        /* 3. Dark Blue */
+        ul li:nth-child(6n+3):hover, .post-entry:nth-child(6n+3):hover { 
+            border-left-color: #046886; 
+            box-shadow: 0 4px 15px -5px #046886; 
+            background: rgba(4, 104, 134, 0.1);
+            transform: translateX(8px);
         }
 
-        /* Theme toggle button */
-        .theme-toggle {
-            border: none;
+        /* 4. Green */
+        ul li:nth-child(6n+4):hover, .post-entry:nth-child(6n+4):hover { 
+            border-left-color: #a5c048; 
+            box-shadow: 0 4px 15px -5px #a5c048; 
+            background: rgba(165, 192, 72, 0.1);
+            transform: translateX(8px);
+        }
+
+        /* 5. Orange */
+        ul li:nth-child(6n+5):hover, .post-entry:nth-child(6n+5):hover { 
+            border-left-color: #f77102; 
+            box-shadow: 0 4px 15px -5px #f77102; 
+            background: rgba(247, 113, 2, 0.1);
+            transform: translateX(8px);
+        }
+
+        /* 6. Red */
+        ul li:nth-child(6n+6):hover, .post-entry:nth-child(6n+6):hover { 
+            border-left-color: #cb1025; 
+            box-shadow: 0 4px 15px -5px #cb1025; 
+            background: rgba(203, 16, 37, 0.1);
+            transform: translateX(8px);
+        }
+
+        /* Star Animation / Theme Styles */
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; transition: var(--transition); }
+        .star.bright { width: 3px; height: 3px; box-shadow: 0 0 4px white; opacity: 1; }
+        .constellation-line { position: absolute; height: 1px; background: rgba(255, 255, 255, 0.2); transform-origin: 0 0; pointer-events: none; }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
             background: var(--surface-color);
-            color: var(--text-primary);
-            border-radius: 999px;
-            padding: 8px 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
+            padding: 40px;
+            border-radius: 20px;
             box-shadow: var(--shadow);
+            z-index: 1;
+            position: relative;
+        }
+        
+        /* Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
             transition: var(--transition);
         }
-
         .theme-toggle:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
         }
 
-        .theme-toggle .material-icons {
-            font-size: 20px;
-        }
-
-        main {
-            display: grid;
-            gap: 24px;
-        }
-
-        .intro {
-            background: var(--surface-color);
-            border-radius: 20px;
-            padding: 24px 20px;
-            box-shadow: var(--shadow);
-        }
-
-        .intro h1 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-        }
-
-        .intro p {
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .blog-section-title {
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .blog-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        /* Journal entry card */
-        .blog-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            padding: 16px 18px;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            text-decoration: none;
-            color: var(--text-primary);
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease, color 0.25s ease;
-        }
-
-        [data-theme="light"] .blog-row {
-            background: rgba(255, 255, 255, 0.8);
-            border-color: rgba(0, 0, 0, 0.05);
-        }
-
-        .blog-row-main {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .blog-title {
-            font-size: 1.05rem;
-            font-weight: 500;
-            margin-bottom: 6px;
-        }
-
-        .blog-excerpt {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            line-height: 1.4;
-        }
-
-        .blog-meta {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            white-space: nowrap;
-        }
-
-        .blog-tag {
-            padding: 2px 8px;
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 0.7rem;
-        }
-
-        [data-theme="light"] .blog-tag {
-            border-color: rgba(0, 0, 0, 0.08);
-        }
-
-        /* Gradient hover effect for whole card */
-        @keyframes blogGradient {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-
-        .blog-row:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-            border-color: rgba(255, 255, 255, 0.4);
-
-            /* Full card gradient using logo colors */
-            background-image: linear-gradient(
-                135deg,
-                var(--logo-1),
-                var(--logo-2),
-                var(--logo-3),
-                var(--logo-4),
-                var(--logo-5),
-                var(--logo-6)
-            );
-            background-size: 200% 200%;
-            animation: blogGradient 6s ease infinite;
-            color: #ffffff;
-        }
-
-        [data-theme="light"] .blog-row:hover {
-            border-color: rgba(255, 255, 255, 0.9);
-            color: #ffffff;
-        }
-
-        .blog-row:hover .blog-excerpt,
-        .blog-row:hover .blog-meta {
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .blog-row:hover .blog-tag {
-            border-color: rgba(255, 255, 255, 0.7);
-        }
-
-        footer.site-footer {
-            margin-top: 30px;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            text-align: center;
-        }
-
-        /* Stars / night sky */
-        .stars {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .star {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.8;
-            transition: opacity 0.3s ease;
-        }
-
-        .star.bright {
-            width: 3px;
-            height: 3px;
-            opacity: 1;
-        }
-
-        .constellation-line {
-            position: absolute;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.5);
-            transform-origin: 0 50%;
-            pointer-events: none;
-        }
-
-        /* Responsive */
-        @media (max-width: 640px) {
-            header.site-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-
-            .blog-row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .blog-meta {
-                align-items: flex-start;
-            }
-        }
+        /* Make links inherit color so they don't clash with hover */
+        a { text-decoration: none; color: inherit; display: block; }
     </style>
 </head>
-<body>
-    <!-- Dark mode stars (only used in dark theme) -->
+<body id="body">
     <div id="stars" class="stars"></div>
-
-    <div class="app">
-        <header class="site-header">
-            <div class="site-title">
-                <img src="{{ site.baseurl }}/logo.png" alt="Sailing Kiruna logo">
-                <div>
-                    <div class="site-title-text">Sailing Kiruna</div>
-                    <div class="site-subtitle">Journal from a tiny ship under big skies</div>
-                </div>
-            </div>
-
-            <button id="theme-toggle" class="theme-toggle" type="button">
-                <span id="theme-icon" class="material-icons">dark_mode</span>
-                <span class="theme-label">Theme</span>
-            </button>
-        </header>
-
-        <main>
-            <section class="intro">
-                {% if page.title and page.title != "Sailing Kiruna" %}
-                    <h1>{{ page.title }}</h1>
-                {% else %}
-                    <h1>Logbook</h1>
-                {% endif %}
-
-                {% if page.excerpt %}
-                    <p>{{ page.excerpt | strip_html }}</p>
-                {% elsif site.description %}
-                    <p>{{ site.description }}</p>
-                {% endif %}
-            </section>
-
-            {% if page.layout == "post" %}
-                <!-- Single post content -->
-                <section>
-                    {{ content }}
-                </section>
-            {% else %}
-                <!-- Index / journal list -->
-                <section>
-                    <div class="blog-section-title">Recent journal entries</div>
-                    <div class="blog-list">
-                        {% for post in site.posts %}
-                            <a class="blog-row" href="{{ post.url | relative_url }}">
-                                <div class="blog-row-main">
-                                    <div class="blog-title">{{ post.title }}</div>
-                                    <div class="blog-excerpt">
-                                        {% if post.excerpt %}
-                                            {{ post.excerpt | strip_html | truncate: 140 }}
-                                        {% else %}
-                                            {{ post.content | strip_html | truncate: 140 }}
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                <div class="blog-meta">
-                                    <span class="blog-date">
-                                        {{ post.date | date: "%B %-d, %Y" }}
-                                    </span>
-                                    {% if post.tags and post.tags.size > 0 %}
-                                        <span class="blog-tag">{{ post.tags[0] }}</span>
-                                    {% endif %}
-                                </div>
-                            </a>
-                        {% endfor %}
-                    </div>
-                </section>
-            {% endif %}
-        </main>
-
-        <footer class="site-footer">
-            &copy; {{ site.time | date: "%Y" }} Sailing Kiruna. All rights reserved.
-        </footer>
+    
+    <div class="container">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+            <span class="material-icons" id="themeIcon">dark_mode</span>
+        </button>
+        
+        {{ content }}
     </div>
 
     <script>
-        const body = document.body;
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const body = document.getElementById('body');
         const starsContainer = document.getElementById('stars');
 
-        let stars = [];
+        // 1. Check Local Storage first
+        const savedTheme = localStorage.getItem('theme');
+        
+        // 2. Check System Preference second
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        // 3. Determine initial theme
+        let currentTheme;
+        if (savedTheme) {
+            currentTheme = savedTheme;
+        } else {
+            currentTheme = systemPrefersDark ? 'dark' : 'light';
+        }
 
+        // Apply theme on load
+        applyTheme(currentTheme);
+
+        function applyTheme(theme) {
+            body.setAttribute('data-theme', theme);
+            themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+            
+            // Handle stars
+            if (theme === 'dark') {
+                generateStars();
+            } else {
+                if (starsContainer) starsContainer.innerHTML = ''; // clear stars in light mode
+            }
+        }
+
+        // Toggle Event Listener
+        themeToggle.addEventListener('click', () => {
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            const newTheme = isDark ? 'light' : 'dark';
+            
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // Star Logic
         function generateStars() {
             if (!starsContainer) return;
             starsContainer.innerHTML = '';
-            stars = [];
+            
+            // Safety check
+            if(body.getAttribute('data-theme') !== 'dark') return;
 
             const numStars = 150;
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-
+            const stars = [];
             for (let i = 0; i < numStars; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                const x = Math.random() * width;
-                const y = Math.random() * height;
-
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
                 star.style.left = x + 'px';
                 star.style.top = y + 'px';
-
-                if (Math.random() > 0.8) {
-                    star.classList.add('bright');
-                }
-
+                if (Math.random() > 0.8) star.classList.add('bright');
                 stars.push({ element: star, x, y });
                 starsContainer.appendChild(star);
             }
-        }
-
-        let mouseX = 0;
-        let mouseY = 0;
-
-        document.addEventListener('mousemove', (e) => {
-            if (body.getAttribute('data-theme') !== 'dark') {
+            
+            let mouseX = 0;
+            let mouseY = 0;
+            
+            // Clean up old listener if exists to prevent duplicates (optional optimization)
+            // For simplicity, we add the listener but perform checks inside
+            document.addEventListener('mousemove', (e) => {
+                if (body.getAttribute('data-theme') !== 'dark') {
+                    document.querySelectorAll('.constellation-line').forEach(line => line.remove());
+                    return;
+                }
+                
+                mouseX = e.clientX;
+                mouseY = e.clientY;
                 document.querySelectorAll('.constellation-line').forEach(line => line.remove());
-                return;
-            }
-
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-
-            document.querySelectorAll('.constellation-line').forEach(line => line.remove());
-
-            const maxDistance = 150;
-
-            stars.forEach(star => {
-                const dx = mouseX - star.x;
-                const dy = mouseY - star.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < maxDistance) {
-                    const line = document.createElement('div');
-                    line.className = 'constellation-line';
-
-                    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-                    const length = distance;
-
-                    line.style.left = star.x + 'px';
-                    line.style.top = star.y + 'px';
-                    line.style.width = length + 'px';
-                    line.style.transform = 'rotate(' + angle + 'deg)';
-                    line.style.opacity = (1 - distance / maxDistance) * 0.6;
-
-                    starsContainer.appendChild(line);
-                }
-            });
-        });
-
-        window.addEventListener('resize', () => {
-            if (body.getAttribute('data-theme') === 'dark') {
-                generateStars();
-            }
-        });
-
-        function applyTheme(theme, save = true) {
-            body.setAttribute('data-theme', theme);
-
-            if (theme === 'dark') {
-                themeIcon.textContent = 'light_mode';
-                starsContainer.style.display = 'block';
-                generateStars();
-            } else {
-                themeIcon.textContent = 'dark_mode';
-                starsContainer.style.display = 'none';
-                starsContainer.innerHTML = '';
-            }
-
-            if (save) {
-                try {
-                    localStorage.setItem('theme', theme);
-                } catch (e) {
-                    // ignore if storage not available
-                }
-            }
-        }
-
-        function initTheme() {
-            let theme = null;
-
-            try {
-                theme = localStorage.getItem('theme');
-            } catch (e) {
-                theme = null;
-            }
-
-            if (theme !== 'light' && theme !== 'dark') {
-                const prefersDark = window.matchMedia &&
-                    window.matchMedia('(prefers-color-scheme: dark)').matches;
-                theme = prefersDark ? 'dark' : 'light';
-            }
-
-            applyTheme(theme, false);
-
-            // React to system changes if user hasn't overridden
-            if (window.matchMedia) {
-                const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-                mediaQuery.addEventListener('change', (event) => {
-                    let stored = null;
-                    try {
-                        stored = localStorage.getItem('theme');
-                    } catch (e) {
-                        stored = null;
-                    }
-
-                    // Only follow system if user has not chosen manually
-                    if (stored !== 'light' && stored !== 'dark') {
-                        applyTheme(event.matches ? 'dark' : 'light', false);
+                stars.forEach(star => {
+                    const distance = Math.sqrt(Math.pow(mouseX - star.x, 2) + Math.pow(mouseY - star.y, 2));
+                    if (distance < 150) {
+                        const line = document.createElement('div');
+                        line.className = 'constellation-line';
+                        const angle = Math.atan2(mouseY - star.y, mouseX - star.x) * 180 / Math.PI;
+                        const length = distance;
+                        line.style.left = star.x + 'px';
+                        line.style.top = star.y + 'px';
+                        line.style.width = length + 'px';
+                        line.style.transform = `rotate(${angle}deg)`;
+                        line.style.opacity = (1 - distance / 150) * 0.6;
+                        starsContainer.appendChild(line);
                     }
                 });
-            }
+            });
         }
 
-        themeToggle.addEventListener('click', () => {
-            const current = body.getAttribute('data-theme') || 'dark';
-            const next = current === 'dark' ? 'light' : 'dark';
-            applyTheme(next, true);
+        window.addEventListener('resize', () => {
+            if (body.getAttribute('data-theme') === 'dark') { generateStars(); }
         });
-
-        initTheme();
     </script>
 </body>
 </html>
