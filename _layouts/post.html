@@ -1,36 +1,32 @@
 ---
 layout: default
 ---
-
 <!-- 
-  We wrap the whole post in 'glass-panel' to give it the card background.
-  We add 'post-container' (defined in the CSS) to ensure text aligns left.
+    The 'glass-panel' class here makes the box visible/glassy.
+    The 'post-container' class handles left alignment and image sizing.
 -->
 <article class="glass-panel post-container">
-    
+
     <!-- Back button -->
     <div style="margin-bottom: 25px;">
-        <a href="{{ site.baseurl }}/" style="color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; font-weight: 500; transition: transform 0.2s;">
+        <a href="{{ site.baseurl }}/" style="color: var(--primary-color); text-decoration: none; display: inline-flex; align-items: center; font-weight: 500;">
             <span class="material-icons" style="font-size: 1.2rem; margin-right: 5px;">arrow_back</span> 
             Back to posts
         </a>
     </div>
 
-    <!-- Post Title -->
-    <h1 style="margin-bottom: 10px; font-size: 2rem; line-height: 1.2;">{{ page.title }}</h1>
-    
-    <!-- Date -->
-    <p style="color: var(--text-secondary); margin-bottom: 30px; font-size: 0.9rem; letter-spacing: 0.5px; text-transform: uppercase;">
-        {{ page.date | date_to_string }}
+    <!-- Title and Date -->
+    <h1 style="text-align: left; margin-bottom: 15px;">{{ page.title }}</h1>
+    <p style="color: var(--text-secondary); margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 20px;">
+        <span class="material-icons" style="font-size: 14px; vertical-align: middle;">calendar_today</span> 
+        &nbsp;{{ page.date | date_to_string }}
     </p>
 
     <!-- 
-       IMAGE REMOVED HERE: 
-       I deleted the {% if page.image %} block. 
-       Now images will only show up if you wrote them in your markdown content.
+       I removed the {{ page.image }} tag entirely.
+       Now the only images shown are the ones currently inside {{ content }}
     -->
 
-    <!-- Main Content -->
     <div class="description">
         {{ content }}
     </div>
