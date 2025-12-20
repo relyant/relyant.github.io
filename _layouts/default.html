@@ -12,7 +12,6 @@
         :root {
             --primary-color: #2196F3;
             --background-color: #0f0f0f;
-            /* Surface color must be visible (0.6 opacity) for the box to show up */
             --surface-color: rgba(30, 30, 30, 0.6); 
             --text-primary: #FFFFFF;
             --text-secondary: #B3B3B3;
@@ -47,11 +46,25 @@
         }
 
         /* --- BACKGROUNDS --- */
-        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        /* Container for static dots */
+        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        /* Container for dynamic lines */
+        .lines-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        
         .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; transition: opacity 0.3s; }
         .star.bright { width: 3px; height: 3px; opacity: 1; box-shadow: 0 0 6px white; }
-        .constellation-line { position: absolute; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent); transform-origin: left center; opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
-        [data-theme="light"] .stars { display: none; }
+        
+        .constellation-line { 
+            position: absolute; 
+            height: 1px; 
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent); 
+            transform-origin: left center; 
+            pointer-events: none; 
+        }
+
+        [data-theme="light"] .stars-container, 
+        [data-theme="light"] .lines-container { display: none; }
+        
         .sky-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 100%); z-index: -2; display: none; }
         [data-theme="light"] .sky-background { display: block; }
         .cloud { position: absolute; background: white; border-radius: 100px; opacity: 0.8; animation: float-cloud linear infinite; display: none; }
@@ -76,14 +89,12 @@
             gap: 20px; 
         }
         
-        /* THE GLASS BOX STYLE */
-        /* I changed background back to var(--surface-color) so it is visible */
         .glass-panel {
             background: var(--surface-color); 
             padding: 30px 40px;
             border-radius: 24px;
             transition: var(--transition);
-            backdrop-filter: blur(10px); /* Makes the glass effect nice */
+            backdrop-filter: blur(10px); 
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
@@ -126,7 +137,6 @@
         .theme-toggle { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: none; color: var(--text-primary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); transition: 0.3s; z-index: 100; }
         .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(15deg); }
 
-        /* --- BLOG LIST & ANIMATION --- */
         @keyframes blogGradient {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -147,10 +157,9 @@
             transform: translateY(-3px);
             box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
             border-color: rgba(255, 255, 255, 0.4);
-            /* ANIMATION LOGIC */
             background-image: linear-gradient(135deg, var(--logo-1), var(--logo-2), var(--logo-3), var(--logo-4), var(--logo-5), var(--logo-6));
             background-size: 300% 300%;
-            animation: blogGradient 6s ease infinite; /* Smooth continuous movement */
+            animation: blogGradient 6s ease infinite; 
             color: #ffffff;
         }
 
@@ -175,7 +184,11 @@
 <body>
 
     <button class="theme-toggle" id="themeToggle"><span class="material-icons">light_mode</span></button>
-    <div class="stars" id="stars"></div>
+    
+    <!-- Stars Background Layers -->
+    <div class="stars-container" id="stars"></div>
+    <div class="lines-container" id="lines"></div>
+    
     <div class="sky-background"></div>
     <div class="cloud cloud1"></div>
     <div class="cloud cloud2"></div>
@@ -183,7 +196,6 @@
     <div class="container">
         
         <!-- MAIN CONTENT -->
-        <!-- Important: NO 'glass-panel' class here. We add that in post.html -->
         <main>
             {{ content }}
         </main>
@@ -199,12 +211,18 @@
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
         const themeIcon = themeToggle.querySelector('.material-icons');
-        
+        let starData = []; // Store star coordinates globally
+        let mouseHandlerRef = null; // Store reference to remove listener later
+
         function applyTheme(theme) {
             body.setAttribute('data-theme', theme);
             themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
-            if (theme === 'dark') { generateStars(); } 
-            else { const starsContainer = document.getElementById('stars'); if (starsContainer) starsContainer.innerHTML = ''; }
+            
+            if (theme === 'dark') { 
+                generateStars(); 
+            } else { 
+                clearStars(); 
+            }
         }
 
         function initTheme() {
@@ -223,55 +241,98 @@
             localStorage.setItem('theme', newTheme);
         });
 
-        initTheme();
+        function clearStars() {
+            const starsContainer = document.getElementById('stars');
+            const linesContainer = document.getElementById('lines');
+            if (starsContainer) starsContainer.innerHTML = '';
+            if (linesContainer) linesContainer.innerHTML = '';
+            
+            // Remove listener if it exists
+            if (mouseHandlerRef) {
+                document.removeEventListener('mousemove', mouseHandlerRef);
+                mouseHandlerRef = null;
+            }
+        }
 
         function generateStars() {
             const starsContainer = document.getElementById('stars');
+            const linesContainer = document.getElementById('lines');
+            
+            // Clean up old stuff first
+            clearStars();
+            
             if (!starsContainer) return;
-            starsContainer.innerHTML = '';
-            if(body.getAttribute('data-theme') !== 'dark') return;
+            if (body.getAttribute('data-theme') !== 'dark') return;
 
             const numStars = 150;
-            const stars = [];
+            starData = []; // Reset data array
+
+            // 1. Generate Static Stars
             for (let i = 0; i < numStars; i++) {
-                const x = Math.random() * (window.innerWidth - 10); 
-                const y = Math.random() * (window.innerHeight - 10);
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                
                 const star = document.createElement('div');
                 star.className = 'star';
                 star.style.left = x + 'px';
                 star.style.top = y + 'px';
+                
                 if (Math.random() > 0.8) star.classList.add('bright');
-                stars.push({ element: star, x, y });
+                
+                // Add to DOM
                 starsContainer.appendChild(star);
+                
+                // Store data for math later
+                starData.push({ x, y });
             }
-            let mouseX = 0, mouseY = 0;
-            const existingHandler = window.mouseMoveHandler;
-            if(existingHandler) document.removeEventListener('mousemove', existingHandler);
-            
-            window.mouseMoveHandler = (e) => {
-               document.addEventListener('mousemove', window.mouseMoveHandler);
-                }
-                mouseX = e.clientX; mouseY = e.clientY;
-                document.querySelectorAll('.constellation-line').forEach(line => line.remove());
-                stars.forEach(star => {
-                    const distance = Math.sqrt(Math.pow(mouseX - star.x, 2) + Math.pow(mouseY - star.y, 2));
-                    if (distance < 150) {
-                        const line = document.createElement('div');
-                        line.className = 'constellation-line';
-                        const angle = Math.atan2(mouseY - star.y, mouseX - star.x) * 180 / Math.PI;
-                        line.style.left = star.x + 'px';
-                        line.style.top = star.y + 'px';
-                        line.style.width = distance + 'px';
-                        line.style.transform = `rotate(${angle}deg)`;
-                        line.style.opacity = (1 - distance / 150) * 0.6;
-                        starsContainer.appendChild(line);
-                    }
-                });
-            };
+
+            // 2. Setup Mouse Interactions (Only if Pointer is Fine/Desktop)
             if (window.matchMedia('(pointer: fine)').matches) {
-                document.addEventListener('mousemove', window.mouseMoveHandler);
+                
+                // Define the listener function
+                mouseHandlerRef = (e) => {
+                    const mouseX = e.clientX; 
+                    const mouseY = e.clientY;
+                    
+                    // Clear previous lines by wiping the container (Faster than looping DOM)
+                    linesContainer.innerHTML = '';
+
+                    // Loop through stars to detect proximity
+                    starData.forEach(star => {
+                        const distX = mouseX - star.x;
+                        const distY = mouseY - star.y;
+                        const distance = Math.sqrt(distX * distX + distY * distY);
+
+                        // Draw line if close (less than 150px)
+                        if (distance < 150) {
+                            const line = document.createElement('div');
+                            line.className = 'constellation-line';
+                            
+                            // Calculate angle for rotation
+                            const angle = Math.atan2(distY, distX) * 180 / Math.PI;
+
+                            line.style.left = star.x + 'px';
+                            line.style.top = star.y + 'px';
+                            line.style.width = distance + 'px'; // Line length is distance to mouse
+                            line.style.transform = `rotate(${angle}deg)`;
+                            
+                            // Fade out as it gets further away
+                            line.style.opacity = (1 - distance / 150) * 0.6;
+                            
+                            linesContainer.appendChild(line);
+                        }
+                    });
+                };
+
+                // Add the listener
+                document.addEventListener('mousemove', mouseHandlerRef);
+            }
         }
 
+        // Initialize
+        initTheme();
+
+        // Regenerate on resize to fix star positions
         window.addEventListener('resize', () => {
             if (body.getAttribute('data-theme') === 'dark') { generateStars(); }
         });
