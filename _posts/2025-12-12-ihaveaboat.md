@@ -2,7 +2,7 @@
 layout: post
 title: "Ich habe ein Boot"
 date: 2025-12-12
-image: "/assets/images/2025-12-12-scheme-01.webp" 
+image: "/assets/images/Sideview.png" 
 ---
 
 Kiruna habe ich zum ersten Mal im September (oder sogar vorher) im Internet gesehen und heute habe ich die letzte Zahlung ausgelöst. Es werden zwar sicher noch viele Zahlungen dazu kommen. Wie der Broker sagte: Der einzige Ort, wo ein Boot keine laufenden Kosten generiert, ist auf Überfahrt.
