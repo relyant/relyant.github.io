@@ -4,34 +4,153 @@ title: Sailing Kiruna
 ---
 
 <div class="profile-image">
-    <!-- Make sure logo.png is in your repo root -->
     <img src="{{ site.baseurl }}/logo.png" alt="Profile">
 </div>
 
 <h1>Sailing Kiruna</h1>
 <div class="subtitle">Begleite mich auf meiner Ovni 43 "Kiruna"</div>
 
+<!-- ========================= MAP WIDGET START ========================= -->
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+<style>
+    #vessel-map {
+        height: 250px; /* Adjust height as needed */
+        width: 100%;
+        border-radius: 12px;
+        margin-top: 20px;
+        z-index: 1; /* Keep it below any floating headers */
+        cursor: pointer;
+        border: 1px solid #ddd;
+    }
+    
+    .map-meta {
+        font-size: 0.85rem;
+        color: #666; /* Adjust for dark mode via CSS media query below usually, but hardcoded grey works for both */
+        margin-top: 5px;
+        margin-bottom: 30px;
+        text-align: center;
+        font-family: inherit;
+    }
+
+    /* Dark mode specific border */
+    @media (prefers-color-scheme: dark) {
+        #vessel-map { border: 1px solid #444; }
+        .map-meta { color: #aaa; }
+    }
+</style>
+
+<!-- Map Container -->
+<div id="vessel-map"></div>
+<div class="map-meta">
+    <span class="material-icons" style="font-size: 14px; vertical-align: middle;">place</span>
+    <span id="location-name">Loading location...</span>
+    &bullet; 
+    <span class="material-icons" style="font-size: 14px; vertical-align: middle;">schedule</span>
+    Updated: <span id="last-updated">...</span>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 1. Setup Data File URL
+    const dataUrl = '{{ site.baseurl }}/location.json';
+
+    // 2. Initialize Map (Start centered on 0,0, zoom 1)
+    var map = L.map('vessel-map', {
+        zoomControl: false, // Cleaner look for small widget
+        attributionControl: false,
+        dragging: false, // Prevents dragging (acts like a button)
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false
+    }).setView([0, 0], 1);
+
+    // 3. Define Tile Layers (Light vs Dark)
+    // Using CartoDB tiles which are free and look great
+    var lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+    });
+
+    var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+    });
+
+    // 4. Function to apply theme based on system settings
+    function applyTheme() {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            map.removeLayer(lightLayer);
+            map.addLayer(darkLayer);
+        } else {
+            map.removeLayer(darkLayer);
+            map.addLayer(lightLayer);
+        }
+    }
+
+    // Apply initially and listen for changes
+    applyTheme();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+
+    // 5. Fetch Data and Update Map
+    fetch(dataUrl)
+        .then(response => response.json())
+        .then(data => {
+            const lat = data.lat;
+            const lng = data.lng;
+            
+            // Update Map View
+            map.setView([lat, lng], 6); // Zoom level 6 is good for "Context"
+
+            // Add Marker
+            // Custom Boat Icon (Made using SVG for sharpness)
+            var boatIcon = L.divIcon({
+                className: 'boat-pin',
+                html: '<span class="material-icons" style="color: #e63946; font-size: 32px; text-shadow: 0 2px 5px rgba(0,0,0,0.3);">sailing</span>',
+                iconSize: [32, 32],
+                iconAnchor: [16, 28] 
+            });
+
+            L.marker([lat, lng], {icon: boatIcon}).addTo(map);
+
+            // Update Text
+            document.getElementById('location-name').innerText = data.location;
+            document.getElementById('last-updated').innerText = data.date;
+
+            // 6. Click Event -> Open External Map
+            document.getElementById('vessel-map').addEventListener('click', function() {
+                var googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+                window.open(googleMapsUrl, '_blank');
+            });
+        })
+        .catch(err => {
+            console.error('Error loading location:', err);
+            document.getElementById('location-name').innerText = "Location unavailable";
+        });
+});
+</script>
+<!-- ========================= MAP WIDGET END ========================= -->
+
+
 <!-- Blog Section -->
 <div class="blog-list">
     <h3 style="margin-bottom: 20px; margin-top: 20px; text-align: left; margin-left:10px;">Logbuch</h3>
     
-    <!-- Sort both standard posts and sidebar journal entries -->
     {% assign all_posts = site.posts | concat: site.journal | sort: 'date' | reverse %}
 
     {% for post in all_posts %}
     <a href="{{ post.url | relative_url }}" class="blog-row">
-        <!-- Display Thumbnail if available, otherwise a placeholder color -->
         {% if post.image %}
             <img src="{{ post.image }}" alt="{{ post.title }}" class="blog-thumb">
         {% else %}
-             <!-- Fallback if no image is set in YAML -->
             <div class="blog-thumb" style="background: #333; display:flex; align-items:center; justify-content:center;">
                 <span class="material-icons">sailing</span>
             </div>
         {% endif %}
 
         <div class="blog-details">
-            <!-- CHANGED page.date TO post.date BELOW -->
             <span class="blog-date">
                 {% assign m = post.date | date: "%-m" %}
                 {{ post.date | date: "%d" }}. 
