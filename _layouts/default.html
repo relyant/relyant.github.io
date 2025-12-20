@@ -270,7 +270,8 @@
                     }
                 });
             };
-            document.addEventListener('mousemove', window.mouseMoveHandler);
+            if (window.matchMedia('(pointer: fine)').matches) {
+                document.addEventListener('mousemove', window.mouseMoveHandler);
         }
 
         window.addEventListener('resize', () => {
