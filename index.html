@@ -45,10 +45,10 @@ title: Sailing Kiruna
 <div id="vessel-map"></div>
 <div class="map-meta">
     <span class="material-icons" style="font-size: 14px; vertical-align: middle;">place</span>
-    <span id="location-name">Loading location...</span>
+    <span id="location-name">Lade Standort...</span>
     &bullet; 
     <span class="material-icons" style="font-size: 14px; vertical-align: middle;">schedule</span>
-    Updated: <span id="last-updated">...</span>
+    Aktualisiert: <span id="last-updated">...</span>
 </div>
 
 <!-- Leaflet JS -->
@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", function() {
             // Custom Boat Icon (Made using SVG for sharpness)
             var boatIcon = L.divIcon({
                 className: 'boat-pin',
-                html: '<span class="material-icons" style="color: #e63946; font-size: 32px; text-shadow: 0 2px 5px rgba(0,0,0,0.3);">sailing</span>',
+                html: '<span class="material-icons" style="color: #e63946; font-size: 32px; text-shadow: 0 2px 5px rgba(0,0,0,0.3);">my_location</span>',
                 iconSize: [32, 32],
                 iconAnchor: [16, 28] 
             });
@@ -119,10 +119,12 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById('location-name').innerText = data.location;
             document.getElementById('last-updated').innerText = data.date;
 
-            // 6. Click Event -> Open External Map
+            // 6. Click Event -> Open External Map (OpenStreetMap)
             document.getElementById('vessel-map').addEventListener('click', function() {
-                var googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-                window.open(googleMapsUrl, '_blank');
+                // mlat and mlon place the red marker. #map sets the zoom and center.
+                var zoomLevel = 12; 
+                var osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=${zoomLevel}/${lat}/${lng}`;
+                window.open(osmUrl, '_blank');
             });
         })
         .catch(err => {
