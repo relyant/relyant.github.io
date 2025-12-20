@@ -249,9 +249,7 @@
             if(existingHandler) document.removeEventListener('mousemove', existingHandler);
             
             window.mouseMoveHandler = (e) => {
-                if (body.getAttribute('data-theme') !== 'dark') {
-                    document.querySelectorAll('.constellation-line').forEach(line => line.remove());
-                    return;
+               document.addEventListener('mousemove', window.mouseMoveHandler);
                 }
                 mouseX = e.clientX; mouseY = e.clientY;
                 document.querySelectorAll('.constellation-line').forEach(line => line.remove());
