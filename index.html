@@ -11,127 +11,115 @@ title: Sailing Kiruna
 <div class="subtitle">Begleite mich auf meiner Ovni 43 "Kiruna"</div>
 
 <!-- ========================= MAP WIDGET START ========================= -->
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-
-<style>
-    #vessel-map {
-        height: 250px; /* Adjust height as needed */
-        width: 100%;
-        border-radius: 12px;
-        margin-top: 20px;
-        z-index: 1; /* Keep it below any floating headers */
-        cursor: pointer;
-        border: 1px solid #ddd;
-    }
+<!-- Container styled like a blog-row to match the glass theme -->
+<div class="blog-row" style="display: block; padding: 0; overflow: hidden; height: auto;">
     
-    .map-meta {
-        font-size: 0.85rem;
-        color: #666; /* Adjust for dark mode via CSS media query below usually, but hardcoded grey works for both */
-        margin-top: 5px;
-        margin-bottom: 30px;
-        text-align: center;
-        font-family: inherit;
-    }
-
-    /* Dark mode specific border */
-    @media (prefers-color-scheme: dark) {
-        #vessel-map { border: 1px solid #444; }
-        .map-meta { color: #aaa; }
-    }
-</style>
-
-<!-- Map Container -->
-<div id="vessel-map"></div>
-<div class="map-meta">
-    <span class="material-icons" style="font-size: 14px; vertical-align: middle;">place</span>
-    <span id="location-name">Lade Standort...</span>
-    &bullet; 
-    <span class="material-icons" style="font-size: 14px; vertical-align: middle;">schedule</span>
-    Aktualisiert: <span id="last-updated">...</span>
+    <!-- Map Container -->
+    <div id="vessel-map" style="height: 300px; width: 100%; z-index: 1;"></div>
+    
+    <!-- Info Bar below map -->
+    <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="material-icons" style="font-size: 18px; color: var(--primary-color);">place</span>
+            <span id="location-name" style="font-weight: 500;">Lade Position...</span>
+        </div>
+        <div style="font-size: 0.85rem; opacity: 0.8;">
+            <span class="material-icons" style="font-size: 14px; vertical-align: middle;">schedule</span>
+            Updated: <span id="last-updated">--</span>
+        </div>
+    </div>
 </div>
 
-<!-- Leaflet JS -->
+<!-- Leaflet CSS & JS (Loaded only on homepage) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    // 1. Setup Data File URL
-    const dataUrl = '{{ site.baseurl }}/location.json';
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // --- CONFIGURATION ---
+        const TILES_LIGHT = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'; 
+        const TILES_DARK  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+        const DATA_FILE   = '{{ site.baseurl }}/location.json';
 
-    // 2. Initialize Map (Start centered on 0,0, zoom 1)
-    var map = L.map('vessel-map', {
-        zoomControl: false, // Cleaner look for small widget
-        attributionControl: false,
-        dragging: false, // Prevents dragging (acts like a button)
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-        boxZoom: false
-    }).setView([0, 0], 1);
+        // --- MAP INIT ---
+        const map = L.map('vessel-map', {
+            zoomControl: false,       
+            scrollWheelZoom: false,   
+            dragging: false,          
+            attributionControl: false 
+        }).setView([0, 0], 2);
 
-    // 3. Define Tile Layers (Light vs Dark)
-    // Using CartoDB tiles which are free and look great
-    var lightLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19
-    });
+        // Initialize Tile Layer
+        let currentTileLayer = L.tileLayer('', {
+            maxZoom: 20,
+            subdomains: 'abcd'
+        }).addTo(map);
 
-    var darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19
-    });
-
-    // 4. Function to apply theme based on system settings
-    function applyTheme() {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            map.removeLayer(lightLayer);
-            map.addLayer(darkLayer);
-        } else {
-            map.removeLayer(darkLayer);
-            map.addLayer(lightLayer);
+        // --- THEME LOGIC (SYNC WITH DEFAULT.HTML) ---
+        function setMapTheme() {
+            // Check the data-theme attribute on the BODY tag (set by default.html)
+            const currentTheme = document.body.getAttribute('data-theme');
+            // If theme is 'light', use light tiles, otherwise assume dark
+            const newUrl = (currentTheme === 'light') ? TILES_LIGHT : TILES_DARK;
+            currentTileLayer.setUrl(newUrl);
         }
-    }
 
-    // Apply initially and listen for changes
-    applyTheme();
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+        // 1. Set initial theme
+        setMapTheme();
 
-    // 5. Fetch Data and Update Map
-    fetch(dataUrl)
-        .then(response => response.json())
-        .then(data => {
-            const lat = data.lat;
-            const lng = data.lng;
-            
-            // Update Map View
-            map.setView([lat, lng], 6); // Zoom level 6 is good for "Context"
-
-            // Add Marker
-            // Custom Boat Icon (Made using SVG for sharpness)
-            var boatIcon = L.divIcon({
-                className: 'boat-pin',
-                html: '<span class="material-icons" style="color: #e63946; font-size: 32px; text-shadow: 0 2px 5px rgba(0,0,0,0.3);">my_location</span>',
-                iconSize: [32, 32],
-                iconAnchor: [16, 28] 
+        // 2. Watch for changes to the body class (MutationObserver)
+        // This detects when you click the toggle button in default.html
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === "attributes" && mutation.attributeName === "data-theme") {
+                    setMapTheme();
+                }
             });
-
-            L.marker([lat, lng], {icon: boatIcon}).addTo(map);
-
-            // Update Text
-            document.getElementById('location-name').innerText = data.location;
-            document.getElementById('last-updated').innerText = data.date;
-
-            // 6. Click Event -> Open External Map (OpenStreetMap)
-            document.getElementById('vessel-map').addEventListener('click', function() {
-                // mlat and mlon place the red marker. #map sets the zoom and center.
-                var zoomLevel = 12; 
-                var osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=${zoomLevel}/${lat}/${lng}`;
-                window.open(osmUrl, '_blank');
-            });
-        })
-        .catch(err => {
-            console.error('Error loading location:', err);
-            document.getElementById('location-name').innerText = "Location unavailable";
         });
-});
+
+        observer.observe(document.body, {
+            attributes: true // Configure it to listen to attribute changes
+        });
+
+
+        // --- FETCH DATA ---
+        fetch(DATA_FILE)
+            .then(response => {
+                if (!response.ok) throw new Error("File not found");
+                return response.json();
+            })
+            .then(data => {
+                const lat = data.lat;
+                const lng = data.lng;
+                
+                // Set View (Zoom 6 is good for "Which country am I in?")
+                map.setView([lat, lng], 6);
+
+                const boatIcon = L.divIcon({
+                    className: 'boat-pin',
+                    html: '<span class="material-icons" style="color: #FF5252; font-size: 32px; text-shadow: 0 2px 5px rgba(0,0,0,0.5);">sailing</span>',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 28] 
+                });
+
+                L.marker([lat, lng], {icon: boatIcon}).addTo(map);
+
+                document.getElementById('location-name').innerText = data.location;
+                document.getElementById('last-updated').innerText = data.date;
+
+                // --- CLICK EVENT (OSM) ---
+                document.getElementById('vessel-map').addEventListener('click', function() {
+                    const zoomLevel = 12;
+                    const osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=${zoomLevel}/${lat}/${lng}`;
+                    window.open(osmUrl, '_blank');
+                });
+            })
+            .catch(err => {
+                console.error('Error loading location:', err);
+                document.getElementById('location-name').innerText = "Vessel location unavailable";
+            });
+    });
 </script>
 <!-- ========================= MAP WIDGET END ========================= -->
 
