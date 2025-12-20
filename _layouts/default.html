@@ -195,66 +195,90 @@
 
     </div>
 
-    <script>
-        const themeToggle = document.getElementById('themeToggle');
-        const body = document.body;
-        const themeIcon = themeToggle.querySelector('.material-icons');
-        
-        function applyTheme(theme) {
-            body.setAttribute('data-theme', theme);
-            themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
-            if (theme === 'dark') { generateStars(); } 
-            else { const starsContainer = document.getElementById('stars'); if (starsContainer) starsContainer.innerHTML = ''; }
+  <script>
+    // 1. THEME TOGGLE LOGIC
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const body = document.body;
+    const icon = themeToggleBtn.querySelector('.material-icons');
+
+    // Check Local Storage or System Preference
+    const currentTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (currentTheme) {
+        body.setAttribute('data-theme', currentTheme);
+        icon.textContent = currentTheme === 'dark' ? 'light_mode' : 'dark_mode';
+    } else if (systemPrefersDark) {
+        body.setAttribute('data-theme', 'dark');
+        icon.textContent = 'light_mode';
+    }
+
+    // Toggle Click Event
+    themeToggleBtn.addEventListener('click', () => {
+        if (body.getAttribute('data-theme') === 'dark') {
+            body.setAttribute('data-theme', 'light');
+            icon.textContent = 'dark_mode';
+            localStorage.setItem('theme', 'light');
+        } else {
+            body.setAttribute('data-theme', 'dark');
+            icon.textContent = 'light_mode';
+            localStorage.setItem('theme', 'dark');
+        }
+        generateStars(); // Re-run stars when toggling
+    });
+
+    // 2. STAR GENERATION (Optimized)
+    function generateStars() {
+        const starsContainer = document.querySelector('.stars');
+        if (!starsContainer) return;
+
+        // Clear existing stars
+        starsContainer.innerHTML = '';
+
+        // If Light Mode, stop here (don't draw stars)
+        if (body.getAttribute('data-theme') !== 'dark') {
+            // Remove old listeners to save memory
+            if(window.mouseMoveHandler) {
+                document.removeEventListener('mousemove', window.mouseMoveHandler);
+            }
+            return;
         }
 
-        function initTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) { applyTheme(savedTheme); } 
-            else { 
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                applyTheme(prefersDark ? 'dark' : 'light'); 
-            }
-        }
-
-        themeToggle.addEventListener('click', () => {
-            const currentTheme = body.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            applyTheme(newTheme);
-            localStorage.setItem('theme', newTheme);
-        });
-
-        initTheme();
-
-        function generateStars() {
-            const starsContainer = document.getElementById('stars');
-            if (!starsContainer) return;
-            starsContainer.innerHTML = '';
-            if(body.getAttribute('data-theme') !== 'dark') return;
-
-            const numStars = 150;
-            const stars = [];
-            for (let i = 0; i < numStars; i++) {
-                const x = Math.random() * (window.innerWidth - 10); 
-                const y = Math.random() * (window.innerHeight - 10);
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = x + 'px';
-                star.style.top = y + 'px';
-                if (Math.random() > 0.8) star.classList.add('bright');
-                stars.push({ element: star, x, y });
-                starsContainer.appendChild(star);
-            }
-            let mouseX = 0, mouseY = 0;
-            const existingHandler = window.mouseMoveHandler;
-            if(existingHandler) document.removeEventListener('mousemove', existingHandler);
+        // DRAW STATIC STARS (Always draw these in dark mode)
+        const numStars = 150;
+        const stars = [];
+        for (let i = 0; i < numStars; i++) {
+            const x = Math.random() * window.innerWidth; 
+            const y = Math.random() * window.innerHeight;
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = x + 'px';
+            star.style.top = y + 'px';
+            if (Math.random() > 0.8) star.classList.add('bright');
             
+            // Push to array for the line connector logic
+            stars.push({ element: star, x, y });
+            starsContainer.appendChild(star);
+        }
+
+        // MOUSE CONNECTIONS (Only enable this on Desktop/Mouse devices)
+        // Optimization: Checks if device has a "fine" pointer (mouse/trackpad)
+        if (window.matchMedia('(pointer: fine)').matches) {
+            
+            // Clean up old listener
+            if(window.mouseMoveHandler) document.removeEventListener('mousemove', window.mouseMoveHandler);
+
             window.mouseMoveHandler = (e) => {
-                if (body.getAttribute('data-theme') !== 'dark') {
-                    document.querySelectorAll('.constellation-line').forEach(line => line.remove());
-                    return;
-                }
-                mouseX = e.clientX; mouseY = e.clientY;
+                // specific check to stop math if we switched to light mode instantly
+                if (body.getAttribute('data-theme') !== 'dark') return;
+
+                const mouseX = e.clientX; 
+                const mouseY = e.clientY;
+                
+                // Remove old lines
                 document.querySelectorAll('.constellation-line').forEach(line => line.remove());
+
+                // Calculate new lines
                 stars.forEach(star => {
                     const distance = Math.sqrt(Math.pow(mouseX - star.x, 2) + Math.pow(mouseY - star.y, 2));
                     if (distance < 150) {
@@ -270,13 +294,16 @@
                     }
                 });
             };
-            if (window.matchMedia('(pointer: fine)').matches) {
-                document.addEventListener('mousemove', window.mouseMoveHandler);
+            document.addEventListener('mousemove', window.mouseMoveHandler);
         }
+    }
 
-        window.addEventListener('resize', () => {
-            if (body.getAttribute('data-theme') === 'dark') { generateStars(); }
-        });
-    </script>
+    // Run on load and resize
+    generateStars();
+    window.addEventListener('resize', () => {
+        if (body.getAttribute('data-theme') === 'dark') { generateStars(); }
+    });
+</script>
+
 </body>
 </html>
