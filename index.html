@@ -124,7 +124,7 @@ title: Sailing Kiruna
 <!-- ========================= MAP WIDGET END ========================= -->
 
 
-<!-- Blog Section -->
+<!-- Fully Corrected Blog Section -->
 <div class="blog-list">
     <h3 style="margin-bottom: 20px; margin-top: 20px; text-align: left; margin-left:10px;">Logbuch</h3>
     
@@ -132,16 +132,16 @@ title: Sailing Kiruna
 
     {% for post in all_posts %}
     <a href="{{ post.url | relative_url }}" class="blog-row">
-            <a href="{{ post.url | relative_url }}" class="blog-row">
+        
+        <!-- Lazy Load Image Logic -->
         {% if post.image %}
-            <!-- ADDED loading="lazy" and decoding="async" -->
             <img src="{{ post.image }}" alt="{{ post.title }}" class="blog-thumb" loading="lazy" decoding="async">
         {% else %}
+            <!-- Fallback if no image exists -->
             <div class="blog-thumb" style="background: #333; display:flex; align-items:center; justify-content:center;">
-                <span class="material-icons">sailing</span>
+                <span class="material-icons" style="color: #fff;">sailing</span>
             </div>
         {% endif %}
-
 
         <div class="blog-details">
             <span class="blog-date">
@@ -167,8 +167,8 @@ title: Sailing Kiruna
         </div>
     </a>
     {% endfor %}
-
 </div>
+
 
 <div class="contact-info" style="margin-top: 40px;">
     <a href="mailto:kiruna@schelbert.ml" class="contact-item">
