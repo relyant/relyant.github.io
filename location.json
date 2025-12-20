@@ -1,6 +1,6 @@
 {
-  "latitude": 43.377304,
-  "longitude": -355.168467,
-  "last_updated": "2025-12-20",
-  "location_name": "Port-Saint-Louis-du-Rhône, Frankreich"
+  "lat": 43.377304,
+  "lng": -355.168467,
+  "date": "2025-12-20",
+  "location": "Port-Saint-Louis-du-Rhône, Frankreich"
 }
