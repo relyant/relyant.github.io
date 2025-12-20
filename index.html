@@ -132,13 +132,16 @@ title: Sailing Kiruna
 
     {% for post in all_posts %}
     <a href="{{ post.url | relative_url }}" class="blog-row">
+            <a href="{{ post.url | relative_url }}" class="blog-row">
         {% if post.image %}
-            <img src="{{ post.image }}" alt="{{ post.title }}" class="blog-thumb">
+            <!-- ADDED loading="lazy" and decoding="async" -->
+            <img src="{{ post.image }}" alt="{{ post.title }}" class="blog-thumb" loading="lazy" decoding="async">
         {% else %}
             <div class="blog-thumb" style="background: #333; display:flex; align-items:center; justify-content:center;">
                 <span class="material-icons">sailing</span>
             </div>
         {% endif %}
+
 
         <div class="blog-details">
             <span class="blog-date">
