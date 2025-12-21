@@ -2,30 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>{{ page.title | default: "Sailing Kiruna" }}</title>
     <link rel="icon" type="image/png" href="{{ site.baseurl }}/logo.png">
     
-    <!-- OPTIMIZATION: Preconnect for faster font delivery -->
+    <!-- OPTIMIZATION: Browser UI Integration for Firefox Mobile / Chrome -->
+    <meta name="theme-color" content="#0f0f0f" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#87CEEB" media="(prefers-color-scheme: light)">
+    
+    <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     
     <style>
-        /* OPTIMIZATION: Remove tap highlight on mobile for native feel */
+        /* RESET & VARIABLES */
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         :root {
             --primary-color: #2196F3;
             --background-color: #0f0f0f;
+            /* darker surface for better contrast without heavy blur on mobile */
+            --surface-color: rgba(30, 30, 30, 0.75); 
             --text-primary: #FFFFFF;
             --text-secondary: #B3B3B3;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.3); /* Simplified shadow for performance */
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            
-            /* Desktop Surface (Transparent) vs Mobile Surface (Solid) handled in classes below */
-            --surface-desktop: rgba(30, 30, 30, 0.6); 
 
             /* Logo color palette */
             --logo-1: #4b3c6d; --logo-2: #068ab8; --logo-3: #046886;
@@ -34,356 +37,382 @@
 
         [data-theme="light"] {
             --background-color: #87CEEB;
-            --surface-desktop: rgba(255, 255, 255, 0.65);
+            --surface-color: rgba(255, 255, 255, 0.8);
             --text-primary: #212121;
             --text-secondary: #424242;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
         
         body {
             font-family: 'Roboto', sans-serif;
             background: var(--background-color);
             color: var(--text-primary);
-            transition: var(--transition);
+            
+            /* FX MOBILE OPTIMIZATION: min-height using dvh (dynamic viewport) eliminates 
+               jumps when address bar hides/shows */
             min-height: 100vh;
+            min-height: 100dvh; 
+            
             position: relative;
-            overflow-x: hidden; /* Important for preventing horizontal scroll */
+            overflow-x: hidden;
+            
+            /* FX MOBILE OPTIMIZATION: Prevents "pull-to-refresh" glow that ruins dark themes */
+            overscroll-behavior-y: none;
+            
+            /* FX MOBILE OPTIMIZATION: Prevents Firefox text inflation algorithm */
+            -moz-text-size-adjust: none;
+            text-size-adjust: none;
+
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
+            
+            /* Firefox Scrollbar styling */
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-color) var(--background-color);
         }
 
         /* --- BACKGROUNDS --- */
-        /* OPTIMIZATION: translateZ(0) forces GPU layer creation = smoother scroll */
-        .stars-container, .lines-container { 
-            position: fixed; 
-            top: 0; left: 0; width: 100%; height: 100vh; 
-            pointer-events: none; z-index: 0; 
-            transform: translateZ(0); 
-            -webkit-transform: translateZ(0);
-            backface-visibility: hidden;
-        }
+        .stars-container, .lines-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
         
-        /* OPTIMIZATION: Mobile stars are simple squares (faster). Desktop stars are circles. */
-        .star { 
-            position: absolute; 
-            width: 2px; height: 2px; 
-            background: white; 
-            opacity: 0.8; 
-            will-change: opacity;
-        }
-
-        /* Desktop-only polish to save Mobile GPU */
-        @media (min-width: 768px) {
-            .star { border-radius: 50%; }
-            .star.bright { width: 3px; height: 3px; opacity: 1; box-shadow: 0 0 4px white; }
-        }
-        /* Mobile "bright" star (no heavy shadow) */
-        @media (max-width: 767px) {
-            .star.bright { width: 3px; height: 3px; opacity: 1; }
-        }
-
+        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; will-change: opacity; }
+        /* Reduced blur radius on bright stars for GPU performance */
+        .star.bright { width: 3px; height: 3px; opacity: 1; box-shadow: 0 0 2px white; } 
+        
         .constellation-line { 
-            position: absolute; background: white; height: 2px; transform-origin: 0 0; pointer-events: none; 
+            position: absolute; 
+            height: 1px; 
+            background: rgba(255,255,255,0.4); /* Removed gradient for flat color (faster rendering) */
+            transform-origin: left center; 
+            pointer-events: none; 
         }
 
-        /* Clouds optimization: Use transform instead of left/right */
-        .clouds-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
-        .cloud {
-            position: absolute; background: white; border-radius: 50%; opacity: 0.8;
-            filter: blur(20px);
-            animation: floatCloud 60s linear infinite;
-        }
+        [data-theme="light"] .stars-container, 
+        [data-theme="light"] .lines-container { display: none; }
         
-        @keyframes floatCloud {
-            0% { transform: translateX(-200px); }
-            100% { transform: translateX(100vw); }
-        }
-
+        .sky-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 100%); z-index: -2; display: none; }
+        [data-theme="light"] .sky-background { display: block; }
+        
+        .cloud { position: absolute; background: white; border-radius: 100px; opacity: 0.8; display: none; will-change: transform; }
+        [data-theme="light"] .cloud { display: block; }
+        .cloud:before, .cloud:after { content: ''; position: absolute; background: white; border-radius: 100px; }
+        
+        .cloud1 { width: 100px; height: 40px; top: 20%; left: -150px; animation: float-cloud-1 35s linear infinite; }
+        .cloud1:before { width: 50px; height: 50px; top: -25px; left: 10px; }
+        .cloud1:after { width: 40px; height: 40px; top: -15px; left: 50px; }
+        
+        .cloud2 { width: 140px; height: 50px; top: 60%; left: -150px; animation: float-cloud-2 50s linear infinite; animation-delay: -10s; }
+        .cloud2:before { width: 70px; height: 70px; top: -35px; left: 20px; }
+        .cloud2:after { width: 60px; height: 60px; top: -25px; left: 70px; }
+        
+        @keyframes float-cloud-1 { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 150px)); } }
+        @keyframes float-cloud-2 { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 200px)); } }
+        
         /* --- LAYOUT --- */
-        .main-container {
-            width: 100%;
-            max-width: 900px;
-            z-index: 10;
-            margin-top: 20px;
+        .container { 
+            position: relative; 
+            z-index: 1; 
+            width: 100%; 
+            max-width: 900px; 
             display: flex;
             flex-direction: column;
-            gap: 24px;
+            gap: 20px; 
         }
-
-        /* --- GLASS PANEL (The Firefox Fix) --- */
+        
         .glass-panel {
-            /* Mobile Default: Solid-ish background, NO BLUR (Key for smoothness) */
-            background: rgba(30, 30, 30, 0.95); 
+            background: var(--surface-color); 
             padding: 30px 40px;
             border-radius: 24px;
             transition: var(--transition);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: var(--shadow);
+            /* OPTIMIZATION: Reduce blur. Heavy blur causes lag on Firefox Android scrolling. */
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08); /* Slightly more opaque border for definition */
+        }
+
+        /* --- POST STYLES --- */
+        .post-container { text-align: left; line-height: 1.8; font-size: 1.05rem; }
+        .post-container img { max-width: 100%; height: auto; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .post-container h2, .post-container h3 { margin-top: 30px; margin-bottom: 15px; color: var(--primary-color); }
+        .post-container p { margin-bottom: 20px; }
+
+        /* --- HEADER PROFILE --- */
+        .profile-image { 
+            width: 110px; height: 110px; 
+            border-radius: 50%; 
+            margin: 0 auto 15px; 
+            border: 4px solid var(--primary-color); 
+            overflow: hidden; 
+            display: flex; justify-content: center; align-items: center; 
+            background-color: rgba(255,255,255,0.1); 
+            /* Fix for image bleeding on some mobile browsers */
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+        }
+        .profile-image img { width: 100%; height: 100%; object-fit: cover; }
+        h1 { font-size: 2rem; margin-bottom: 6px; font-weight: 700; letter-spacing: -0.5px; text-align: center; }
+        .subtitle { color: var(--primary-color); font-weight: 500; font-size: 1.1rem; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; text-align: center; }
+        
+        .contact-info { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+        .contact-item { 
+            position: relative; display: flex; align-items: center; color: var(--text-secondary); text-decoration: none; padding: 10px 18px; border-radius: 50px; background: rgba(255, 255, 255, 0.08); font-weight: 500; overflow: hidden; transition: transform 0.2s ease, color 0.3s ease; z-index: 1;
+            /* Remove tap highlight on Android */
+            -webkit-tap-highlight-color: transparent;
+        }
+        .contact-item .material-icons { font-size: 20px; position: relative; z-index: 2; }
+        .contact-item span:not(.material-icons) { margin-left: 8px; position: relative; z-index: 2; }
+        .contact-item::before { content: ""; position: absolute; top: 0; left: 0; bottom: 0; right: 0; opacity: 1; transform: scaleX(0); transform-origin: right; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 1; }
+        
+        .contact-item:nth-child(6n+1)::before { background: var(--logo-1); }
+        .contact-item:nth-child(6n+2)::before { background: var(--logo-2); }
+        .contact-item:nth-child(6n+3)::before { background: var(--logo-3); }
+        
+        .theme-toggle { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: none; color: var(--text-primary); width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); transition: 0.3s; z-index: 100; touch-action: manipulation; }
+
+        @keyframes blogGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .blog-list { width: 100%; }
+        
+        .blog-row { 
             position: relative;
-            overflow: hidden;
+            display: flex; align-items: center; padding: 15px; 
+            background: var(--surface-color); 
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 16px; margin-bottom: 20px; text-decoration: none; color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.05); overflow: hidden; transition: transform 0.3s ease; z-index: 1;
         }
 
-        [data-theme="light"] .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-        }
+        .blog-thumb { width: 110px; height: 110px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; margin-right: 30px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 2; position: relative; background: rgba(0,0,0,0.2); }
+        .blog-details { margin-left: 10px; display: flex; flex-direction: column; text-align: left; flex-grow: 1; position: relative; justify-content: center; min-height: 80px; z-index: 2; }
+        .blog-date { font-size: 0.85rem; color: var(--text-primary); font-weight: 500; letter-spacing: 0.5px; position: absolute; top: 0px; right: 0px; text-transform: uppercase; transition: color 0.3s ease; }
+        .blog-title { font-size: 1.4rem; font-weight: 500; margin: 0; padding-right: 90px; transition: color 0.3s ease; }
 
-        /* Desktop Only: Add Fancy Blur */
-        @media (min-width: 768px) {
-            .glass-panel {
-                background: var(--surface-desktop);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
+        .site-footer { font-size: 0.9rem; color: var(--text-secondary); margin-top: auto; text-align: center; }
+
+        /* OPTIMIZATION: Desktop Only interactions */
+        @media (hover: hover) and (pointer: fine) {
+            .contact-item:hover { color: white; transform: translateY(-3px); }
+            .contact-item:hover::before { transform: scaleX(1); transform-origin: right; }
+            .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(15deg); }
+            body::-webkit-scrollbar { width: 8px; }
+            body::-webkit-scrollbar-track { background: var(--background-color); }
+            body::-webkit-scrollbar-thumb { background-color: var(--primary-color); border-radius: 20px; }
+            
+            .blog-row:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+                border-color: rgba(255, 255, 255, 0.4);
+                background-image: linear-gradient(135deg, var(--logo-1), var(--logo-2), var(--logo-3), var(--logo-4), var(--logo-5), var(--logo-6));
+                background-size: 300% 300%;
+                animation: blogGradient 6s ease infinite; 
+                color: #ffffff;
             }
         }
 
-        /* --- HEADER --- */
-        .header-content { display: flex; justify-content: space-between; align-items: center; }
-        .logo-section h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
-        .logo-section p { font-size: 0.95rem; color: var(--text-secondary); font-weight: 400; }
-        
-        .theme-toggle {
-            background: none; border: none; cursor: pointer; color: var(--text-primary);
-            padding: 8px; border-radius: 50%; transition: var(--transition);
-            display: flex; align-items: center; justify-content: center;
-        }
-        @media(hover: hover) { .theme-toggle:hover { background: rgba(255,255,255,0.1); } }
-
-        /* --- BLOG LIST --- */
-        .post-list { display: flex; flex-direction: column; gap: 16px; list-style: none; }
-        .post-item {
-            display: flex; gap: 20px; padding: 16px; border-radius: 16px;
-            transition: var(--transition); text-decoration: none; color: inherit;
-            background: rgba(255,255,255,0.02);
-            align-items: center;
-        }
-        
-        /* Only hover effect on devices with a mouse */
-        @media (hover: hover) {
-            .post-item:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
-        }
-
-        .post-thumbnail {
-            width: 100px; height: 100px; border-radius: 12px; object-fit: cover;
-            background: rgba(128,128,128,0.2); flex-shrink: 0;
-        }
-        .post-content { flex: 1; min-width: 0; }
-        .post-meta { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-        .post-title { font-size: 1.25rem; font-weight: 500; margin-bottom: 8px; line-height: 1.3; }
-        .post-excerpt { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-        /* --- BUTTONS --- */
-        .social-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
-        .btn {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 10px 20px; border-radius: 12px; text-decoration: none;
-            font-weight: 500; font-size: 0.95rem; transition: var(--transition);
-            border: 1px solid rgba(255,255,255,0.1); color: var(--text-primary);
-            background: rgba(255,255,255,0.05);
-        }
-        /* Tap targets for mobile */
-        @media (max-width: 600px) { .btn { flex: 1; justify-content: center; padding: 12px 20px; } }
-        @media (hover: hover) { .btn:hover { background: rgba(255,255,255,0.15); transform: translateY(-2px); } }
-        
-        /* --- MOBILE TWEAKS --- */
-        @media (max-width: 600px) {
-            .main-container { gap: 16px; margin-top: 10px; width: 100%; }
-            .glass-panel { padding: 20px; }
-            .header-content { flex-direction: row; }
-            .logo-section h1 { font-size: 1.5rem; }
+        /* MOBILE OPTIMIZATIONS */
+        @media (max-width: 600px) { 
+            /* Fix jumpy transitions on mobile */
+            body { transition: background-color 0.3s ease; }
             
-            .post-item { flex-direction: column; align-items: flex-start; gap: 12px; }
-            .post-thumbnail { width: 100%; height: 160px; }
-            .post-title { font-size: 1.1rem; }
+            /* Add side padding to avoid content hitting bezel */
+            body { padding: 15px 12px; } 
+            .container { padding: 0; gap: 15px; }
+            .glass-panel { padding: 25px 20px; }
+            
+            .contact-info { gap: 10px; }
+            /* Ensure large touch targets (48px height recommended) */
+            .contact-item { flex: 1 1 40%; justify-content: center; min-height: 48px; font-size: 0.9rem; }
+            
+            .blog-row { flex-direction: column; align-items: flex-start; text-align: left; padding: 15px; } 
+            .blog-thumb { width: 100%; height: 180px; margin-right: 0; margin-bottom: 15px; border-radius: 12px; } 
+            .blog-details { margin-left: 0; width: 100%; display: block; min-height: auto; } 
+            .blog-title { font-size: 1.25rem; padding-right: 0; margin-bottom: 8px; line-height: 1.3; } 
+            .blog-date { position: relative; display: block; margin-bottom: 5px; opacity: 0.8; font-size: 0.8rem; }
+            
+            /* Disable heavy blur on very small/old devices if needed, but modern FF handles 8px okay */
         }
     </style>
 </head>
-<body data-theme="dark">
+<body>
 
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode"><span class="material-icons">light_mode</span></button>
+    
+    <!-- Stars Background Layers -->
     <div class="stars-container" id="stars"></div>
     <div class="lines-container" id="lines"></div>
-    <div class="clouds-container" id="clouds" style="display: none;"></div>
+    
+    <div class="sky-background"></div>
+    <div class="cloud cloud1"></div>
+    <div class="cloud cloud2"></div>
 
-    <div class="main-container">
-        <!-- Header -->
-        <header class="glass-panel">
-            <div class="header-content">
-                <div class="logo-section">
-                    <h1>Sailing Kiruna</h1>
-                    <p>Exploring the world, one knot at a time.</p>
-                </div>
-                <!-- OPTIMIZATION: Material Icon for lightweight toggle -->
-                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme">
-                    <span class="material-icons" id="theme-icon">light_mode</span>
-                </button>
-            </div>
-            
-            <div class="social-links" style="margin-top: 24px;">
-                <a href="#" class="btn"><span class="material-icons" style="font-size: 18px;">sailing</span> Our Boat</a>
-                <a href="#" class="btn"><span class="material-icons" style="font-size: 18px;">map</span> Route</a>
-                <a href="#" class="btn"><span class="material-icons" style="font-size: 18px;">email</span> Contact</a>
-            </div>
-        </header>
-
-        <!-- Content Injection -->
-        <div class="glass-panel">
+    <div class="container">
+        <!-- MAIN CONTENT -->
+        <main>
             {{ content }}
-        </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="glass-panel site-footer">
+            <p>&copy; 2026 Sailing Kiruna. All rights reserved.</p>
+        </footer>
     </div>
 
     <script>
+        const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
-        const starsContainer = document.getElementById('stars');
-        const linesContainer = document.getElementById('lines');
-        const cloudsContainer = document.getElementById('clouds');
-        const themeIcon = document.getElementById('theme-icon');
-        let mouseHandlerRef = null;
+        const themeIcon = themeToggle.querySelector('.material-icons');
+        let starData = []; 
+        let mouseHandlerRef = null; 
 
-        // Theme Logic
-        function toggleTheme() {
-            const current = body.getAttribute('data-theme');
-            const newTheme = current === 'dark' ? 'light' : 'dark';
-            body.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            updateThemeUI(newTheme);
+        // Update Theme Color Meta Tag for Browser UI (Android Chrome/Firefox)
+        function updateMetaThemeColor(theme) {
+            // Find specific meta tags or update generic one
+            const color = theme === 'dark' ? '#0f0f0f' : '#87CEEB';
+            // We use JS to force update the browser chrome color immediately
+            let metaTheme = document.querySelector('meta[name="theme-color"]');
+            if(!metaTheme) {
+                metaTheme = document.createElement('meta');
+                metaTheme.name = "theme-color";
+                document.head.appendChild(metaTheme);
+            }
+            metaTheme.content = color;
         }
 
-        function updateThemeUI(theme) {
-            if (theme === 'light') {
-                themeIcon.textContent = 'dark_mode';
-                starsContainer.style.display = 'none';
-                linesContainer.style.display = 'none';
-                cloudsContainer.style.display = 'block';
-                if (cloudsContainer.innerHTML === '') generateClouds();
-            } else {
-                themeIcon.textContent = 'light_mode';
-                starsContainer.style.display = 'block';
-                linesContainer.style.display = 'block';
-                cloudsContainer.style.display = 'none';
-                // Only generate stars if empty to avoid flicker
-                if (starsContainer.innerHTML === '') generateStars();
+        function applyTheme(theme) {
+            body.setAttribute('data-theme', theme);
+            themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+            
+            updateMetaThemeColor(theme);
+
+            if (theme === 'dark') { 
+                generateStars(); 
+            } else { 
+                clearStars(); 
             }
         }
 
         function initTheme() {
-            const saved = localStorage.getItem('theme') || 'dark';
-            body.setAttribute('data-theme', saved);
-            updateThemeUI(saved);
-        }
-
-        // OPTIMIZATION: Generate Clouds (Light Mode)
-        function generateClouds() {
-            cloudsContainer.innerHTML = '';
-            const frag = document.createDocumentFragment();
-            for(let i=0; i<5; i++) {
-                const cloud = document.createElement('div');
-                cloud.className = 'cloud';
-                const size = Math.random() * 100 + 100;
-                cloud.style.width = size + 'px';
-                cloud.style.height = size + 'px';
-                cloud.style.top = Math.random() * 80 + '%';
-                // Random delay for better distribution
-                cloud.style.animationDelay = (Math.random() * -60) + 's'; 
-                cloud.style.opacity = Math.random() * 0.4 + 0.2;
-                frag.appendChild(cloud);
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) { applyTheme(savedTheme); } 
+            else { 
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                applyTheme(prefersDark ? 'dark' : 'light'); 
             }
-            cloudsContainer.appendChild(frag);
         }
 
-        // OPTIMIZATION: Generate Stars (Dark Mode)
-        function generateStars() {
-            // Cleanup
-            starsContainer.innerHTML = '';
-            linesContainer.innerHTML = '';
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        function clearStars() {
+            const starsContainer = document.getElementById('stars');
+            const linesContainer = document.getElementById('lines');
+            if (starsContainer) starsContainer.innerHTML = '';
+            if (linesContainer) linesContainer.innerHTML = '';
+            
             if (mouseHandlerRef) {
                 document.removeEventListener('mousemove', mouseHandlerRef);
                 mouseHandlerRef = null;
             }
+        }
 
-            const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+        function generateStars() {
+            const starsContainer = document.getElementById('stars');
+            const linesContainer = document.getElementById('lines');
             
-            // OPTIMIZATION: Drastically reduce stars on mobile to save battery/FPS
-            // Firefox Mobile struggles with >50 absolute elements updating
-            const numStars = isDesktop ? 120 : 50; 
+            clearStars();
             
-            const starData = [];
-            const frag = document.createDocumentFragment();
+            if (!starsContainer) return;
+            if (body.getAttribute('data-theme') !== 'dark') return;
+
+            // OPTIMIZATION: Reduce star density even further for mobile performance
+            const isSmallScreen = window.innerWidth < 768;
+            const numStars = isSmallScreen ? 60 : 150;
+            
+            starData = []; 
+            const frag = document.createDocumentFragment(); 
 
             for (let i = 0; i < numStars; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                
                 const x = Math.random() * window.innerWidth;
                 const y = Math.random() * window.innerHeight;
                 
+                const star = document.createElement('div');
+                star.className = 'star';
                 star.style.left = x + 'px';
                 star.style.top = y + 'px';
                 
-                // Only bright stars on desktop
-                if (isDesktop && Math.random() > 0.8) star.classList.add('bright');
+                // Significantly reduce bright/shadowed stars on mobile to save GPU
+                const brightChance = isSmallScreen ? 0.95 : 0.8;
+                if (Math.random() > brightChance) star.classList.add('bright');
                 
                 frag.appendChild(star);
                 starData.push({ x, y });
             }
             starsContainer.appendChild(frag);
 
-            // OPTIMIZATION: Mouse connections are Desktop ONLY
-            // Calculating lines on touch devices is heavy and practically useless
-            if (isDesktop && window.matchMedia('(pointer: fine)').matches) {
+            // OPTIMIZATION: Interaction strictly for devices with a mouse cursor
+            if (window.matchMedia('(pointer: fine)').matches) {
                 mouseHandlerRef = (e) => {
-                    // Use requestAnimationFrame for smoother line drawing if possible,
-                    // but simple throttle via logic is okay here.
-                    const mouseX = e.clientX; 
-                    const mouseY = e.clientY;
-                    
-                    linesContainer.innerHTML = '';
-                    const lineFrag = document.createDocumentFragment();
-
-                    // Only check stars decently close (optimization)
-                    // We avoid Math.sqrt by comparing squared distances first if needed, 
-                    // but raw loop is usually okay for <150 items on desktop.
-                    starData.forEach(star => {
-                        const distX = mouseX - star.x;
-                        const distY = mouseY - star.y;
+                    requestAnimationFrame(() => {
+                        const mouseX = e.clientX; 
+                        const mouseY = e.clientY;
                         
-                        // Quick bounding box check before expensive Math
-                        if (Math.abs(distX) > 150 || Math.abs(distY) > 150) return;
+                        linesContainer.innerHTML = '';
+                        const lineFrag = document.createDocumentFragment();
 
-                        const distance = Math.sqrt(distX * distX + distY * distY);
-                        if (distance < 150) {
-                            const line = document.createElement('div');
-                            line.className = 'constellation-line';
-                            const angle = Math.atan2(distY, distX) * 180 / Math.PI;
-                            
-                            line.style.left = star.x + 'px';
-                            line.style.top = star.y + 'px';
-                            line.style.width = distance + 'px'; 
-                            line.style.transform = `rotate(${angle}deg)`;
-                            line.style.opacity = (1 - distance / 150) * 0.5;
-                            
-                            lineFrag.appendChild(line);
-                        }
+                        starData.forEach(star => {
+                            const distX = mouseX - star.x;
+                            const distY = mouseY - star.y;
+                            const distSq = distX * distX + distY * distY;
+
+                            if (distSq < 22500) {
+                                const distance = Math.sqrt(distSq);
+                                const line = document.createElement('div');
+                                line.className = 'constellation-line';
+                                const angle = Math.atan2(distY, distX) * 180 / Math.PI;
+
+                                line.style.left = star.x + 'px';
+                                line.style.top = star.y + 'px';
+                                line.style.width = distance + 'px'; 
+                                line.style.transform = `rotate(${angle}deg)`;
+                                line.style.opacity = (1 - distance / 150) * 0.5;
+                                
+                                lineFrag.appendChild(line);
+                            }
+                        });
+                        linesContainer.appendChild(lineFrag);
                     });
-                    linesContainer.appendChild(lineFrag);
                 };
-                document.addEventListener('mousemove', mouseHandlerRef);
+                // Passive listeners improve scrolling performance
+                document.addEventListener('mousemove', mouseHandlerRef, { passive: true });
             }
         }
 
         initTheme();
 
-        // OPTIMIZATION: Smart Resize
-        // Mobile browsers trigger 'resize' when the URL bar hides.
-        // We only want to re-calculate if the WIDTH changes (orientation change).
+        // OPTIMIZATION: Debounce Resize to prevent layout thrashing
+        let resizeTimeout;
         let lastWidth = window.innerWidth;
+        
         window.addEventListener('resize', () => {
-            if (window.innerWidth !== lastWidth) {
-                lastWidth = window.innerWidth;
+            // Ignore vertical resets (navigation bar hiding/showing)
+            if (window.innerWidth === lastWidth) return;
+            
+            lastWidth = window.innerWidth;
+            clearTimeout(resizeTimeout);
+            
+            resizeTimeout = setTimeout(() => {
                 if (body.getAttribute('data-theme') === 'dark') { 
                     generateStars(); 
                 }
-            }
+            }, 200);
         });
     </script>
 </body>
