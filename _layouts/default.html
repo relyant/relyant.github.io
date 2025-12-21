@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title | default: "Sailing Kiruna" }}</title>
     <link rel="icon" type="image/png" href="{{ site.baseurl }}/logo.png">
+    
+    <!-- OPTIMIZATION: Preconnect to Google Fonts for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         :root {
             --primary-color: #2196F3;
             --background-color: #0f0f0f;
@@ -35,7 +40,7 @@
             font-family: 'Roboto', sans-serif;
             background: var(--background-color);
             color: var(--text-primary);
-            transition: var(--transition);
+            transition: background-color 0.3s ease, color 0.3s ease; /* OPTIMIZATION: Specific transitions are lighter than 'all' */
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
@@ -46,13 +51,11 @@
         }
 
         /* --- BACKGROUNDS --- */
-        /* Container for static dots */
-        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
-        /* Container for dynamic lines */
-        .lines-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        .stars-container, .lines-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
         
-        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; transition: opacity 0.3s; }
-        .star.bright { width: 3px; height: 3px; opacity: 1; box-shadow: 0 0 6px white; }
+        /* OPTIMIZATION: Reduce star complexity */
+        .star { position: absolute; width: 2px; height: 2px; background: white; border-radius: 50%; opacity: 0.8; will-change: opacity; }
+        .star.bright { width: 3px; height: 3px; opacity: 1; box-shadow: 0 0 4px white; } /* Reduced shadow blur radius for mobile perf */
         
         .constellation-line { 
             position: absolute; 
@@ -67,16 +70,23 @@
         
         .sky-background { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 100%); z-index: -2; display: none; }
         [data-theme="light"] .sky-background { display: block; }
-        .cloud { position: absolute; background: white; border-radius: 100px; opacity: 0.8; animation: float-cloud linear infinite; display: none; }
+        
+        /* OPTIMIZATION: Hardware Accelerated Cloud Animations */
+        .cloud { position: absolute; background: white; border-radius: 100px; opacity: 0.8; display: none; will-change: transform; }
         [data-theme="light"] .cloud { display: block; }
         .cloud:before, .cloud:after { content: ''; position: absolute; background: white; border-radius: 100px; }
-        .cloud1 { width: 100px; height: 40px; top: 20%; animation-duration: 30s; }
+        
+        .cloud1 { width: 100px; height: 40px; top: 20%; left: -150px; animation: float-cloud-1 30s linear infinite; }
         .cloud1:before { width: 50px; height: 50px; top: -25px; left: 10px; }
         .cloud1:after { width: 40px; height: 40px; top: -15px; left: 50px; }
-        .cloud2 { width: 140px; height: 50px; top: 60%; animation-duration: 45s; animation-delay: -10s; }
+        
+        .cloud2 { width: 140px; height: 50px; top: 60%; left: -150px; animation: float-cloud-2 45s linear infinite; animation-delay: -10s; }
         .cloud2:before { width: 70px; height: 70px; top: -35px; left: 20px; }
         .cloud2:after { width: 60px; height: 60px; top: -25px; left: 70px; }
-        @keyframes float-cloud { from { left: -150px; } to { left: 100%; } }
+        
+        /* OPTIMIZATION: Use TranslateX instead of Left property to avoid Reflows */
+        @keyframes float-cloud-1 { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 150px)); } }
+        @keyframes float-cloud-2 { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 200px)); } }
         
         /* --- LAYOUT --- */
         .container { 
@@ -94,24 +104,15 @@
             padding: 30px 40px;
             border-radius: 24px;
             transition: var(--transition);
+            /* OPTIMIZATION: Blur is expensive. We keep it, but watch performance on old devices */
             backdrop-filter: blur(10px); 
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* --- POST STYLES --- */
-        .post-container {
-            text-align: left;
-            line-height: 1.8;
-            font-size: 1.05rem;
-        }
-        .post-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-            margin: 20px 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
+        .post-container { text-align: left; line-height: 1.8; font-size: 1.05rem; }
+        .post-container img { max-width: 100%; height: auto; border-radius: 12px; margin: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .post-container h2, .post-container h3 { margin-top: 30px; margin-bottom: 15px; color: var(--primary-color); }
         .post-container p { margin-bottom: 20px; }
 
@@ -128,14 +129,12 @@
         .contact-item .material-icons { font-size: 20px; position: relative; z-index: 2; }
         .contact-item span:not(.material-icons) { margin-left: 8px; position: relative; z-index: 2; }
         .contact-item::before { content: ""; position: absolute; top: 0; left: 0; bottom: 0; right: 0; opacity: 1; transform: scaleX(0); transform-origin: right; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 1; }
-        .contact-item:hover { color: white; transform: translateY(-3px); }
-        .contact-item:hover::before { transform: scaleX(1); transform-origin: right; }
+        
         .contact-item:nth-child(6n+1)::before { background: var(--logo-1); }
         .contact-item:nth-child(6n+2)::before { background: var(--logo-2); }
         .contact-item:nth-child(6n+3)::before { background: var(--logo-3); }
         
-        .theme-toggle { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: none; color: var(--text-primary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); transition: 0.3s; z-index: 100; }
-        .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(15deg); }
+        .theme-toggle { position: absolute; top: 20px; right: 20px; background: rgba(255, 255, 255, 0.1); border: none; color: var(--text-primary); width: 44px; height: 44px; /* Larger touch target */ border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); transition: 0.3s; z-index: 100; }
 
         @keyframes blogGradient {
             0% { background-position: 0% 50%; }
@@ -147,43 +146,59 @@
         
         .blog-row { 
             position: relative;
-            display: flex; align-items: center; padding: 15px; padding-top: 10px; padding-bottom: 10px; 
+            display: flex; align-items: center; padding: 15px; 
             background: var(--surface-color); 
             backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
             border-radius: 16px; margin-bottom: 20px; text-decoration: none; color: var(--text-primary); border: 1px solid rgba(255, 255, 255, 0.05); overflow: hidden; transition: transform 0.3s ease; z-index: 1;
         }
 
-        .blog-row:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-            border-color: rgba(255, 255, 255, 0.4);
-            background-image: linear-gradient(135deg, var(--logo-1), var(--logo-2), var(--logo-3), var(--logo-4), var(--logo-5), var(--logo-6));
-            background-size: 300% 300%;
-            animation: blogGradient 6s ease infinite; 
-            color: #ffffff;
-        }
-
-        .blog-thumb { width: 110px; height: 110px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; margin-right: 30px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 2; position: relative; }
+        .blog-thumb { width: 110px; height: 110px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 12px; margin-right: 30px; flex-shrink: 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 2; position: relative; background: rgba(0,0,0,0.2); }
         .blog-details { margin-left: 10px; display: flex; flex-direction: column; text-align: left; flex-grow: 1; position: relative; justify-content: center; min-height: 80px; z-index: 2; }
         .blog-date { font-size: 0.85rem; color: var(--text-primary); font-weight: 500; letter-spacing: 0.5px; position: absolute; top: 0px; right: 0px; text-transform: uppercase; transition: color 0.3s ease; }
         .blog-title { font-size: 1.4rem; font-weight: 500; margin: 0; padding-right: 90px; transition: color 0.3s ease; }
 
         .site-footer { font-size: 0.9rem; color: var(--text-secondary); margin-top: auto; text-align: center; }
 
+        /* OPTIMIZATION: HOVER MEDIA QUERY
+           Only apply hover effects on devices that have a mouse (pointer: fine). 
+           This prevents "sticky" hover states on mobile touch.
+        */
+        @media (hover: hover) and (pointer: fine) {
+            .contact-item:hover { color: white; transform: translateY(-3px); }
+            .contact-item:hover::before { transform: scaleX(1); transform-origin: right; }
+            .theme-toggle:hover { background: rgba(255, 255, 255, 0.2); transform: rotate(15deg); }
+            .blog-row:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+                border-color: rgba(255, 255, 255, 0.4);
+                background-image: linear-gradient(135deg, var(--logo-1), var(--logo-2), var(--logo-3), var(--logo-4), var(--logo-5), var(--logo-6));
+                background-size: 300% 300%;
+                animation: blogGradient 6s ease infinite; 
+                color: #ffffff;
+            }
+        }
+
         @media (max-width: 600px) { 
-            .container { padding: 0 10px; }
+            body { padding: 15px 10px; } /* Less padding on edges */
+            .container { padding: 0; gap: 15px; }
             .glass-panel { padding: 25px 20px; }
-            .blog-row { flex-direction: column; align-items: center; text-align: center; } 
-            .blog-thumb { width: 100%; height: auto; margin-right: 0; margin-bottom: 20px; } 
-            .blog-details { margin-left: 0; width: 100%; align-items: center; } 
-            .blog-title { font-size: 1.2rem; padding-right: 0; margin-bottom: 5px; } 
-            .blog-date { position: static; margin-bottom: 5px; }
+            
+            /* Better tap targets for contact info */
+            .contact-info { gap: 10px; }
+            .contact-item { flex: 1 1 40%; justify-content: center; padding: 10px 12px; font-size: 0.9rem; }
+            
+            .blog-row { flex-direction: column; align-items: flex-start; text-align: left; padding: 15px; } 
+            .blog-thumb { width: 100%; height: 180px; margin-right: 0; margin-bottom: 15px; border-radius: 12px; } 
+            .blog-details { margin-left: 0; width: 100%; display: block; min-height: auto; } 
+            .blog-title { font-size: 1.2rem; padding-right: 0; margin-bottom: 8px; line-height: 1.3; } 
+            .blog-date { position: relative; display: block; margin-bottom: 5px; opacity: 0.7; font-size: 0.8rem; }
         }
     </style>
 </head>
 <body>
 
-    <button class="theme-toggle" id="themeToggle"><span class="material-icons">light_mode</span></button>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode"><span class="material-icons">light_mode</span></button>
     
     <!-- Stars Background Layers -->
     <div class="stars-container" id="stars"></div>
@@ -211,8 +226,8 @@
         const themeToggle = document.getElementById('themeToggle');
         const body = document.body;
         const themeIcon = themeToggle.querySelector('.material-icons');
-        let starData = []; // Store star coordinates globally
-        let mouseHandlerRef = null; // Store reference to remove listener later
+        let starData = []; 
+        let mouseHandlerRef = null; 
 
         function applyTheme(theme) {
             body.setAttribute('data-theme', theme);
@@ -247,7 +262,6 @@
             if (starsContainer) starsContainer.innerHTML = '';
             if (linesContainer) linesContainer.innerHTML = '';
             
-            // Remove listener if it exists
             if (mouseHandlerRef) {
                 document.removeEventListener('mousemove', mouseHandlerRef);
                 mouseHandlerRef = null;
@@ -258,16 +272,20 @@
             const starsContainer = document.getElementById('stars');
             const linesContainer = document.getElementById('lines');
             
-            // Clean up old stuff first
             clearStars();
             
             if (!starsContainer) return;
             if (body.getAttribute('data-theme') !== 'dark') return;
 
-            const numStars = 150;
-            starData = []; // Reset data array
+            // OPTIMIZATION: Reduce star count based on screen size
+            // 70 stars for mobile, 150 for desktop
+            const isSmallScreen = window.innerWidth < 768;
+            const numStars = isSmallScreen ? 70 : 150;
+            
+            starData = []; 
 
-            // 1. Generate Static Stars
+            const frag = document.createDocumentFragment(); // Use Fragment to minimize reflows
+
             for (let i = 0; i < numStars; i++) {
                 const x = Math.random() * window.innerWidth;
                 const y = Math.random() * window.innerHeight;
@@ -277,64 +295,67 @@
                 star.style.left = x + 'px';
                 star.style.top = y + 'px';
                 
-                if (Math.random() > 0.8) star.classList.add('bright');
+                // Fewer bright stars with shadows on mobile (shadows are expensive)
+                if (Math.random() > (isSmallScreen ? 0.9 : 0.8)) star.classList.add('bright');
                 
-                // Add to DOM
-                starsContainer.appendChild(star);
-                
-                // Store data for math later
+                frag.appendChild(star);
                 starData.push({ x, y });
             }
+            starsContainer.appendChild(frag);
 
-            // 2. Setup Mouse Interactions (Only if Pointer is Fine/Desktop)
+            // OPTIMIZATION: Interaction strictly for mouse devices
             if (window.matchMedia('(pointer: fine)').matches) {
-                
-                // Define the listener function
                 mouseHandlerRef = (e) => {
-                    const mouseX = e.clientX; 
-                    const mouseY = e.clientY;
-                    
-                    // Clear previous lines by wiping the container (Faster than looping DOM)
-                    linesContainer.innerHTML = '';
+                    // Use requestAnimationFrame for smoother line drawing
+                    requestAnimationFrame(() => {
+                        const mouseX = e.clientX; 
+                        const mouseY = e.clientY;
+                        
+                        linesContainer.innerHTML = '';
+                        const lineFrag = document.createDocumentFragment();
 
-                    // Loop through stars to detect proximity
-                    starData.forEach(star => {
-                        const distX = mouseX - star.x;
-                        const distY = mouseY - star.y;
-                        const distance = Math.sqrt(distX * distX + distY * distY);
+                        starData.forEach(star => {
+                            const distX = mouseX - star.x;
+                            const distY = mouseY - star.y;
+                            // Avoid Math.sqrt for simple checks (use squared distance) to save CPU
+                            const distSq = distX * distX + distY * distY;
 
-                        // Draw line if close (less than 150px)
-                        if (distance < 150) {
-                            const line = document.createElement('div');
-                            line.className = 'constellation-line';
-                            
-                            // Calculate angle for rotation
-                            const angle = Math.atan2(distY, distX) * 180 / Math.PI;
+                            // 150 * 150 = 22500
+                            if (distSq < 22500) {
+                                const distance = Math.sqrt(distSq);
+                                const line = document.createElement('div');
+                                line.className = 'constellation-line';
+                                const angle = Math.atan2(distY, distX) * 180 / Math.PI;
 
-                            line.style.left = star.x + 'px';
-                            line.style.top = star.y + 'px';
-                            line.style.width = distance + 'px'; // Line length is distance to mouse
-                            line.style.transform = `rotate(${angle}deg)`;
-                            
-                            // Fade out as it gets further away
-                            line.style.opacity = (1 - distance / 150) * 0.6;
-                            
-                            linesContainer.appendChild(line);
-                        }
+                                line.style.left = star.x + 'px';
+                                line.style.top = star.y + 'px';
+                                line.style.width = distance + 'px'; 
+                                line.style.transform = `rotate(${angle}deg)`;
+                                line.style.opacity = (1 - distance / 150) * 0.6;
+                                
+                                lineFrag.appendChild(line);
+                            }
+                        });
+                        linesContainer.appendChild(lineFrag);
                     });
                 };
-
-                // Add the listener
                 document.addEventListener('mousemove', mouseHandlerRef);
             }
         }
 
-        // Initialize
         initTheme();
 
-        // Regenerate on resize to fix star positions
+        // OPTIMIZATION: Handle Resize Smartly on Mobile
+        // Mobile browsers trigger resize when scrolling (URL bar hides/shows).
+        // We only want to regenerate stars if the WIDTH changes.
+        let lastWidth = window.innerWidth;
         window.addEventListener('resize', () => {
-            if (body.getAttribute('data-theme') === 'dark') { generateStars(); }
+            if (window.innerWidth !== lastWidth) {
+                lastWidth = window.innerWidth;
+                if (body.getAttribute('data-theme') === 'dark') { 
+                    generateStars(); 
+                }
+            }
         });
     </script>
 </body>
