@@ -18,13 +18,11 @@
             font-family: 'Share Tech Mono', monospace;
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* Prevent scrolling for full immersion */
+            overflow: hidden;
             position: relative;
         }
 
-        /* --- CRT SCREEN EFFECTS (FULLSCREEN) --- */
-
-        /* 1. The Scanlines */
+        /* --- CRT SCREEN EFFECTS --- */
         .scanlines {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -39,7 +37,6 @@
             z-index: 100;
         }
 
-        /* 2. The Vignette & Glow (Tube shape) */
         .crt-glow {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -54,13 +51,11 @@
             z-index: 99;
         }
 
-        /* 3. The Flicker Animation on the Content */
         .content-layer {
             position: relative;
             z-index: 10;
             height: 100%;
             width: 100%;
-            padding: 40px;
             display: flex;
             flex-direction: column;
             text-shadow: 0 0 4px rgba(255, 176, 0, 0.6);
@@ -73,32 +68,37 @@
             100% { opacity: 0.98; }
         }
 
-        /* --- TYPOGRAPHY UTILS --- */
-        h1, h2, h3 { font-weight: normal; letter-spacing: 2px; }
-        .dim { color: rgba(255, 176, 0, 0.5); }
-        .white { color: #ffe6cc; text-shadow: 0 0 8px rgba(255, 230, 204, 0.6); }
-        .blink { animation: blink 1s step-end infinite; }
-
-        @keyframes blink { 50% { opacity: 0; } }
-
         /* --- SECTIONS --- */
 
-        /* 1. BOOT SCREEN */
+        /* BOOT SCREEN */
         #boot-screen {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* STARFIELD CANVAS */
+        #starfield {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            opacity: 0.6; /* Dim brightness so text is readable */
         }
 
         #splash-logo {
             width: 30%;
             height: auto;
             margin-bottom: 40px;
-            opacity: 0; /* Starts hidden */
+            opacity: 0;
             filter: drop-shadow(0 0 8px #ffb000);
             transition: opacity 1s ease-in;
+            z-index: 2;
         }
 
         .boot-console {
@@ -108,15 +108,19 @@
             font-family: 'VT323', monospace;
             font-size: 1.2rem;
             min-height: 200px;
+            padding: 0 20px;
+            z-index: 2;
         }
 
-        /* 2. MAIN DASHBOARD (Hidden initially) */
+        /* MAIN DASHBOARD */
         #dashboard-screen {
             display: none;
             height: 100%;
             flex-direction: column;
+            padding: 40px;
         }
 
+        /* ... Reuse original dashboard styles styles ... */
         .top-bar {
             border-bottom: 2px solid #ffb000;
             padding-bottom: 10px;
@@ -125,269 +129,214 @@
             justify-content: space-between;
             align-items: flex-end;
         }
-
-        .main-grid {
-            display: flex;
-            flex: 1;
-            gap: 40px;
-            overflow: hidden;
-        }
-
-        /* Left Column: Data */
-        .specs-col {
-            flex: 1;
-            border: 1px solid rgba(255, 176, 0, 0.3);
-            background: rgba(255, 176, 0, 0.02);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .data-row {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px dashed rgba(255, 176, 0, 0.3);
-            padding: 12px 0;
-            font-size: 1.2rem;
-        }
+        .main-grid { display: flex; flex: 1; gap: 40px; overflow: hidden; }
+        .specs-col { flex: 1; border: 1px solid rgba(255, 176, 0, 0.3); background: rgba(255, 176, 0, 0.02); padding: 20px; display: flex; flex-direction: column; justify-content: center; }
+        .data-row { display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255, 176, 0, 0.3); padding: 12px 0; font-size: 1.2rem; }
         .data-row:last-child { border: none; }
-
-        /* Right Column: Visuals */
-        .visual-col {
-            flex: 1.5;
-            position: relative;
-            border: 2px solid #ffb000;
-            overflow: hidden;
-        }
-
-        .corner {
-            position: absolute;
-            width: 20px; height: 20px;
-            border: 4px solid #ffb000;
-            z-index: 20;
-        }
+        .visual-col { flex: 1.5; position: relative; border: 2px solid #ffb000; overflow: hidden; }
+        .corner { position: absolute; width: 20px; height: 20px; border: 4px solid #ffb000; z-index: 20; }
         .tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
         .tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
         .bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
         .br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+        .scan-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: rgba(255, 176, 0, 0.5); box-shadow: 0 0 10px #ffb000; animation: scan 3s linear infinite; z-index: 15; opacity: 0.5; }
+        @keyframes scan { 0% { top: -5%; opacity: 0; } 10% { opacity: 0.5; } 90% { opacity: 0.5; } 100% { top: 105%; opacity: 0; } }
 
-        /* Image Handling */
-        .img-container {
-            width: 100%;
-            height: 100%;
-            background: #110a00;
-            position: relative;
-            /* Ensures images are centered if they don't fill the box completely */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .ship-img {
-            position: absolute;
-            /* Remove top:0 left:0 so flexbox centers it, OR use width/height 100% with contain */
-            width: 100%;
-            height: 100%;
-
-            /* --- CHANGE 1: Use Contain instead of Cover --- */
-            object-fit: contain;
-
-            display: none; /* Cycled by JS */
-
-            /* The Retro Photo Look */
-            filter: sepia(100%) saturate(200%) hue-rotate(-15deg) contrast(1.2);
-            opacity: 0.8;
-            mix-blend-mode: hard-light;
-        }
-
+        /* IMAGES */
+        .img-container { width: 100%; height: 100%; background: #000000; position: relative; display: flex; align-items: center; justify-content: center; }
+        .ship-img { position: absolute; width: 100%; height: 100%; object-fit: contain; display: none; filter: sepia(100%) saturate(200%) hue-rotate(-15deg) contrast(1.2); opacity: 0.8; mix-blend-mode: hard-light; }
         .ship-img.active { display: block; }
+        .ship-img.flipped { transform: scaleX(-1); }
 
-        /* --- CHANGE 2: Horizontal Invert Class --- */
-        .ship-img.flipped {
-            transform: scaleX(-1);
-        }
+        /* TYPOGRAPHY */
+        h1, h2, h3 { font-weight: normal; letter-spacing: 2px; }
+        .dim { color: rgba(255, 176, 0, 0.5); }
+        .white { color: #ffe6cc; text-shadow: 0 0 8px rgba(255, 230, 204, 0.6); }
+        .blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .scan-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 5px;
-            background: rgba(255, 176, 0, 0.5);
-            box-shadow: 0 0 10px #ffb000;
-            animation: scan 3s linear infinite;
-            z-index: 15;
-            opacity: 0.5;
-        }
-
-        @keyframes scan {
-            0% { top: -5%; opacity: 0; }
-            10% { opacity: 0.5; }
-            90% { opacity: 0.5; }
-            100% { top: 105%; opacity: 0; }
-        }
-
-        /* Responsive */
         @media (max-width: 900px) {
             .main-grid { flex-direction: column; overflow-y: auto; }
-            .content-layer { padding: 20px; }
+            #dashboard-screen { padding: 20px; }
             .visual-col { min-height: 300px; }
         }
-
     </style>
 </head>
 <body>
 
-    <!-- VISUAL EFFECTS OVERLAYS -->
     <div class="scanlines"></div>
     <div class="crt-glow"></div>
 
     <div class="content-layer">
 
-        <!-- === SCREEN 1: BOOT SEQUENCE === -->
+        <!-- BOOT SECTION -->
         <div id="boot-screen">
-            <img src="logo.webp"
-                 id="splash-logo"
-                 alt="OS Logo"
-                 onerror="this.onerror=null; this.src='https://placehold.co/200x200/000000/ffb000?text=OS+LOGO&font=monospace';">
+            <!-- CANVAS ADDED HERE -->
+            <canvas id="starfield"></canvas>
 
+            <img src="logo.webp" id="splash-logo" alt="OS Logo"
+                 onerror="this.onerror=null; this.src='https://placehold.co/200x200/000000/ffb000?text=OS+LOGO&font=monospace';">
             <div class="boot-console" id="console-output"></div>
         </div>
 
-        <!-- === SCREEN 2: MAIN DASHBOARD === -->
+        <!-- DASHBOARD SECTION -->
         <div id="dashboard-screen">
-
             <div class="top-bar">
-                <div>
-                    <h1>KIRUNA</h1>
-                    <span class="dim">REG NO. 180924609 // ALUBAT FRANCE</span>
-                </div>
-                <div style="text-align: right;">
-                    <span class="dim">SYSTEM TIME: <span id="clock">00:00:00</span></span>
-                </div>
+                <div><h1>KIRUNA</h1><span class="dim">REG NO. 180924609 // ALUBAT FRANCE</span></div>
+                <div style="text-align: right;"><span class="dim">SYSTEM TIME: <span id="clock">00:00:00</span></span></div>
             </div>
-
             <div class="main-grid">
-
-                <!-- DATA COLUMN -->
                 <div class="specs-col">
-                    <h3>// VESSEL SPECIFICATIONS</h3>
-                    <br>
-                    <div class="data-row">
-                        <span>CLASS</span> <span class="white">ALUBAT OVNI 43</span>
-                    </div>
-                    <div class="data-row">
-                        <span>LENGTH</span> <span class="white">13 METERS</span>
-                    </div>
-                    <div class="data-row">
-                        <span>BEAM</span> <span class="white">4.5 METERS</span>
-                    </div>
-                    <div class="data-row">
-                        <span>MASS</span> <span class="white">8 TONS (DRY)</span>
-                    </div>
-                    <div class="data-row">
-                        <span>ENGINE</span> <span class="white">1x YANMAR 4JH2-TE</span>
-                    </div>
-                    <div class="data-row">
-                        <span>CREW CAPACITY</span> <span class="white">7 MEMBERS + 1 CAPTAIN</span>
-                    </div>
-                    <div class="data-row">
-                        <span>CE-CATEGORY</span> <span class="white">A</span>
-                    </div>
-                    <br>
-                    <div class="dim">
-                        > STARLINK INTERFACE: CONNECTED<br>
-                        > IN-WATER: <span class="blink">NEGATIVE</span><br>
-                    </div>
+                    <h3>// VESSEL SPECIFICATIONS</h3><br>
+                    <div class="data-row"><span>CLASS</span> <span class="white">ALUBAT OVNI 43</span></div>
+                    <div class="data-row"><span>LENGTH</span> <span class="white">13 METERS</span></div>
+                    <div class="data-row"><span>BEAM</span> <span class="white">4.5 METERS</span></div>
+                    <div class="data-row"><span>MASS</span> <span class="white">8 TONS (DRY)</span></div>
+                    <div class="data-row"><span>ENGINE</span> <span class="white">1x YANMAR 4JH2-TE</span></div>
+                    <div class="data-row"><span>CREW</span> <span class="white">7 + 1 CPT</span></div>
+                    <div class="data-row"><span>CAT</span> <span class="white">A</span></div>
+                    <br><div class="dim">> STARLINK: CONNECTED<br>> IN-WATER: <span class="blink">NEGATIVE</span></div>
                 </div>
-
-                <!-- IMAGE COLUMN -->
                 <div class="visual-col">
-                    <!-- Decor corners -->
-                    <div class="corner tl"></div><div class="corner tr"></div>
-                    <div class="corner bl"></div><div class="corner br"></div>
-
+                    <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
                     <div class="scan-overlay"></div>
-
                     <div class="img-container">
-                        <img src="boat1.webp" class="ship-img" alt="Exterior View"
-                             onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMAGE+FILE+CORRUPT+(boat1)&font=monospace';">
-
-                        <img src="boat2.webp" class="ship-img" alt="Schematic View"
-                             onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMAGE+FILE+CORRUPT+(boat2)&font=monospace';">
-
-                        <img src="boat3.webp" class="ship-img" alt="Interior View"
-                             onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMAGE+FILE+CORRUPT+(boat3)&font=monospace';">
+                        <img src="boat1.webp" class="ship-img" alt="Exterior" onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMG+1&font=monospace';">
+                        <img src="boat2.webp" class="ship-img" alt="Schematic" onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMG+2&font=monospace';">
+                        <img src="boat3.webp" class="ship-img" alt="Interior" onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMG+3&font=monospace';">
                     </div>
-
-                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 5px;">
-                        CAM-FEED <span class="blink">●REC</span>
-                    </div>
+                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 5px;">CAM-FEED <span class="blink">●REC</span></div>
                 </div>
-
             </div>
         </div>
 
     </div>
 
 <script>
-    // === CONFIGURATION ===
-    const BOOT_SPEED = 40; // ms per character
-    const IMAGE_CYCLE_SPEED = 3000; // ms per image
+    // === SETTINGS ===
+    const BOOT_SPEED = 30;
+    const IMAGE_CYCLE_SPEED = 3000;
 
-    // === DOM ELEMENTS ===
+    // === ELEMENTS ===
     const bootScreen = document.getElementById('boot-screen');
     const dashboardScreen = document.getElementById('dashboard-screen');
     const logo = document.getElementById('splash-logo');
     const consoleOutput = document.getElementById('console-output');
 
-    // === BOOT SEQUENCE TEXT ===
+    // === EFFICIENT STARFIELD (FAKE 3D) ===
+    let starReqId;
+
+    function initStarfield() {
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+
+        let w = canvas.width = window.innerWidth;
+        let h = canvas.height = window.innerHeight;
+        let cx = w / 2;
+        let cy = h / 2;
+
+        window.addEventListener('resize', () => {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            cx = w / 2; cy = h / 2;
+        });
+
+        // Simple star objects: x/y are offset from center
+        const count = 100;
+        const stars = [];
+
+        for(let i=0; i<count; i++) {
+            stars.push({
+                x: (Math.random() - 0.1) * w,
+                y: (Math.random() - 0.1) * h
+            });
+        }
+
+        function animate() {
+            // Clear screen
+            ctx.clearRect(0,0, w, h);
+            ctx.fillStyle = '#ffb000'; // Amber stars
+
+            for(let i=0; i<count; i++) {
+                const s = stars[i];
+
+                // "Warp" math: simple multiplication expands from center
+                s.x *= 1.01;
+                s.y *= 1.01;
+
+                // Render at Center + Offset
+                let px = cx + s.x;
+                let py = cy + s.y;
+
+                // Check bounds
+                if(px < 0 || px > w || py < 0 || py > h) {
+                    // Reset to a random spot near center
+                    s.x = (Math.random() - 0.5) * 2000;
+                    s.y = (Math.random() - 0.5) * 2000;
+                    px = cx + s.x;
+                    py = cy + s.y;
+                }
+
+                // Draw Rect (faster than Arc)
+                // Size grows slightly as it moves out for fake depth
+                const size = (Math.abs(s.x) + Math.abs(s.y)) / 300;
+                ctx.fillRect(px, py, Math.max(1, size), Math.max(1, size));
+            }
+            starReqId = requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
+    function stopStarfield() {
+        if(starReqId) cancelAnimationFrame(starReqId);
+    }
+
+    // === TYPEWRITER ===
     const bootLines = [
-        "BIOS DATE 01/12/1993 14:22:51 VER 1.04",
-        "CPU: NEC V6000, SPEED: 25000 MHz",
-        "640 KB RAM SYSTEM... OK",
-        "VIDEO ADAPTER... DETECTED",
-        "INITIALIZING GRAPHICS SUBSYSTEM...",
-        "AUTHENTICATING USER...",
+        "BIOS DATE 01/12/1993 VER 1.04",
+        "CPU: NEC V6000... OK",
+        "MEMORY TEST... 640KB OK",
+        "LOADING DRIVERS...",
+        "AUTHENTICATING...",
         "ACCESS GRANTED."
     ];
 
-    // === UTILS ===
-    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const wait = (ms) => new Promise(r => setTimeout(r, ms));
 
     async function typeLine(text) {
-        const lineDiv = document.createElement('div');
-        lineDiv.className = 'console-line';
-        consoleOutput.appendChild(lineDiv);
-
-        let currentText = "> ";
-        lineDiv.textContent = currentText;
-
-        for (let i = 0; i < text.length; i++) {
-            currentText += text[i];
-            lineDiv.textContent = currentText + "█";
-            await wait(Math.random() * 30 + 10);
+        const div = document.createElement('div');
+        div.style.marginBottom = "5px"; // spacing
+        consoleOutput.appendChild(div);
+        let curr = "> ";
+        for (let c of text) {
+            curr += c;
+            div.textContent = curr + "█";
+            await wait(Math.random() * 20 + 20);
         }
-        lineDiv.textContent = currentText;
+        div.textContent = curr;
     }
 
-    // === MAIN LOGIC ===
+    // === MAIN BOOT ===
     async function bootUp() {
+        initStarfield(); // Start stars
+
         await wait(500);
         logo.style.opacity = 1;
-        await wait(2000);
-
+        await wait(1500);
         logo.style.display = 'none';
 
         for (let line of bootLines) {
             await typeLine(line);
             await wait(100);
         }
+        await wait(800);
 
-        await wait(1000);
-
+        // Transition
         document.body.style.backgroundColor = '#ffb000';
         await wait(50);
         document.body.style.backgroundColor = '#000';
 
+        stopStarfield(); // Stop JS animation loop to save CPU
         bootScreen.style.display = 'none';
         dashboardScreen.style.display = 'flex';
 
@@ -395,66 +344,36 @@
         cycleImages();
     }
 
-    // === IMAGE CYCLER (UPDATED) ===
+    // === RUNTIME FUNCTIONS ===
     function cycleImages() {
         const images = document.querySelectorAll('.ship-img');
-
-        // Define the specific path:
-        // boat1 (idx 0) -> boat2 (idx 1) -> boat3 (idx 2) -> boat2 Inverted -> boat1 Inverted
-        // Note: 'flipped: true' applies CSS transform: scaleX(-1)
-        const sequence = [
-            { imgIndex: 0, flipped: false }, // Boat 1
-            { imgIndex: 1, flipped: false }, // Boat 2
-            { imgIndex: 2, flipped: false }, // Boat 3
-            { imgIndex: 1, flipped: true },  // Boat 2 (Inverted)
-            { imgIndex: 0, flipped: true },  // Boat 1 (Inverted)
-            // The loop will then restart at Boat 1 (Normal), creating the "reverse" effect
+        const seq = [
+            { id: 0, flip: false }, { id: 1, flip: false },
+            { id: 2, flip: false }, { id: 1, flip: true }, { id: 0, flip: true }
         ];
+        let idx = 0;
 
-        let seqIndex = 0;
-
-        // Function to update the DOM based on current sequence step
-        const updateView = () => {
-             // 1. Hide all and reset flips
-            images.forEach(img => {
-                img.classList.remove('active');
-                img.classList.remove('flipped');
-            });
-
-            // 2. Get current step details
-            const step = sequence[seqIndex];
-            const activeImg = images[step.imgIndex];
-
-            // 3. Apply flip if needed
-            if (step.flipped) {
-                activeImg.classList.add('flipped');
-            }
-
-            // 4. Show the image
-            activeImg.classList.add('active');
+        const update = () => {
+            images.forEach(img => { img.classList.remove('active', 'flipped'); });
+            const s = seq[idx];
+            const active = images[s.id];
+            if(s.flip) active.classList.add('flipped');
+            active.classList.add('active');
         };
-
-        // Show first frame immediately
-        updateView();
-
-        // Interval Loop
+        update();
         setInterval(() => {
-            // Increment index, looping back to 0 when end is reached
-            seqIndex = (seqIndex + 1) % sequence.length;
-            updateView();
+            idx = (idx + 1) % seq.length;
+            update();
         }, IMAGE_CYCLE_SPEED);
     }
 
-    // === CLOCK ===
     function startClock() {
-        const clockEl = document.getElementById('clock');
+        const el = document.getElementById('clock');
         setInterval(() => {
-            const now = new Date();
-            clockEl.textContent = now.toISOString().split('T')[1].split('.')[0];
+            el.textContent = new Date().toISOString().split('T')[1].split('.')[0];
         }, 1000);
     }
 
-    // === ACTIVATE ===
     window.onload = bootUp;
 
 </script>
