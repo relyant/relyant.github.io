@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VESSEL SPECIFICATIONS</title>
+    <style>
+        /* --- FONTS --- */
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+        /* --- GLOBAL RESET & CRT BASE --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #000;
+            color: #ffb000; /* Classic Amber Phosphor */
+            font-family: 'Share Tech Mono', monospace;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Prevent scrolling for full immersion */
+            position: relative;
+        }
+
+        /* --- CRT SCREEN EFFECTS (FULLSCREEN) --- */
+
+        /* 1. The Scanlines */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15) 0px,
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* 2. The Vignette & Glow (Tube shape) */
+        .crt-glow {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(
+                circle at center,
+                transparent 50%,
+                rgba(0, 0, 0, 0.4) 90%,
+                rgba(0, 0, 0, 0.8) 100%
+            );
+            box-shadow: inset 0 0 100px rgba(255, 176, 0, 0.1);
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        /* 3. The Flicker Animation on the Content */
+        .content-layer {
+            position: relative;
+            z-index: 10;
+            height: 100%;
+            width: 100%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            text-shadow: 0 0 4px rgba(255, 176, 0, 0.6);
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            50% { opacity: 1; }
+            100% { opacity: 0.98; }
+        }
+
+        /* --- TYPOGRAPHY UTILS --- */
+        h1, h2, h3 { font-weight: normal; letter-spacing: 2px; }
+        .dim { color: rgba(255, 176, 0, 0.5); }
+        .white { color: #ffe6cc; text-shadow: 0 0 8px rgba(255, 230, 204, 0.6); }
+        .blink { animation: blink 1s step-end infinite; }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* --- SECTIONS --- */
+
+        /* 1. BOOT SCREEN */
+        #boot-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #splash-logo {
+            width: 30%;
+            height: auto;
+            margin-bottom: 40px;
+            opacity: 0; /* Starts hidden */
+            filter: drop-shadow(0 0 8px #ffb000);
+            transition: opacity 1s ease-in;
+        }
+
+        .boot-console {
+            width: 100%;
+            max-width: 600px;
+            text-align: left;
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            min-height: 200px;
+        }
+
+        /* 2. MAIN DASHBOARD (Hidden initially) */
+        #dashboard-screen {
+            display: none;
+            height: 100%;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            border-bottom: 2px solid #ffb000;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .main-grid {
+            display: flex;
+            flex: 1;
+            gap: 40px;
+            overflow: hidden;
+        }
+
+        /* Left Column: Data */
+        .specs-col {
+            flex: 1;
+            border: 1px solid rgba(255, 176, 0, 0.3);
+            background: rgba(255, 176, 0, 0.02);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed rgba(255, 176, 0, 0.3);
+            padding: 12px 0;
+            font-size: 1.2rem;
+        }
+        .data-row:last-child { border: none; }
+
+        /* Right Column: Visuals */
+        .visual-col {
+            flex: 1.5;
+            position: relative;
+            border: 2px solid #ffb000;
+            overflow: hidden;
+        }
+
+        .corner {
+            position: absolute;
+            width: 20px; height: 20px;
+            border: 4px solid #ffb000;
+            z-index: 20;
+        }
+        .tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+        .tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+        .bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+        .br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+        /* Image Handling */
+        .img-container {
+            width: 100%;
+            height: 100%;
+            background: #110a00;
+            position: relative;
+            /* Ensures images are centered if they don't fill the box completely */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ship-img {
+            position: absolute;
+            /* Remove top:0 left:0 so flexbox centers it, OR use width/height 100% with contain */
+            width: 100%;
+            height: 100%;
+
+            /* --- CHANGE 1: Use Contain instead of Cover --- */
+            object-fit: contain;
+
+            display: none; /* Cycled by JS */
+
+            /* The Retro Photo Look */
+            filter: sepia(100%) saturate(200%) hue-rotate(-15deg) contrast(1.2);
+            opacity: 0.8;
+            mix-blend-mode: hard-light;
+        }
+
+        .ship-img.active { display: block; }
+
+        /* --- CHANGE 2: Horizontal Invert Class --- */
+        .ship-img.flipped {
+            transform: scaleX(-1);
+        }
+
+        .scan-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 5px;
+            background: rgba(255, 176, 0, 0.5);
+            box-shadow: 0 0 10px #ffb000;
+            animation: scan 3s linear infinite;
+            z-index: 15;
+            opacity: 0.5;
+        }
+
+        @keyframes scan {
+            0% { top: -5%; opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { top: 105%; opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .main-grid { flex-direction: column; overflow-y: auto; }
+            .content-layer { padding: 20px; }
+            .visual-col { min-height: 300px; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- VISUAL EFFECTS OVERLAYS -->
+    <div class="scanlines"></div>
+    <div class="crt-glow"></div>
+
+    <div class="content-layer">
+
+        <!-- === SCREEN 1: BOOT SEQUENCE === -->
+        <div id="boot-screen">
+            <img src="logo.webp"
+                 id="splash-logo"
+                 alt="OS Logo"
+                 onerror="this.onerror=null; this.src='https://placehold.co/200x200/000000/ffb000?text=OS+LOGO&font=monospace';">
+
+            <div class="boot-console" id="console-output"></div>
+        </div>
+
+        <!-- === SCREEN 2: MAIN DASHBOARD === -->
+        <div id="dashboard-screen">
+
+            <div class="top-bar">
+                <div>
+                    <h1>KIRUNA</h1>
+                    <span class="dim">REG NO. 180924609 // ALUBAT FRANCE</span>
+                </div>
+                <div style="text-align: right;">
+                    <span class="dim">SYSTEM TIME: <span id="clock">00:00:00</span></span>
+                </div>
+            </div>
+
+            <div class="main-grid">
+
+                <!-- DATA COLUMN -->
+                <div class="specs-col">
+                    <h3>// VESSEL SPECIFICATIONS</h3>
+                    <br>
+                    <div class="data-row">
+                        <span>CLASS</span> <span class="white">ALUBAT OVNI 43</span>
+                    </div>
+                    <div class="data-row">
+                        <span>LENGTH</span> <span class="white">13 METERS</span>
+                    </div>
+                    <div class="data-row">
+                        <span>BEAM</span> <span class="white">4.5 METERS</span>
+                    </div>
+                    <div class="data-row">
+                        <span>MASS</span> <span class="white">8 TONS (DRY)</span>
+                    </div>
+                    <div class="data-row">
+                        <span>ENGINE</span> <span class="white">1x YANMAR 4JH2-TE</span>
+                    </div>
+                    <div class="data-row">
+                        <span>CREW CAPACITY</span> <span class="white">7 MEMBERS + 1 CAPTAIN</span>
+                    </div>
+                    <div class="data-row">
+                        <span>CE-CATEGORY</span> <span class="white">A</span>
+                    </div>
+                    <br>
+                    <div class="dim">
+                        > STARLINK INTERFACE: CONNECTED<br>
+                        > IN-WATER: <span class="blink">NEGATIVE</span><br>
+                    </div>
+                </div>
+
+                <!-- IMAGE COLUMN -->
+                <div class="visual-col">
+                    <!-- Decor corners -->
+                    <div class="corner tl"></div><div class="corner tr"></div>
+                    <div class="corner bl"></div><div class="corner br"></div>
+
+                    <div class="scan-overlay"></div>
+
+                    <div class="img-container">
+                        <img src="boat1.webp" class="ship-img" alt="Exterior View"
+                             onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMAGE+FILE+CORRUPT+(boat1)&font=monospace';">
+
+                        <img src="boat2.webp" class="ship-img" alt="Schematic View"
+                             onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMAGE+FILE+CORRUPT+(boat2)&font=monospace';">
+
+                        <img src="boat3.webp" class="ship-img" alt="Interior View"
+                             onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMAGE+FILE+CORRUPT+(boat3)&font=monospace';">
+                    </div>
+
+                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 5px;">
+                        CAM-FEED <span class="blink">●REC</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+<script>
+    // === CONFIGURATION ===
+    const BOOT_SPEED = 40; // ms per character
+    const IMAGE_CYCLE_SPEED = 3000; // ms per image
+
+    // === DOM ELEMENTS ===
+    const bootScreen = document.getElementById('boot-screen');
+    const dashboardScreen = document.getElementById('dashboard-screen');
+    const logo = document.getElementById('splash-logo');
+    const consoleOutput = document.getElementById('console-output');
+
+    // === BOOT SEQUENCE TEXT ===
+    const bootLines = [
+        "BIOS DATE 01/12/1993 14:22:51 VER 1.04",
+        "CPU: NEC V6000, SPEED: 25000 MHz",
+        "640 KB RAM SYSTEM... OK",
+        "VIDEO ADAPTER... DETECTED",
+        "INITIALIZING GRAPHICS SUBSYSTEM...",
+        "AUTHENTICATING USER...",
+        "ACCESS GRANTED."
+    ];
+
+    // === UTILS ===
+    const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    async function typeLine(text) {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'console-line';
+        consoleOutput.appendChild(lineDiv);
+
+        let currentText = "> ";
+        lineDiv.textContent = currentText;
+
+        for (let i = 0; i < text.length; i++) {
+            currentText += text[i];
+            lineDiv.textContent = currentText + "█";
+            await wait(Math.random() * 30 + 10);
+        }
+        lineDiv.textContent = currentText;
+    }
+
+    // === MAIN LOGIC ===
+    async function bootUp() {
+        await wait(500);
+        logo.style.opacity = 1;
+        await wait(2000);
+
+        logo.style.display = 'none';
+
+        for (let line of bootLines) {
+            await typeLine(line);
+            await wait(100);
+        }
+
+        await wait(1000);
+
+        document.body.style.backgroundColor = '#ffb000';
+        await wait(50);
+        document.body.style.backgroundColor = '#000';
+
+        bootScreen.style.display = 'none';
+        dashboardScreen.style.display = 'flex';
+
+        startClock();
+        cycleImages();
+    }
+
+    // === IMAGE CYCLER (UPDATED) ===
+    function cycleImages() {
+        const images = document.querySelectorAll('.ship-img');
+
+        // Define the specific path:
+        // boat1 (idx 0) -> boat2 (idx 1) -> boat3 (idx 2) -> boat2 Inverted -> boat1 Inverted
+        // Note: 'flipped: true' applies CSS transform: scaleX(-1)
+        const sequence = [
+            { imgIndex: 0, flipped: false }, // Boat 1
+            { imgIndex: 1, flipped: false }, // Boat 2
+            { imgIndex: 2, flipped: false }, // Boat 3
+            { imgIndex: 1, flipped: true },  // Boat 2 (Inverted)
+            { imgIndex: 0, flipped: true },  // Boat 1 (Inverted)
+            // The loop will then restart at Boat 1 (Normal), creating the "reverse" effect
+        ];
+
+        let seqIndex = 0;
+
+        // Function to update the DOM based on current sequence step
+        const updateView = () => {
+             // 1. Hide all and reset flips
+            images.forEach(img => {
+                img.classList.remove('active');
+                img.classList.remove('flipped');
+            });
+
+            // 2. Get current step details
+            const step = sequence[seqIndex];
+            const activeImg = images[step.imgIndex];
+
+            // 3. Apply flip if needed
+            if (step.flipped) {
+                activeImg.classList.add('flipped');
+            }
+
+            // 4. Show the image
+            activeImg.classList.add('active');
+        };
+
+        // Show first frame immediately
+        updateView();
+
+        // Interval Loop
+        setInterval(() => {
+            // Increment index, looping back to 0 when end is reached
+            seqIndex = (seqIndex + 1) % sequence.length;
+            updateView();
+        }, IMAGE_CYCLE_SPEED);
+    }
+
+    // === CLOCK ===
+    function startClock() {
+        const clockEl = document.getElementById('clock');
+        setInterval(() => {
+            const now = new Date();
+            clockEl.textContent = now.toISOString().split('T')[1].split('.')[0];
+        }, 1000);
+    }
+
+    // === ACTIVATE ===
+    window.onload = bootUp;
+
+</script>
+</body>
+</html>
