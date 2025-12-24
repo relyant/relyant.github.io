@@ -2,9 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" href="/specs/favicon.webp" type="image/webp">
     <title>VESSEL SPECIFICATIONS</title>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
     <style>
         /* --- FONTS --- */
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
@@ -16,7 +26,7 @@
             background-color: #000;
             color: #ffb000; /* Classic Amber Phosphor */
             font-family: 'Share Tech Mono', monospace;
-            height: 100vh;
+            min-height: 100dvh;
             width: 100vw;
             overflow: hidden;
             position: relative;
@@ -54,7 +64,7 @@
         .content-layer {
             position: relative;
             z-index: 10;
-            height: 100%;
+            height: 100dvh;
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -68,8 +78,6 @@
             100% { opacity: 0.98; }
         }
 
-        /* --- SECTIONS --- */
-
         /* BOOT SCREEN */
         #boot-screen {
             flex: 1;
@@ -82,17 +90,17 @@
             height: 100%;
         }
 
-        /* STARFIELD CANVAS */
         #starfield {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
             z-index: -1;
-            opacity: 0.6; /* Dim brightness so text is readable */
+            opacity: 0.6;
         }
 
         #splash-logo {
-            width: 30%;
+            width: 60%;
+            max-width: 900px;
             height: auto;
             margin-bottom: 40px;
             opacity: 0;
@@ -118,47 +126,82 @@
             height: 100%;
             flex-direction: column;
             padding: 40px;
+            overflow: hidden;
         }
 
-        /* ... Reuse original dashboard styles styles ... */
         .top-bar {
             border-bottom: 2px solid #ffb000;
             padding-bottom: 10px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
+            flex-shrink: 0;
         }
-        .main-grid { display: flex; flex: 1; gap: 40px; overflow: hidden; }
-        .specs-col { flex: 1; border: 1px solid rgba(255, 176, 0, 0.3); background: rgba(255, 176, 0, 0.02); padding: 20px; display: flex; flex-direction: column; justify-content: center; }
+
+        .main-grid {
+            display: flex;
+            flex: 1;
+            gap: 40px;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .specs-col {
+            flex: 1;
+            border: 1px solid rgba(255, 176, 0, 0.3);
+            background: rgba(255, 176, 0, 0.02);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow-y: auto;
+        }
+
         .data-row { display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255, 176, 0, 0.3); padding: 12px 0; font-size: 1.2rem; }
         .data-row:last-child { border: none; }
-        .visual-col { flex: 1.5; position: relative; border: 2px solid #ffb000; overflow: hidden; }
-        .corner { position: absolute; width: 20px; height: 20px; border: 4px solid #ffb000; z-index: 20; }
+
+        .visual-col {
+            flex: 1.5;
+            position: relative;
+            border: 2px solid #ffb000;
+            overflow: hidden;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #three-canvas-container {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .corner { position: absolute; width: 20px; height: 20px; border: 4px solid #ffb000; z-index: 20; pointer-events: none; }
         .tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
         .tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
         .bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
         .br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
-        .scan-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 5px; background: rgba(255, 176, 0, 0.5); box-shadow: 0 0 10px #ffb000; animation: scan 3s linear infinite; z-index: 15; opacity: 0.5; }
+
+        .scan-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            background: rgba(255, 176, 0, 0.5); box-shadow: 0 0 10px #ffb000;
+            animation: scan 3s linear infinite; z-index: 15; opacity: 0.5; pointer-events: none;
+        }
         @keyframes scan { 0% { top: -5%; opacity: 0; } 10% { opacity: 0.5; } 90% { opacity: 0.5; } 100% { top: 105%; opacity: 0; } }
 
-        /* IMAGES */
-        .img-container { width: 100%; height: 100%; background: #000000; position: relative; display: flex; align-items: center; justify-content: center; }
-        .ship-img { position: absolute; width: 100%; height: 100%; object-fit: contain; display: none; filter: sepia(100%) saturate(200%) hue-rotate(-15deg) contrast(1.2); opacity: 0.8; mix-blend-mode: hard-light; }
-        .ship-img.active { display: block; }
-        .ship-img.flipped { transform: scaleX(-1); }
-
-        /* TYPOGRAPHY */
-        h1, h2, h3 { font-weight: normal; letter-spacing: 2px; }
+        h1, h2, h3 { font-weight: normal; letter-spacing: 2px; margin: 0; }
         .dim { color: rgba(255, 176, 0, 0.5); }
         .white { color: #ffe6cc; text-shadow: 0 0 8px rgba(255, 230, 204, 0.6); }
         .blink { animation: blink 1s step-end infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
         @media (max-width: 900px) {
-            .main-grid { flex-direction: column; overflow-y: auto; }
-            #dashboard-screen { padding: 20px; }
-            .visual-col { min-height: 300px; }
+            #dashboard-screen { padding: 15px; overflow-y: auto; display: block; }
+            .main-grid { flex-direction: column; overflow: visible; display: flex; }
+            .visual-col { min-height: 350px; order: -1; margin-bottom: 20px; }
+            h1 { font-size: 1.5rem; }
         }
     </style>
 </head>
@@ -168,18 +211,13 @@
     <div class="crt-glow"></div>
 
     <div class="content-layer">
-
-        <!-- BOOT SECTION -->
         <div id="boot-screen">
-            <!-- CANVAS ADDED HERE -->
             <canvas id="starfield"></canvas>
-
             <img src="logo.webp" id="splash-logo" alt="OS Logo"
                  onerror="this.onerror=null; this.src='https://placehold.co/200x200/000000/ffb000?text=OS+LOGO&font=monospace';">
             <div class="boot-console" id="console-output"></div>
         </div>
 
-        <!-- DASHBOARD SECTION -->
         <div id="dashboard-screen">
             <div class="top-bar">
                 <div><h1>KIRUNA</h1><span class="dim">REG NO. 180924609 // ALUBAT FRANCE</span></div>
@@ -190,192 +228,210 @@
                     <h3>// VESSEL SPECIFICATIONS</h3><br>
                     <div class="data-row"><span>CLASS</span> <span class="white">ALUBAT OVNI 43</span></div>
                     <div class="data-row"><span>LENGTH</span> <span class="white">13 METERS</span></div>
-                    <div class="data-row"><span>BEAM</span> <span class="white">4.5 METERS</span></div>
-                    <div class="data-row"><span>MASS</span> <span class="white">8 TONS (DRY)</span></div>
+                    <div class="data-row"><span>BEAM</span> <span class="white">4.3 METERS</span></div>
+                    <div class="data-row"><span>MASS</span> <span class="white">8.5 TONS (DRY)</span></div>
                     <div class="data-row"><span>ENGINE</span> <span class="white">1x YANMAR 4JH2-TE</span></div>
                     <div class="data-row"><span>CREW</span> <span class="white">7 + 1 CPT</span></div>
                     <div class="data-row"><span>CAT</span> <span class="white">A</span></div>
                     <br><div class="dim">> STARLINK: CONNECTED<br>> IN-WATER: <span class="blink">NEGATIVE</span></div>
                 </div>
+
                 <div class="visual-col">
                     <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
                     <div class="scan-overlay"></div>
-                    <div class="img-container">
-                        <img src="boat1.webp" class="ship-img" alt="Exterior" onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMG+1&font=monospace';">
-                        <img src="boat2.webp" class="ship-img" alt="Schematic" onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMG+2&font=monospace';">
-                        <img src="boat3.webp" class="ship-img" alt="Interior" onerror="this.onerror=null; this.src='https://placehold.co/800x600/111/ffb000?text=IMG+3&font=monospace';">
+                    <div id="three-canvas-container"></div>
+                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 5px; z-index: 25; pointer-events: none;">
+                        SCHEMATIC_VIEW
                     </div>
-                    <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 5px;">CAM-FEED <span class="blink">●REC</span></div>
                 </div>
             </div>
         </div>
-
     </div>
 
-<script>
-    // === SETTINGS ===
-    const BOOT_SPEED = 30;
-    const IMAGE_CYCLE_SPEED = 3000;
+<script type="module">
+    import * as THREE from 'three';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
     // === ELEMENTS ===
     const bootScreen = document.getElementById('boot-screen');
     const dashboardScreen = document.getElementById('dashboard-screen');
     const logo = document.getElementById('splash-logo');
     const consoleOutput = document.getElementById('console-output');
+    const container = document.getElementById('three-canvas-container');
 
-    // === EFFICIENT STARFIELD (FAKE 3D) ===
+    // === DEBUG LOGGER ===
+    function logDebug(msg, color='white') {
+        console.log(msg);
+        const el = document.createElement('div');
+        el.style.color = color;
+        el.innerText = "> " + msg;
+        // Check if debug-log exists, if not create it overlaying the 3D view
+        let logContainer = document.getElementById('debug-log');
+        if (!logContainer && container) {
+            logContainer = document.createElement('div');
+            logContainer.id = 'debug-log';
+            logContainer.style.cssText = "position:absolute; top:0; left:0; padding:10px; font-size:12px; font-family:monospace; background:rgba(0,0,0,0.5); pointer-events:none; width:100%;";
+            container.parentElement.appendChild(logContainer);
+        }
+        if(logContainer) logContainer.appendChild(el);
+    }
+    // === BOOT SETTINGS ===
+    const bootLines = [
+        "KIRUNA-OS v4.2.0 INITIALIZING...",
+        "CHECKING SUBSYSTEMS...",
+        "ALUBAT ELECTRONIC NAVIGATION SUITE: ONLINE",
+        "CONNECTING TO STARLINK...",
+        "DECRYPTING VESSEL_SPEC.DAT",
+        "READY."
+    ];
+    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+    // === 3D VARIABLES ===
+    let scene, camera, renderer, boatModel;
+
+    function init3D() {
+        if (!container) return;
+        logDebug("Initializing 3D...", "#ffb000");
+        scene = new THREE.Scene();
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        container.appendChild(renderer.domElement);
+
+        const aspect = container.clientWidth / container.clientHeight;
+        camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 1000);
+        camera.position.set(0, 2, 75);
+        logDebug(`Cam set to: 0, 2, 75`, "lime");
+
+        const amb = new THREE.AmbientLight(0xffffff, 3);
+        scene.add(amb);
+
+        // 5. Loader
+        const loader = new GLTFLoader();
+        logDebug("Requesting boat.glb...", "cyan");
+
+        loader.load('boat.glb', function (gltf) {
+            logDebug("File loaded (HTTP 200/304)", "lime");
+            boatModel = gltf.scene;
+            scene.add(boatModel);
+
+            // --- DIAGNOSTIC CHECKS ---
+
+            // Check 1: Count Meshes
+            let meshCount = 0;
+            boatModel.traverse((child) => {
+                if (child.isMesh) meshCount++;
+            });
+            logDebug(`Found ${meshCount} mesh.`, meshCount > 0 ? "lime" : "red");
+
+            if (meshCount === 0) {
+                logDebug("ERROR: Model is empty! No geometry found.", "red");
+                return;
+            }
+
+            const wireMat = new THREE.MeshBasicMaterial({ color: 0xffb000, wireframe: true });
+            boatModel.traverse((child) => { if (child.isMesh) child.material = wireMat; });
+
+            const box = new THREE.Box3().setFromObject(boatModel);
+            const center = box.getCenter(new THREE.Vector3());
+            boatModel.position.sub(center); // Centers the model
+
+
+            animate3D();
+        });
+
+        window.addEventListener('resize', () => {
+             camera.aspect = container.clientWidth / container.clientHeight;
+             camera.updateProjectionMatrix();
+             renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    }
+
+    function animate3D() {
+        requestAnimationFrame(animate3D);
+        if(boatModel) boatModel.rotation.y += 0.005;
+        renderer.render(scene, camera);
+    }
+
+    // === STARFIELD LOGIC ===
     let starReqId;
-
     function initStarfield() {
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
-
         let w = canvas.width = window.innerWidth;
         let h = canvas.height = window.innerHeight;
-        let cx = w / 2;
-        let cy = h / 2;
+        const count = 150;
+        const stars = Array.from({length: count}, () => ({
+            x: (Math.random() - 0.5) * w,
+            y: (Math.random() - 0.5) * h,
+            z: Math.random() * w
+        }));
 
-        window.addEventListener('resize', () => {
-            w = canvas.width = window.innerWidth;
-            h = canvas.height = window.innerHeight;
-            cx = w / 2; cy = h / 2;
-        });
-
-        // Simple star objects: x/y are offset from center
-        const count = 100;
-        const stars = [];
-
-        for(let i=0; i<count; i++) {
-            stars.push({
-                x: (Math.random() - 0.1) * w,
-                y: (Math.random() - 0.1) * h
+        function draw() {
+            ctx.fillStyle = '#000'; ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = '#ffb000';
+            stars.forEach(s => {
+                s.z -= 5;
+                if (s.z <= 0) s.z = w;
+                const sx = (s.x / s.z) * w + w/2;
+                const sy = (s.y / s.z) * h + h/2;
+                const size = (1 - s.z/w) * 3;
+                ctx.fillRect(sx, sy, size, size);
             });
+            starReqId = requestAnimationFrame(draw);
         }
-
-        function animate() {
-            // Clear screen
-            ctx.clearRect(0,0, w, h);
-            ctx.fillStyle = '#ffb000'; // Amber stars
-
-            for(let i=0; i<count; i++) {
-                const s = stars[i];
-
-                // "Warp" math: simple multiplication expands from center
-                s.x *= 1.01;
-                s.y *= 1.01;
-
-                // Render at Center + Offset
-                let px = cx + s.x;
-                let py = cy + s.y;
-
-                // Check bounds
-                if(px < 0 || px > w || py < 0 || py > h) {
-                    // Reset to a random spot near center
-                    s.x = (Math.random() - 0.5) * 2000;
-                    s.y = (Math.random() - 0.5) * 2000;
-                    px = cx + s.x;
-                    py = cy + s.y;
-                }
-
-                // Draw Rect (faster than Arc)
-                // Size grows slightly as it moves out for fake depth
-                const size = (Math.abs(s.x) + Math.abs(s.y)) / 300;
-                ctx.fillRect(px, py, Math.max(1, size), Math.max(1, size));
-            }
-            starReqId = requestAnimationFrame(animate);
-        }
-        animate();
+        draw();
     }
-
-    function stopStarfield() {
-        if(starReqId) cancelAnimationFrame(starReqId);
-    }
+    const stopStarfield = () => cancelAnimationFrame(starReqId);
 
     // === TYPEWRITER ===
-    const bootLines = [
-        "BIOS DATE 01/12/1993 VER 1.04",
-        "CPU: NEC V6000... OK",
-        "MEMORY TEST... 640KB OK",
-        "LOADING DRIVERS...",
-        "AUTHENTICATING...",
-        "ACCESS GRANTED."
-    ];
-
-    const wait = (ms) => new Promise(r => setTimeout(r, ms));
-
     async function typeLine(text) {
         const div = document.createElement('div');
-        div.style.marginBottom = "5px"; // spacing
+        div.style.marginBottom = "5px";
         consoleOutput.appendChild(div);
         let curr = "> ";
         for (let c of text) {
             curr += c;
             div.textContent = curr + "█";
-            await wait(Math.random() * 20 + 20);
+            await wait(30);
         }
         div.textContent = curr;
     }
 
-    // === MAIN BOOT ===
+    // === MAIN BOOT EXECUTION ===
     async function bootUp() {
-        initStarfield(); // Start stars
-
-        await wait(500);
+        initStarfield();
+        await wait(800);
         logo.style.opacity = 1;
-        await wait(1500);
+        await wait(2000);
         logo.style.display = 'none';
 
         for (let line of bootLines) {
             await typeLine(line);
-            await wait(100);
+            await wait(200);
         }
-        await wait(800);
+        await wait(1000);
 
-        // Transition
+        // Transition flash
         document.body.style.backgroundColor = '#ffb000';
-        await wait(50);
+        await wait(40);
         document.body.style.backgroundColor = '#000';
 
-        stopStarfield(); // Stop JS animation loop to save CPU
+        stopStarfield();
         bootScreen.style.display = 'none';
         dashboardScreen.style.display = 'flex';
 
         startClock();
-        cycleImages();
-    }
-
-    // === RUNTIME FUNCTIONS ===
-    function cycleImages() {
-        const images = document.querySelectorAll('.ship-img');
-        const seq = [
-            { id: 0, flip: false }, { id: 1, flip: false },
-            { id: 2, flip: false }, { id: 1, flip: true }, { id: 0, flip: true }
-        ];
-        let idx = 0;
-
-        const update = () => {
-            images.forEach(img => { img.classList.remove('active', 'flipped'); });
-            const s = seq[idx];
-            const active = images[s.id];
-            if(s.flip) active.classList.add('flipped');
-            active.classList.add('active');
-        };
-        update();
-        setInterval(() => {
-            idx = (idx + 1) % seq.length;
-            update();
-        }, IMAGE_CYCLE_SPEED);
+        init3D(); // Start the boat renderer
     }
 
     function startClock() {
         const el = document.getElementById('clock');
         setInterval(() => {
-            el.textContent = new Date().toISOString().split('T')[1].split('.')[0];
+            el.textContent = new Date().toLocaleTimeString('en-GB', { hour12: false });
         }, 1000);
     }
 
     window.onload = bootUp;
-
 </script>
 </body>
 </html>
