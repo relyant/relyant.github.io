@@ -126,6 +126,46 @@ title: Sailing Kiruna
 <!-- ========================= MAP WIDGET END ========================= -->
 
 
+<!-- ========================= MISSION PATCHES START ========================= -->
+<style>
+    /* Simple hover animation for patches */
+    .mission-patch {
+        transition: transform 0.2s ease, filter 0.2s ease;
+        display: block;
+    }
+    .mission-patch:hover {
+        transform: scale(1.05); /* Slight grow on hover */
+        filter: brightness(1.1);
+    }
+    .patch-img {
+        width: 110px;        /* Adjust size as needed */
+        height: 110px;
+        border-radius: 50%;  /* Makes it round */
+        object-fit: cover;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* Drop shadow for depth */
+    }
+</style>
+
+<div class="patches-container" style="display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-top: 30px; margin-bottom: 10px;">
+    
+    <!-- PATCH 1 -->
+    <!-- Change href to your desired link, change alt/title to name -->
+    <a href="/assets/Leg1.pdf" class="mission-patch" title="Leg 1">
+        <img src="{{ site.baseurl }}/assets/patches/Leg1.png" alt="Leg 1" class="patch-img">
+    </a>
+    <a href="/assets/Leg2.pdf" class="mission-patch" title="Leg 2">
+        <img src="{{ site.baseurl }}/assets/patches/Leg2.png" alt="Leg 1" class="patch-img">
+    </a>
+    <a href="/assets/Leg3.pdf" class="mission-patch" title="Leg 3">
+        <img src="{{ site.baseurl }}/assets/patches/Leg3.png" alt="Leg 1" class="patch-img">
+    </a>
+
+    <!-- ADD MORE PATCHES HERE BY COPYING THE BLOCK ABOVE -->
+
+</div>
+<!-- ========================= MISSION PATCHES END ========================= -->
+
+
 <!-- Fully Corrected Blog Section -->
 <div class="blog-list">
     <h3 style="margin-bottom: 20px; margin-top: 20px; text-align: left; margin-left:10px;">Logbuch</h3>
