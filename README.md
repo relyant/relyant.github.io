@@ -24,3 +24,4 @@ This repository is fully automated. I write posts on my phone using **GitJournal
 - `_incoming/`: Raw entries from my phone.
 - `_posts/`: Processed Jekyll posts.
 - `assets/`: Images and media.
+- `specs/`: A bit of fun with the boat specifications.
