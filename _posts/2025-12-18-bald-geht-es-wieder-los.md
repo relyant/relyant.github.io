@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Bald geht es wieder los..."
-image: "/assets/images/bc45e3c3925abed6d4cd508e2011b2a4.webp"
+image: /assets/images/bc45e3c3925abed6d4cd508e2011b2a4.webp
 date: 2025-12-18
 modified: 2025-12-18
 ---
@@ -16,4 +16,4 @@ Kurz vor Neujahr geht es wieder in den Port Napoleon. Dabei habe ich mir, neben 
 
 Das wärs für den Moment.
 
-Bis bald :)
+Bis bald
