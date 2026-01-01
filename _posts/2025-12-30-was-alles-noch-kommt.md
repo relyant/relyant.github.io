@@ -7,7 +7,7 @@ modified: 2025-12-30
 ---
 
 
-Gerade sind wir im Hotel angekommen. Wie haben uns nach einer ersten kalten Übernachtung entschieden, dass wir wenigstens einen Abend an der Wärme verbringen möchten. Wenn das Budget es zulässt wirkt eine Heizung für Kiruna angebracht.
+Gerade sind wir im Hotel angekommen. Wir haben uns nach einer ersten kalten Übernachtung entschieden, dass wir wenigstens einen Abend an der Wärme verbringen möchten. Wenn das Budget es zulässt, wäre eine Heizung für Kiruna angebracht.
 
 Gestern sind wir am Nachmittag angekommen und haben gleich einen müffeligen Geruch festgestellt. In der Bilge waren sicher 10 cm Wasser. Offenbar hat es vorher lange und stark geregnet. Aber zur Bilge später mehr.
 
@@ -23,9 +23,9 @@ Am nächsten Morgen ging es weiter mit der Inventur und auch mit der Entsorgung 
 
 Zur Inventur gehörte es auch das Dinghy auszupacken und aufzublasen. Trotz "weichem" Boden hat dieses eine gute Grösse.
 ![Image](/assets/images/e7d3b3bdd31d671d89a5fe9d32e11ac1.webp) 
-Schliesslich haben wir uns mit Luc Van Keirsbilck getroffen, der mir helfen wird die Arbeiten am Boot (dazu ein anderes Mal mehr) zu organisieren.
+Schliesslich haben wir uns mit Luc Van Keirsbilck getroffen, der mir helfen wird, die Arbeiten am Boot (dazu ein anderes Mal mehr) zu organisieren.
 
-Vor der Abreise gelang es uns dann noch die Bilgenpumpen in Betrieb zu nehmen. Leider stellte sich aber heraus, dass das System nicht ganz durchdacht war. Wenn eine Pumpe nicht mehr im Wasser war, was leider geschah, bevor die ganze Bilge leer war, lief das Wasser im Schlauch durch diese Pumpe zurück. So musste ich mit Lumpen und Eimer das restliche Wasser enfernen. Was für ein Krampf.
+Vor der Abreise gelang es uns dann noch, die Bilgenpumpen in Betrieb zu nehmen. Leider stellte sich aber heraus, dass das System nicht ganz durchdacht war. Wenn eine Pumpe nicht mehr im Wasser war, was leider geschah bevor die ganze Bilge leer war, lief das Wasser im Schlauch durch diese Pumpe zurück. So musste ich mit Lumpen und Eimer das restliche Wasser enfernen. Was für ein Krampf.
 
 So fuhren wir in den Sonnenuntergang zu unserer Unterkunft, mit einer ganzen Liste mit allem was schon auf dem Boot ist und mit allem, was ich noch anschaffen muss.
 ![Image](/assets/images/db594882df8218b56aec7237f1a87afa.webp) 
