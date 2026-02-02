@@ -38,10 +38,10 @@ Der Angestellte der Charterbasis lobte uns schliesslich noch für ein gelungenes
 
 <b>Erkenntnisse</b>
 
-    Eine lange Ankerkette ist viel wert und bringt Flexibilität.
-    Plättli sind perfekt für unterwegs.
-    Eine gute Crew ist extrem viel wert.
-    Ich mag mein Rollgross.
+- Eine lange Ankerkette ist viel wert und bringt Flexibilität.
+- Plättli sind perfekt für unterwegs.
+- Eine gute Crew ist extrem viel wert.
+- Ich mag mein Rollgross.
 
 
 ![Image](/assets/images/d84e6defa50c057924b03e51f17d324f.webp)
