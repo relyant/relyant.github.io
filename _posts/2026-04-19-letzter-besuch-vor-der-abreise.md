@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Letzter Besuch vor der Abreise 🚢⏳"
-image: /assets/images/78b8a2547573ecb42049fa6d84094580.webp
+image: /assets/patches/Leg0.5.png
 date: 2026-04-19
 modified: 2026-04-19
 ---
