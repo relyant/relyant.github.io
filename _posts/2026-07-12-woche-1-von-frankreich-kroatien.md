@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Woche 1 von Frankreich -> Kroatien"
-image: /assets/patches/Leg_1.webp
+image: /assets/patches/Leg1.webp
 date: 2026-07-12
 modified: 2026-07-12
 ---
