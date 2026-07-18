@@ -1,9 +1,11 @@
 ---
-created: 2026-07-18
+layout: post
+title: "Woche 2 von Olbia nach Messina"
+image: /assets/images/66d20e90aa4d1a67b0159355a18d2722.webp
+date: 2026-07-18
 modified: 2026-07-18
 ---
 
-# Woche 2 von Olbia nach Messina
 
 Ich frage moch zwischendurch, ob dieser Blog mehr ein digitales Logbuch oder ein Reisetagebuch sein soll.
 
@@ -21,15 +23,15 @@ Nur beim einlaufen in diesen Hafen ist noch der Bugstrahler ausgestiegen. Zum Gl
 
 Lipari war ein sehr schöner Halt und wir wurden selten so freundlich empfangen. 
 
-![Image](../assets/images/66d20e90aa4d1a67b0159355a18d2722.jpg) 
+![Image](/assets/images/66d20e90aa4d1a67b0159355a18d2722.webp) 
 
 Anschliessend sind wir nach Vulcano gesegelt, wo wir einen kurzen Badestop machten, bevor es weiter bis nach Sizilien ging. Dort durften wir wieder an einem sehr schönen Strand ankern, der uns an den Strand in Budoni erinnerte.
 
-![Image](../assets/images/2c873b3c44d8ef0ac22575c498c39a18.jpg) 
+![Image](/assets/images/2c873b3c44d8ef0ac22575c498c39a18.webp) 
 
 Schliesslich ging es noch die restlichen 15 Seemeilen nach Messina. Die Strömung in Kombination mit Rückenwind machte das Vorwärtskommen einfach.
 
-![Image](../assets/images/cb3344c39bd494471e87f5b8b62c5d82.jpg) 
+![Image](/assets/images/cb3344c39bd494471e87f5b8b62c5d82.webp) 
 
 Die einzige Marina in Messina ist recht einfach (wenn man vom Restaurant mit Michelin Stern darin absieht). Leider sind es nur Schwimmstege, weshalb die nacht mit aufkommenden Winden und vorbeifahrenden Fähren recht rollig war.
 
