@@ -7,7 +7,7 @@ modified: 2026-07-18
 ---
 
 
-Ich frage moch zwischendurch, ob dieser Blog mehr ein digitales Logbuch oder ein Reisetagebuch sein soll.
+Ich frage mich zwischendurch, ob dieser Blog mehr ein digitales Logbuch oder ein Reisetagebuch sein soll. Wie dem auch sei, die zweite Woche liegt hinter uns.
 
 Die Fahrt von Olbia nach Budoni verlief ereignislos. Wir entschieden uns den Weg durch die Inseln vor Olbia zu fahren. Das erforderte Aufmerksamkeit vom Navigator, der Kiruna trotz der Hitze sicher ans Ziel brachte.
 
