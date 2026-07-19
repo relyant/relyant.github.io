@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "Woche 2 von Olbia nach Messina"
-image: /assets/images/66d20e90aa4d1a67b0159355a18d2722.webp
+title: "Woche 2 von Olbia -> Messina"
+image: /assets/patches/Leg1.webp
 date: 2026-07-18
 modified: 2026-07-18
 ---
