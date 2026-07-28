@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Woche 1 von Frankreich -> Kroatien"
+title: "Woche 1 von Frankreich -> Olbia"
 image: /assets/patches/Leg1.webp
 date: 2026-07-12
 modified: 2026-07-12
