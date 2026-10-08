@@ -207,8 +207,10 @@
         <details class="upl">
             <summary><span class="material-icons sm" style="vertical-align:middle;">image</span> Bilder hochladen (werden zu WebP konvertiert, max. 1920px)</summary>
             <input type="file" id="f-files" multiple accept="image/*" style="margin-top:10px;">
+            <label for="f-alt" style="margin-top:10px;">Bildbeschreibung (Alt-Text, gilt für die hochgeladenen Bilder)</label>
+            <input id="f-alt" placeholder="z.B. Sonnenuntergang vor Milna">
             <div class="imglist" id="img-preview"></div>
-            <div class="hint">Nach dem Upload wird der Markdown-Link an der Cursorposition eingefügt. Das erste Bild wird als Titelbild gesetzt.</div>
+            <div class="hint">Nach dem Upload wird der Markdown-Link an der Cursorposition eingefügt. Das erste Bild wird als Titelbild gesetzt. Alt-Text lässt sich später direkt im Markdown anpassen.</div>
         </details>
         <div class="row" style="margin-top:18px;">
             <button class="primary" id="btn-save"><span class="material-icons sm">save</span> Veröffentlichen</button>
@@ -541,9 +543,11 @@
         const baseSlug = slugify($('f-title').value || 'bild');
         const ta = $('f-body');
         try {
+            const alt = $('f-alt').value.trim();
             for (const f of files) {
                 const url = await uploadOne(f, baseSlug);
-                const snippet = '![' + f.name.replace(/\.[^.]+$/, '') + '](' + url + ')\n\n';
+                const altText = alt || f.name.replace(/\.[^.]+$/, '');
+                const snippet = '![' + altText.replace(/[\[\]]/g, ' ') + '](' + url + ')\n\n';
                 const pos = ta.selectionStart || ta.value.length;
                 ta.value = ta.value.slice(0, pos) + snippet + ta.value.slice(pos);
                 if (!$('f-image').value) {
