@@ -138,15 +138,17 @@ title: Sailing Kiruna
 </style>
 
 <div class="patches-container" style="display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-top: 30px; margin-bottom: 10px;">
-    
-    <!-- PATCH 1 -->
-    <!-- Change href to your desired link, change alt/title to name -->
 
-    <a href="/assets/pdf/placeholder.pdf" class="mission-patch" title="Leg 4">
-        <img src="{{ site.baseurl }}/assets/patches/Leg5.webp" alt="Leg 4" class="patch-img">
-    </a>
-
-    <!-- ADD MORE PATCHES HERE BY COPYING THE BLOCK ABOVE -->
+    <!-- Rendered from _data/patches.json - manage via /admin/ → Patches -->
+    {% for patch in site.data.patches %}
+        {% if patch.link %}
+        <a href="{{ patch.link }}" class="mission-patch" title="{{ patch.title }}">
+            <img src="{{ site.baseurl }}{{ patch.file }}" alt="{{ patch.title }}" class="patch-img" loading="lazy" decoding="async">
+        </a>
+        {% else %}
+        <img src="{{ site.baseurl }}{{ patch.file }}" alt="{{ patch.title }}" class="patch-img" loading="lazy" decoding="async">
+        {% endif %}
+    {% endfor %}
 
 </div>
 <!-- ========================= MISSION PATCHES END ========================= -->

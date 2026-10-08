@@ -99,6 +99,36 @@
     .imglist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .imglist img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
     details.upl summary { cursor: pointer; color: var(--primary); font-size: 0.9rem; padding: 8px 0; }
+
+    /* ---------- PATCHES ---------- */
+    @font-face {
+        font-family: 'Coolvetica';
+        src: url('Coolvetica.otf');
+    }
+    .patch-row {
+        display: flex; gap: 8px; align-items: center;
+        background: var(--surface2); border: 1px solid var(--border);
+        border-radius: 12px; padding: 8px 10px; margin-bottom: 8px;
+    }
+    .patch-row img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+    .patch-row .drag-handle { color: var(--text2); cursor: grab; }
+    .patch-row input { flex: 1 1 120px; min-width: 0; }
+    .patch-row button { padding: 6px 10px; }
+    .patch-creator { display: flex; gap: 18px; flex-wrap: wrap; align-items: flex-start; }
+    #patch-canvas {
+        width: 260px; height: 260px; max-width: 100%;
+        border-radius: 50%; box-shadow: 0 0 18px rgba(0,0,0,0.5); background: #333;
+        flex-shrink: 0;
+    }
+    .pc-controls { flex: 1 1 260px; display: flex; flex-direction: column; gap: 4px; }
+    .pc-controls label { margin: 6px 0 4px; }
+    .palette { display: flex; gap: 8px; flex-wrap: wrap; }
+    .color-swatch {
+        width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+        border: 2px solid transparent; transition: transform 0.15s ease;
+    }
+    .color-swatch:hover { transform: scale(1.12); }
+    .color-swatch.active { border-color: #fff; transform: scale(1.15); }
 </style>
 </head>
 <body>
@@ -119,6 +149,7 @@
         <button data-view="posts" class="primary"><span class="material-icons sm">list</span> Posts</button>
         <button data-view="editor"><span class="material-icons sm">edit_note</span> Neuer Post</button>
         <button data-view="location"><span class="material-icons sm">place</span> Position</button>
+        <button data-view="patches"><span class="material-icons sm">military_tech</span> Patches</button>
     </nav>
 
     <!-- ============ SETUP (no token) ============ -->
@@ -201,6 +232,48 @@
         </div>
         <div id="loc-map"></div>
         <div class="hint">Karte antippen oder Marker ziehen setzt die Koordinaten. Kacheln decken Mittelmeer + Kanaren ab (Zoom 6); dort draussen bleibt die Karte leer.</div>
+    </section>
+
+    <!-- ============ PATCHES ============ -->
+    <section id="view-patches" class="glass hidden">
+        <div class="toolbar">
+            <button data-view="posts"><span class="material-icons sm">arrow_back</span> Zurück</button>
+            <span style="align-self:center; color:var(--text2); font-size:0.9rem;">Mission Patches auf der Startseite</span>
+        </div>
+
+        <h2 style="font-size:1rem; margin-bottom:10px;">Anzeige verwalten</h2>
+        <div id="patch-list"><div class="hint">Lade Patches...</div></div>
+        <div class="row" style="margin-top:12px; align-items:center;">
+            <select id="existing-patch-files" style="flex:1 1 200px;"></select>
+            <button id="btn-add-existing" style="flex:0 0 auto;"><span class="material-icons sm">add</span> Vorhandene</button>
+            <button class="primary" id="btn-save-patches" style="flex:0 0 auto;"><span class="material-icons sm">save</span> Änderungen speichern</button>
+        </div>
+        <div class="hint">Reihenfolge, Titel und Link gelten für die Startseite. Ohne Link wird der Patch ohne Verknüpfung angezeigt.</div>
+
+        <h2 style="font-size:1rem; margin:26px 0 12px;">Patch erstellen</h2>
+        <div class="patch-creator">
+            <canvas id="patch-canvas" width="1000" height="1000"></canvas>
+            <div class="pc-controls">
+                <label>Hintergrund</label>
+                <div class="palette" id="pc-bg"></div>
+                <label>Ring</label>
+                <div class="palette" id="pc-border"></div>
+                <label>Textfarbe</label>
+                <div class="palette" id="pc-text"></div>
+                <label for="pc-top">Text oben</label>
+                <input id="pc-top" value="LEG 4">
+                <label for="pc-bottom">Text unten</label>
+                <input id="pc-bottom" value="SAILING KIRUNA">
+                <label for="pc-image">Emblem-Bild (wird kreisförmig beschnitten)</label>
+                <input type="file" id="pc-image" accept="image/*">
+                <label for="pc-title">Titel (Alt-Text / Listenname)</label>
+                <input id="pc-title" placeholder="Leg 5">
+                <label for="pc-link">Link (optional, z.B. PDF)</label>
+                <input id="pc-link" placeholder="/assets/pdf/Leg5.pdf">
+                <button class="primary" id="btn-create-patch" style="margin-top:12px;"><span class="material-icons sm">military_tech</span> Patch speichern &amp; anzeigen</button>
+                <div class="hint">Wird nach <code>assets/patches/&lt;titel&gt;.webp</code> hochgeladen und automatisch in die Anzeige aufgenommen.</div>
+            </div>
+        </div>
     </section>
 </div>
 
@@ -287,13 +360,14 @@
 
     // ---------- views ----------
     function show(view) {
-        ['setup', 'posts', 'editor', 'location'].forEach((v) => {
+        ['setup', 'posts', 'editor', 'location', 'patches'].forEach((v) => {
             $('view-' + v).classList.toggle('hidden', v !== view);
         });
         document.querySelectorAll('#tabs button').forEach((b) => {
             b.classList.toggle('primary', b.dataset.view === view);
         });
         if (view === 'location' && TOKEN) initLocationMap();
+        if (view === 'patches' && TOKEN) { initPatchCreator(); loadPatches(); }
         if (view === 'posts' && TOKEN) loadPosts();
     }
 
@@ -575,6 +649,258 @@
         }
     }
 
+    // ---------- patches ----------
+    const PATCH_COLORS = ['#4b3c6d', '#068ab8', '#046886', '#a5c048', '#05714c', '#f77102', '#cb1025'];
+    const PATCHES_PATH = '_data/patches.json';
+    let patchesData = [];
+    let patchImg = null;
+    let patchDrawn = false;
+
+    const pCanvas = $('patch-canvas');
+    const pCtx = pCanvas.getContext('2d');
+    const patchState = {
+        bg: '#4b3c6d', border: '#cb1025', text: '#ffffff',
+        top: 'LEG 4', bottom: 'SAILING KIRUNA'
+    };
+
+    function pcPalette(elId, key) {
+        const box = $(elId);
+        PATCH_COLORS.concat(elId === 'pc-text' ? ['#ffffff', '#000000'] : []).forEach((c) => {
+            const sw = document.createElement('div');
+            sw.className = 'color-swatch' + (patchState[key] === c ? ' active' : '');
+            sw.style.backgroundColor = c;
+            sw.addEventListener('click', () => {
+                Array.from(box.children).forEach((ch) => ch.classList.remove('active'));
+                sw.classList.add('active');
+                patchState[key] = c;
+                drawPatchCanvas();
+            });
+            box.appendChild(sw);
+        });
+    }
+
+    function pcTextAlongArc(str, cx, cy, radius, isTop) {
+        pCtx.save();
+        const angleSize = 0.13;
+        const totalAngle = (str.length - 1) * angleSize;
+        let angleStart = isTop
+            ? -Math.PI / 2 - (totalAngle / 2)
+            : Math.PI / 2 + (totalAngle / 2);
+        for (let i = 0; i < str.length; i++) {
+            pCtx.save();
+            const a = isTop ? angleStart + i * angleSize : angleStart - i * angleSize;
+            pCtx.translate(cx + Math.cos(a) * radius, cy + Math.sin(a) * radius);
+            pCtx.rotate(isTop ? a + Math.PI / 2 : a - Math.PI / 2);
+            pCtx.fillText(str[i], 0, 0);
+            pCtx.restore();
+        }
+        pCtx.restore();
+    }
+
+    function pcStar(cx, cy, spikes, outerR, innerR, color) {
+        let rot = Math.PI / 2 * 3, step = Math.PI / spikes;
+        pCtx.beginPath();
+        pCtx.moveTo(cx, cy - outerR);
+        for (let i = 0; i < spikes; i++) {
+            pCtx.lineTo(cx + Math.cos(rot) * outerR, cy + Math.sin(rot) * outerR);
+            rot += step;
+            pCtx.lineTo(cx + Math.cos(rot) * innerR, cy + Math.sin(rot) * innerR);
+            rot += step;
+        }
+        pCtx.lineTo(cx, cy - outerR);
+        pCtx.closePath();
+        pCtx.fillStyle = color;
+        pCtx.fill();
+    }
+
+    function drawPatchCanvas() {
+        const w = pCanvas.width, h = pCanvas.height;
+        const cx = w / 2, cy = h / 2, radius = 480, border = 75;
+        pCtx.clearRect(0, 0, w, h);
+
+        pCtx.beginPath();
+        pCtx.arc(cx, cy, radius, 0, 2 * Math.PI, false);
+        pCtx.fillStyle = patchState.border;
+        pCtx.fill();
+
+        const inner = radius - border;
+        pCtx.beginPath();
+        pCtx.arc(cx, cy, inner, 0, 2 * Math.PI, false);
+        pCtx.fillStyle = patchState.bg;
+        pCtx.fill();
+
+        if (patchImg) {
+            pCtx.save();
+            pCtx.beginPath();
+            pCtx.arc(cx, cy, inner, 0, 2 * Math.PI, false);
+            pCtx.clip();
+            const scale = Math.max((inner * 2) / patchImg.width, (inner * 2) / patchImg.height);
+            const iw = patchImg.width * scale, ih = patchImg.height * scale;
+            pCtx.drawImage(patchImg, cx - iw / 2, cy - ih / 2, iw, ih);
+            pCtx.restore();
+        } else {
+            pcStar(cx, cy, 5, 100, 50, 'rgba(255,255,255,0.1)');
+        }
+
+        pCtx.fillStyle = patchState.text;
+        pCtx.font = '68px "Coolvetica", sans-serif';
+        pCtx.textAlign = 'center';
+        pCtx.textBaseline = 'middle';
+        pcTextAlongArc(patchState.top, cx, cy, radius - border / 2, true);
+        pcTextAlongArc(patchState.bottom, cx, cy, radius - border / 2, false);
+
+        pCtx.beginPath();
+        pCtx.arc(cx, cy, inner, 0, 2 * Math.PI);
+        pCtx.lineWidth = 4;
+        pCtx.strokeStyle = 'rgba(0,0,0,0.3)';
+        pCtx.stroke();
+        pCtx.beginPath();
+        pCtx.arc(cx, cy, radius - 5, 0, 2 * Math.PI);
+        pCtx.stroke();
+    }
+
+    let creatorReady = false;
+    function initPatchCreator() {
+        if (creatorReady) return;
+        creatorReady = true;
+        pcPalette('pc-bg', 'bg');
+        pcPalette('pc-border', 'border');
+        pcPalette('pc-text', 'text');
+        $('pc-top').addEventListener('input', (e) => { patchState.top = e.target.value.toUpperCase(); drawPatchCanvas(); });
+        $('pc-bottom').addEventListener('input', (e) => { patchState.bottom = e.target.value.toUpperCase(); drawPatchCanvas(); });
+        $('pc-image').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => { patchImg = img; drawPatchCanvas(); };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => drawPatchCanvas());
+        }
+        drawPatchCanvas();
+    }
+
+    async function loadPatches() {
+        try {
+            const resp = await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + PATCHES_PATH + '?ref=' + BRANCH,
+                { headers: { 'Accept': 'application/vnd.github.raw' } });
+            patchesData = JSON.parse(await resp.text());
+        } catch (e) {
+            if (e.message.indexOf('404') >= 0) patchesData = [];
+            else { status(e.message, 'err'); patchesData = []; }
+        }
+        renderPatchList();
+        refreshPatchFiles();
+    }
+
+    function renderPatchList() {
+        const list = $('patch-list');
+        list.innerHTML = '';
+        if (!patchesData.length) {
+            list.innerHTML = '<div class="hint">Noch keine Patches in der Anzeige.</div>';
+        }
+        patchesData.forEach((p, i) => {
+            const row = document.createElement('div');
+            row.className = 'patch-row';
+            row.innerHTML =
+                '<img src="' + p.file + '" alt="">' +
+                '<input class="pr-title" value="' + String(p.title || '').replace(/"/g, '&quot;') + '" placeholder="Titel">' +
+                '<input class="pr-link" value="' + String(p.link || '').replace(/"/g, '&quot;') + '" placeholder="Link (leer = keiner)">' +
+                '<button class="pr-up" title="Nach oben"><span class="material-icons sm">arrow_upward</span></button>' +
+                '<button class="pr-down" title="Nach unten"><span class="material-icons sm">arrow_downward</span></button>' +
+                '<button class="pr-del danger" title="Entfernen"><span class="material-icons sm">delete</span></button>';
+            row.querySelector('.pr-title').addEventListener('input', (e) => { patchesData[i].title = e.target.value; });
+            row.querySelector('.pr-link').addEventListener('input', (e) => { patchesData[i].link = e.target.value; });
+            row.querySelector('.pr-up').addEventListener('click', () => {
+                if (i === 0) return;
+                [patchesData[i - 1], patchesData[i]] = [patchesData[i], patchesData[i - 1]];
+                renderPatchList();
+            });
+            row.querySelector('.pr-down').addEventListener('click', () => {
+                if (i >= patchesData.length - 1) return;
+                [patchesData[i + 1], patchesData[i]] = [patchesData[i], patchesData[i + 1]];
+                renderPatchList();
+            });
+            row.querySelector('.pr-del').addEventListener('click', () => {
+                patchesData.splice(i, 1);
+                renderPatchList();
+            });
+            list.appendChild(row);
+        });
+    }
+
+    async function refreshPatchFiles() {
+        const sel = $('existing-patch-files');
+        sel.innerHTML = '';
+        try {
+            const resp = await gh('/repos/' + OWNER + '/' + REPO + '/contents/assets/patches?ref=' + BRANCH);
+            const files = await resp.json();
+            files.filter((f) => /\.(webp|png|jpg|jpeg)$/i.test(f.name)).forEach((f) => {
+                const opt = document.createElement('option');
+                opt.value = '/assets/patches/' + f.name;
+                opt.textContent = f.name;
+                sel.appendChild(opt);
+            });
+        } catch (e) { /* ignore */ }
+    }
+
+    async function savePatchesJson(message) {
+        const resp = await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + PATCHES_PATH + '?ref=' + BRANCH);
+        const sha = (await resp.json()).sha;
+        await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + PATCHES_PATH, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: message,
+                content: b64encode(JSON.stringify(patchesData, null, 2) + '\n'),
+                sha: sha,
+                branch: BRANCH
+            })
+        });
+    }
+
+    async function createPatch() {
+        const title = $('pc-title').value.trim() || 'Patch';
+        const link = $('pc-link').value.trim();
+        const slug = slugify(title);
+        status('Erzeuge Patch...', 'info', true);
+        try {
+            let blob = await new Promise((res) => pCanvas.toBlob(res, 'image/webp', 0.9));
+            let ext = 'webp';
+            if (!blob) {
+                blob = await new Promise((res) => pCanvas.toBlob(res, 'image/png'));
+                ext = 'png';
+            }
+            const buf = new Uint8Array(await blob.arrayBuffer());
+            let bin = '';
+            for (let i = 0; i < buf.length; i += 0x8000) {
+                bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+            }
+            const name = slug + '.' + ext;
+            await gh('/repos/' + OWNER + '/' + REPO + '/contents/assets/patches/' + name, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: 'Add mission patch ' + name,
+                    content: btoa(bin),
+                    branch: BRANCH
+                })
+            });
+            patchesData.push({ file: '/assets/patches/' + name, title: title, link: link });
+            await savePatchesJson('Add patch to display: ' + title);
+            renderPatchList();
+            refreshPatchFiles();
+            status('Patch gespeichert und auf der Startseite aufgenommen!', 'ok');
+        } catch (e) {
+            status(e.message, 'err');
+        }
+    }
+
     // ---------- wiring ----------
     document.querySelectorAll('button[data-view]').forEach((b) => {
         b.addEventListener('click', () => {
@@ -588,6 +914,23 @@
     $('btn-delete').addEventListener('click', deletePost);
     $('btn-save-loc').addEventListener('click', saveLocation);
     $('btn-logout').addEventListener('click', logout);
+    $('btn-save-patches').addEventListener('click', async () => {
+        status('Speichere Patch-Anzeige...', 'info', true);
+        try {
+            await savePatchesJson('Update patch display');
+            status('Patch-Anzeige gespeichert!', 'ok');
+        } catch (e) {
+            status(e.message, 'err');
+        }
+    });
+    $('btn-add-existing').addEventListener('click', () => {
+        const file = $('existing-patch-files').value;
+        if (!file) return;
+        const name = file.split('/').pop().replace(/\.[^.]+$/, '');
+        patchesData.push({ file: file, title: name, link: '' });
+        renderPatchList();
+    });
+    $('btn-create-patch').addEventListener('click', createPatch);
     $('btn-save-token').addEventListener('click', async () => {
         const tok = $('token-input').value.trim();
         if (!tok) { status('Bitte Token eingeben.', 'err'); return; }
