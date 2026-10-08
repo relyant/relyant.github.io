@@ -2,9 +2,8 @@
 layout: post
 title: "Wieso eine Ovni?"
 date: 2026-01-01
-modified: 2026-01-01
+image: "/assets/images/2026-01-01-wieso-eine-ovni-ti8sm0.webp"
 ---
-
 Ein Segelboot ist immer ein Kompromiss – wie wahrscheinlich viele Dinge im Leben. Grosser Salon, aber dafür weniger gutes Verhalten auf dem Meer? Weniger Tiefgang, dafür weniger Leistung hoch am Wind? Günstiges Boot, dafür weniger Sicherheit?
 
 Es gibt viele Entscheidungen zu treffen. Aber hier die für mich wichtigsten Punkte.
@@ -48,3 +47,6 @@ Generell haben diese Yachten einen hervorragenden Ruf. Ich habe kaum etwas Negat
 Fazit
 
 Die Kiruna ist kein Boot für Wochenendtörns. Sie ist gemacht für Abenteuer – mit Aluminiumrumpf, Kutter-Rigg und Kielschwert. Ja, sie ist teurer als eine Serienyacht. Aber sie bietet auch etwas, das viele andere Boote nicht können: Sicherheit, Langlebigkeit und Freiheit.
+
+![Screenshot_20261008_221044](/assets/images/2026-01-01-wieso-eine-ovni-ti8sm0.webp)
+
