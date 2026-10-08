@@ -5,7 +5,7 @@
   # Personal Journal
   
   <p>
-    <strong>A static site built with Jekyll, hosted on GitHub Pages, and updated via GitJournal.</strong>
+    <strong>A static site built with Jekyll, hosted on GitHub Pages, and managed via a built-in admin app.</strong>
   </p>
 
 </div>
@@ -14,14 +14,21 @@
 
 ### 🚀 How it Works
 
-This repository is fully automated. I write posts on my phone using **GitJournal**, and a GitHub Action handles the rest.
+Posts, images and the vessel location are managed through the built-in
+admin app at **/admin/** (works in any browser on Linux and Android).
+It talks directly to the GitHub API with a fine-grained personal
+access token and commits straight to `main`; GitHub Pages rebuilds
+automatically.
 
-1.  **Draft:** I save a new entry. It uploads detailed `YYYY-MM-DD.md` files to the `_incoming/` folder.
-2.  **Process:** The **Journal Bot** wakes up (waits 30s for sync), formats the file, and moves it to `_posts/`.
-3.  **Publish:** GitHub Pages builds the site and pushes it live.
+1. **Write:** open `/admin/` → *Neuer Post*, write markdown, drop in
+   images (auto-resized to 1920px and converted to WebP), publish.
+2. **Move:** update the boat's position under *Position* — fields,
+   map picker or GPS.
+3. **Publish:** GitHub Pages builds the site on every push.
 
 **Directory Structure:**
-- `_incoming/`: Raw entries from my phone.
-- `_posts/`: Processed Jekyll posts.
-- `assets/`: Images and media.
-- `specs/`: A bit of fun with the boat specifications.
+- `_posts/`: Jekyll posts (written by the admin app)
+- `assets/`: images, patches and PDFs
+- `assets/tiles/`: self-hosted OSM map tiles (see `scripts/fetch_tiles.py`)
+- `admin/`: the admin app
+- `specs/`: boat specifications
