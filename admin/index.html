@@ -99,6 +99,8 @@
     .imglist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
     .imglist img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
     details.upl summary { cursor: pointer; color: var(--primary); font-size: 0.9rem; padding: 8px 0; }
+    .md-toolbar { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+    .md-toolbar button { padding: 6px 14px; min-height: 36px; font-size: 0.9rem; }
 
     /* ---------- PATCHES ---------- */
     @font-face {
@@ -201,6 +203,13 @@
                 <label for="f-image">Titelbild (URL, automatisch vom ersten Upload)</label>
                 <input id="f-image" placeholder="/assets/images/...">
             </div>
+        </div>
+        <div class="md-toolbar">
+            <button type="button" data-md="h2" title="Zwischentitel (fett)"><b>H2</b></button>
+            <button type="button" data-md="h3" title="Untertitel"><b>H3</b></button>
+            <button type="button" data-md="bold" title="Fett"><b>B</b></button>
+            <button type="button" data-md="italic" title="Kursiv"><i>I</i></button>
+            <button type="button" data-md="link" title="Link"><span class="material-icons sm">link</span></button>
         </div>
         <label for="f-body">Text (Markdown)</label>
         <textarea id="f-body" placeholder="Eintrag schreiben..."></textarea>
@@ -904,6 +913,26 @@
             status(e.message, 'err');
         }
     }
+
+    // markdown formatting toolbar
+    function mdFormat(kind) {
+        const ta = $('f-body');
+        const s = ta.selectionStart || 0, e = ta.selectionEnd || 0;
+        const sel = ta.value.slice(s, e);
+        let pre, mid, post;
+        if (kind === 'h2') { pre = '\n\n## '; mid = sel || 'Zwischentitel'; post = '\n'; }
+        else if (kind === 'h3') { pre = '\n\n### '; mid = sel || 'Untertitel'; post = '\n'; }
+        else if (kind === 'bold') { pre = '**'; mid = sel || 'fetter Text'; post = '**'; }
+        else if (kind === 'italic') { pre = '*'; mid = sel || 'kursiver Text'; post = '*'; }
+        else if (kind === 'link') { pre = '['; mid = sel || 'Linktext'; post = '](https://)'; }
+        ta.value = ta.value.slice(0, s) + pre + mid + post + ta.value.slice(e);
+        ta.focus();
+        const nsp = s + pre.length;
+        ta.setSelectionRange(nsp, nsp + mid.length);
+    }
+    document.querySelectorAll('.md-toolbar button').forEach((b) => {
+        b.addEventListener('click', () => mdFormat(b.dataset.md));
+    });
 
     // ---------- wiring ----------
     document.querySelectorAll('button[data-view]').forEach((b) => {
