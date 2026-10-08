@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin – Sailing Kiruna</title>
+<link rel="icon" type="image/png" href="/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root {
+        --primary: #2196F3;
+        --bg: #0f0f0f;
+        --surface: rgba(30, 30, 30, 0.85);
+        --surface2: rgba(50, 50, 50, 0.6);
+        --text: #FFFFFF;
+        --text2: #B3B3B3;
+        --border: rgba(255, 255, 255, 0.1);
+        --danger: #ef5350;
+        --ok: #66bb6a;
+    }
+    body {
+        font-family: 'Roboto', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 12px 60px;
+    }
+    .wrap { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 16px; }
+    header { display: flex; align-items: center; justify-content: space-between; }
+    header h1 { font-size: 1.3rem; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+    header h1 .material-icons { color: var(--primary); }
+    .glass { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(8px); }
+    nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    nav button { flex: 1 1 auto; min-height: 44px; }
+    button {
+        font-family: inherit; font-size: 0.95rem; font-weight: 500;
+        background: var(--surface2); color: var(--text);
+        border: 1px solid var(--border); border-radius: 12px;
+        padding: 10px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+        transition: background 0.2s ease;
+    }
+    button:hover { background: rgba(255, 255, 255, 0.15); }
+    button.primary { background: var(--primary); border-color: transparent; color: #fff; }
+    button.primary:hover { background: #1b8ad6; }
+    button.danger { color: var(--danger); border-color: rgba(239, 83, 80, 0.4); }
+    button.danger:hover { background: rgba(239, 83, 80, 0.15); }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    .material-icons.sm { font-size: 18px; }
+    input, textarea, select {
+        font-family: inherit; font-size: 1rem; color: var(--text);
+        background: var(--surface2); border: 1px solid var(--border);
+        border-radius: 10px; padding: 10px 12px; width: 100%;
+    }
+    input:focus, textarea:focus { outline: 2px solid var(--primary); border-color: transparent; }
+    textarea { min-height: 320px; resize: vertical; line-height: 1.6; font-family: 'Roboto Mono', monospace; font-size: 0.9rem; }
+    label { display: block; font-size: 0.8rem; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin: 14px 0 6px; }
+    label:first-child { margin-top: 0; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .row > * { flex: 1 1 140px; }
+    .post-item {
+        display: flex; align-items: center; gap: 12px;
+        background: var(--surface2); border: 1px solid var(--border);
+        border-radius: 12px; padding: 12px 16px; margin-bottom: 10px; cursor: pointer;
+        transition: background 0.2s ease;
+    }
+    .post-item:hover { background: rgba(255, 255, 255, 0.12); }
+    .post-item .meta { flex: 1; min-width: 0; }
+    .post-item .t { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .post-item .d { font-size: 0.8rem; color: var(--text2); }
+    .post-item .material-icons { color: var(--text2); }
+    #status { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+        background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+        padding: 10px 18px; font-size: 0.9rem; display: none; max-width: 90vw; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+        pointer-events: none; }
+    #status.ok { color: var(--ok); }
+    #status.err { color: var(--danger); }
+    #status.info { color: var(--text2); }
+    .hint { font-size: 0.85rem; color: var(--text2); line-height: 1.5; margin-top: 8px; }
+    .hint code { background: var(--surface2); padding: 1px 6px; border-radius: 6px; font-size: 0.8rem; }
+    .hint a { color: var(--primary); }
+    #loc-map { height: 320px; border-radius: 12px; margin-top: 14px; z-index: 1; }
+    /* Dark admin theme: invert the bundled light tiles */
+    #loc-map .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9); }
+    .thumb { width: 46px; height: 46px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
+    .hidden { display: none !important; }
+    .spinner { animation: spin 1s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .imglist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .imglist img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; border: 1px solid var(--border); }
+    details.upl summary { cursor: pointer; color: var(--primary); font-size: 0.9rem; padding: 8px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <h1><span class="material-icons">sailing</span> Admin</h1>
+        <div>
+            <a href="/" style="color:var(--text2);text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                <span class="material-icons sm">public</span> Site
+            </a>
+            <button id="btn-logout" class="hidden" style="margin-left:10px;" title="Token vergessen">
+                <span class="material-icons sm">logout</span>
+            </button>
+        </div>
+    </header>
+
+    <nav id="tabs" class="hidden">
+        <button data-view="posts" class="primary"><span class="material-icons sm">list</span> Posts</button>
+        <button data-view="editor"><span class="material-icons sm">edit_note</span> Neuer Post</button>
+        <button data-view="location"><span class="material-icons sm">place</span> Position</button>
+    </nav>
+
+    <!-- ============ SETUP (no token) ============ -->
+    <section id="view-setup" class="glass">
+        <h2 style="margin-bottom:10px;">GitHub Token nötig</h2>
+        <div class="hint">
+            <p>Erstelle ein <b>fine-grained personal access token</b>:</p>
+            <ol style="margin:10px 0 10px 20px; display:flex; flex-direction:column; gap:6px;">
+                <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Token erstellen</a></li>
+                <li><b>Repository access:</b> Only select repositories → <code>relyant.github.io</code></li>
+                <li><b>Permissions:</b> <code>Contents</code> → Read and write (Metadata wird automatisch gesetzt)</li>
+                <li><b>Expiration:</b> beliebig (z.B. 90 Tage)</li>
+            </ol>
+            <p>Das Token bleibt in diesem Browser (localStorage) und wird nur direkt an <code>api.github.com</code> gesendet.</p>
+        </div>
+        <label for="token-input">Token</label>
+        <input type="password" id="token-input" placeholder="github_pat_..." autocomplete="off">
+        <div class="row" style="margin-top:14px; align-items:center;">
+            <label style="margin:0; display:flex; align-items:center; gap:8px; text-transform:none; font-size:0.9rem;">
+                <input type="checkbox" id="remember-token" checked style="width:auto;"> Auf diesem Gerät merken
+            </label>
+            <button class="primary" id="btn-save-token"><span class="material-icons sm">login</span> Anmelden</button>
+        </div>
+    </section>
+
+    <!-- ============ POSTS ============ -->
+    <section id="view-posts" class="glass hidden">
+        <div class="toolbar">
+            <button id="btn-refresh"><span class="material-icons sm">refresh</span> Aktualisieren</button>
+            <button class="primary" data-view="editor"><span class="material-icons sm">add</span> Neuer Post</button>
+        </div>
+        <div id="post-list"><div class="hint">Lade Posts...</div></div>
+    </section>
+
+    <!-- ============ EDITOR ============ -->
+    <section id="view-editor" class="glass hidden">
+        <div class="toolbar">
+            <button data-view="posts"><span class="material-icons sm">arrow_back</span> Zurück</button>
+            <span id="editor-title" style="align-self:center; color:var(--text2); font-size:0.9rem;"></span>
+        </div>
+        <label for="f-title">Titel</label>
+        <input id="f-title" placeholder="Titel des Posts">
+        <div class="row">
+            <div style="flex:1 1 180px;">
+                <label for="f-date">Datum</label>
+                <input type="date" id="f-date">
+            </div>
+            <div style="flex:1 1 180px;">
+                <label for="f-image">Titelbild (URL, automatisch vom ersten Upload)</label>
+                <input id="f-image" placeholder="/assets/images/...">
+            </div>
+        </div>
+        <label for="f-body">Text (Markdown)</label>
+        <textarea id="f-body" placeholder="Eintrag schreiben..."></textarea>
+        <details class="upl">
+            <summary><span class="material-icons sm" style="vertical-align:middle;">image</span> Bilder hochladen (werden zu WebP konvertiert, max. 1920px)</summary>
+            <input type="file" id="f-files" multiple accept="image/*" style="margin-top:10px;">
+            <div class="imglist" id="img-preview"></div>
+            <div class="hint">Nach dem Upload wird der Markdown-Link an der Cursorposition eingefügt. Das erste Bild wird als Titelbild gesetzt.</div>
+        </details>
+        <div class="row" style="margin-top:18px;">
+            <button class="primary" id="btn-save"><span class="material-icons sm">save</span> Veröffentlichen</button>
+            <button class="danger hidden" id="btn-delete"><span class="material-icons sm">delete</span> Löschen</button>
+        </div>
+    </section>
+
+    <!-- ============ LOCATION ============ -->
+    <section id="view-location" class="glass hidden">
+        <div class="row">
+            <div><label for="l-lat">Breite (lat)</label><input id="l-lat" inputmode="decimal" placeholder="43.5455"></div>
+            <div><label for="l-lng">Länge (lng)</label><input id="l-lng" inputmode="decimal" placeholder="16.4067"></div>
+        </div>
+        <div class="row">
+            <div style="flex:2 1 240px;"><label for="l-name">Ort</label><input id="l-name" placeholder="Split, Kroatien"></div>
+            <div><label for="l-date">Datum</label><input type="date" id="l-date"></div>
+        </div>
+        <div class="row" style="margin-top:14px;">
+            <button id="btn-gps"><span class="material-icons sm">my_location</span> GPS-Position</button>
+            <button class="primary" id="btn-save-loc"><span class="material-icons sm">save</span> Speichern</button>
+        </div>
+        <div id="loc-map"></div>
+        <div class="hint">Karte antippen oder Marker ziehen setzt die Koordinaten. Kacheln decken Mittelmeer + Kanaren ab (Zoom 6); dort draussen bleibt die Karte leer.</div>
+    </section>
+</div>
+
+<div id="status"></div>
+
+<script>
+(function() {
+    'use strict';
+
+    const OWNER = 'relyant';
+    const REPO = 'relyant.github.io';
+    const BRANCH = localStorage.getItem('kiruna_admin_branch') || 'main';
+    const API = 'https://api.github.com';
+    const TOKEN_KEY = 'kiruna_admin_token';
+
+    const $ = (id) => document.getElementById(id);
+    let TOKEN = null;
+    let currentFile = null; // {path, sha, name}
+    let locMap = null, locMarker = null;
+
+    // ---------- helpers ----------
+    let statusTimer = null;
+    function status(msg, type, sticky) {
+        const el = $('status');
+        el.textContent = msg;
+        el.className = type || 'info';
+        el.style.display = 'block';
+        clearTimeout(statusTimer);
+        if (!sticky) statusTimer = setTimeout(() => { el.style.display = 'none'; }, type === 'err' ? 6000 : 3000);
+    }
+
+    async function gh(path, opts) {
+        opts = opts || {};
+        const headers = Object.assign({
+            'Authorization': 'Bearer ' + TOKEN,
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+        }, opts.headers || {});
+        const resp = await fetch(API + path, Object.assign({ cache: 'no-store' }, opts, { headers }));
+        if (!resp.ok) {
+            let detail = '';
+            try { detail = (await resp.json()).message; } catch (e) {}
+            throw new Error('GitHub API ' + resp.status + (detail ? ': ' + detail : ''));
+        }
+        return resp;
+    }
+
+    function b64encode(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
+    function b64decode(str) {
+        return decodeURIComponent(escape(atob(str)));
+    }
+
+    function slugify(s) {
+        const map = { 'ä': 'ae', 'ö': 'oe', 'ü': 'ue', 'ß': 'ss' };
+        return s.toLowerCase()
+            .replace(/[äöüß]/g, (c) => map[c])
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '') || 'post';
+    }
+
+    function today() {
+        const d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function parseFrontMatter(text) {
+        const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+        if (!m) return { meta: {}, body: text };
+        const meta = {};
+        m[1].split(/\r?\n/).forEach((line) => {
+            const kv = line.match(/^([a-zA-Z_]+):\s*(.*)$/);
+            if (kv) meta[kv[1]] = kv[2].trim().replace(/^["']|["']$/g, '');
+        });
+        return { meta: meta, body: m[2] };
+    }
+
+    function buildPostFile(meta, body) {
+        let fm = '---\nlayout: post\ntitle: "' + meta.title.replace(/"/g, '\\"') + '"\ndate: ' + meta.date;
+        if (meta.image) fm += '\nimage: "' + meta.image + '"';
+        return fm + '\n---\n' + body.replace(/^\r?\n/, '');
+    }
+
+    // ---------- views ----------
+    function show(view) {
+        ['setup', 'posts', 'editor', 'location'].forEach((v) => {
+            $('view-' + v).classList.toggle('hidden', v !== view);
+        });
+        document.querySelectorAll('#tabs button').forEach((b) => {
+            b.classList.toggle('primary', b.dataset.view === view);
+        });
+        if (view === 'location' && TOKEN) initLocationMap();
+        if (view === 'posts' && TOKEN) loadPosts();
+    }
+
+    // ---------- auth ----------
+    async function tryToken(tok, remember) {
+        TOKEN = tok;
+        try {
+            await gh('/repos/' + OWNER + '/' + REPO);
+        } catch (e) {
+            TOKEN = null;
+            throw e;
+        }
+        if (remember) localStorage.setItem(TOKEN_KEY, tok);
+        else sessionStorage.setItem(TOKEN_KEY, tok);
+        afterLogin();
+    }
+
+    function afterLogin() {
+        $('view-setup').classList.add('hidden');
+        $('tabs').classList.remove('hidden');
+        $('btn-logout').classList.remove('hidden');
+        show('posts');
+    }
+
+    function logout() {
+        localStorage.removeItem(TOKEN_KEY);
+        sessionStorage.removeItem(TOKEN_KEY);
+        location.reload();
+    }
+
+    // ---------- posts ----------
+    async function loadPosts() {
+        const list = $('post-list');
+        list.innerHTML = '<div class="hint">Lade Posts...</div>';
+        try {
+            const resp = await gh('/repos/' + OWNER + '/' + REPO + '/contents/_posts?ref=' + BRANCH);
+            const files = await resp.json();
+            const mdFiles = files.filter((f) => f.name.endsWith('.md'));
+            const items = await Promise.all(mdFiles.map(async (f) => {
+                const raw = await gh('/repos/' + OWNER + '/' + REPO + '/contents/_posts/' + f.name + '?ref=' + BRANCH,
+                    { headers: { 'Accept': 'application/vnd.github.raw' } });
+                const text = await raw.text();
+                const fm = parseFrontMatter(text);
+                return { name: f.name, sha: f.sha, title: fm.meta.title || f.name, date: fm.meta.date || '', image: fm.meta.image || '', body: fm.body };
+            }));
+            items.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+            list.innerHTML = '';
+            if (!items.length) { list.innerHTML = '<div class="hint">Noch keine Posts.</div>'; return; }
+            items.forEach((it) => {
+                const div = document.createElement('div');
+                div.className = 'post-item';
+                const img = it.image
+                    ? '<img class="thumb" src="' + it.image + '" alt="">'
+                    : '<span class="material-icons" style="font-size:32px;color:var(--text2);">sailing</span>';
+                div.innerHTML = img +
+                    '<div class="meta"><div class="t">' + escapeHtml(it.title) + '</div><div class="d">' + it.date + ' · ' + it.name + '</div></div>' +
+                    '<span class="material-icons sm">chevron_right</span>';
+                div.addEventListener('click', () => openEditor(it));
+                list.appendChild(div);
+            });
+        } catch (e) {
+            list.innerHTML = '<div class="hint" style="color:var(--danger);">' + escapeHtml(e.message) + '</div>';
+        }
+    }
+
+    function escapeHtml(s) {
+        return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function openEditor(item) {
+        currentFile = item ? { path: '_posts/' + item.name, sha: item.sha } : null;
+        $('f-title').value = item ? item.title : '';
+        $('f-date').value = item ? (item.date || today()) : today();
+        $('f-image').value = item ? (item.image || '') : '';
+        $('f-body').value = item ? item.body : '';
+        $('img-preview').innerHTML = '';
+        $('editor-title').textContent = item ? item.name : 'Neuer Post';
+        $('btn-delete').classList.toggle('hidden', !item);
+        show('editor');
+    }
+
+    async function uploadOne(file, baseSlug) {
+        const MAXDIM = 1920, QUALITY = 0.8;
+        const bitmap = await createImageBitmap(file);
+        const scale = Math.min(1, MAXDIM / Math.max(bitmap.width, bitmap.height));
+        const w = Math.round(bitmap.width * scale), h = Math.round(bitmap.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(bitmap, 0, 0, w, h);
+        let blob = await new Promise((res) => canvas.toBlob(res, 'image/webp', QUALITY));
+        if (!blob) blob = await new Promise((res) => canvas.toBlob(res, 'image/png'));
+        const ext = blob && blob.type === 'image/webp' ? 'webp' : 'png';
+        const name = $('f-date').value + '-' + baseSlug + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+        const path = 'assets/images/' + name;
+        // read blob as base64
+        const buf = await blob.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        let bin = '';
+        const chunk = 0x8000;
+        for (let i = 0; i < bytes.length; i += chunk) {
+            bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+        }
+        const b64 = btoa(bin);
+        await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + path, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: 'Add image ' + name,
+                content: b64,
+                branch: BRANCH
+            })
+        });
+        return '/assets/images/' + name;
+    }
+
+    async function savePost() {
+        const title = $('f-title').value.trim() || 'Journal Entry';
+        const date = $('f-date').value || today();
+        const image = $('f-image').value.trim();
+        const body = $('f-body').value;
+        const content = buildPostFile({ title: title, date: date, image: image }, body);
+        const slug = slugify(title);
+        const isNew = !currentFile;
+        const path = isNew ? '_posts/' + date + '-' + slug + '.md' : currentFile.path;
+        status('Speichere...', 'info', true);
+        try {
+            const payload = {
+                message: isNew ? 'Add post: ' + title : 'Update post: ' + title,
+                content: b64encode(content),
+                branch: BRANCH
+            };
+            if (!isNew) payload.sha = currentFile.sha;
+            await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + path, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            status(isNew ? 'Veröffentlicht! Seite wird in 1-2 Min. neu gebaut.' : 'Gespeichert! Seite wird in 1-2 Min. neu gebaut.', 'ok');
+            show('posts');
+        } catch (e) {
+            status(e.message, 'err');
+        }
+    }
+
+    async function deletePost() {
+        if (!currentFile) return;
+        if (!confirm('Diesen Post wirklich löschen?')) return;
+        status('Lösche...', 'info', true);
+        try {
+            await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + currentFile.path, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: 'Delete post ' + currentFile.path,
+                    sha: currentFile.sha,
+                    branch: BRANCH
+                })
+            });
+            status('Gelöscht.', 'ok');
+            show('posts');
+        } catch (e) {
+            status(e.message, 'err');
+        }
+    }
+
+    // image input
+    $('f-files').addEventListener('change', async (ev) => {
+        const files = Array.from(ev.target.files || []);
+        if (!files.length) return;
+        status('Lade Bilder hoch...', 'info', true);
+        const baseSlug = slugify($('f-title').value || 'bild');
+        const ta = $('f-body');
+        try {
+            for (const f of files) {
+                const url = await uploadOne(f, baseSlug);
+                const snippet = '![' + f.name.replace(/\.[^.]+$/, '') + '](' + url + ')\n\n';
+                const pos = ta.selectionStart || ta.value.length;
+                ta.value = ta.value.slice(0, pos) + snippet + ta.value.slice(pos);
+                if (!$('f-image').value) {
+                    $('f-image').value = url;
+                    const prev = document.createElement('img');
+                    prev.src = url;
+                    $('img-preview').appendChild(prev);
+                }
+            }
+            status('Bilder hochgeladen.', 'ok');
+        } catch (e) {
+            status(e.message, 'err');
+        }
+        ev.target.value = '';
+    });
+
+    // ---------- location ----------
+    async function loadLocation() {
+        try {
+            const resp = await gh('/repos/' + OWNER + '/' + REPO + '/contents/location.json?ref=' + BRANCH,
+                { headers: { 'Accept': 'application/vnd.github.raw' } });
+            const data = JSON.parse(await resp.text());
+            $('l-lat').value = data.lat;
+            $('l-lng').value = data.lng;
+            $('l-name').value = data.location || '';
+            $('l-date').value = data.date || today();
+        } catch (e) {
+            status(e.message, 'err');
+        }
+    }
+
+    function initLocationMap() {
+        loadLocation();
+        if (locMap) return;
+        locMap = L.map('loc-map', { scrollWheelZoom: true });
+        L.tileLayer('/assets/tiles/map/{z}/{x}/{y}.png', { minZoom: 6, maxZoom: 6 }).addTo(locMap);
+        locMap.setView([43.5, 16.4], 6);
+        locMap.on('click', (e) => placeMarker(e.latlng.lat, e.latlng.lng));
+        placeMarker(43.5455, 16.4067);
+    }
+
+    function placeMarker(lat, lng) {
+        $('l-lat').value = parseFloat(lat).toFixed(6);
+        $('l-lng').value = parseFloat(lng).toFixed(6);
+        if (!locMarker) {
+            locMarker = L.marker([lat, lng], { draggable: true }).addTo(locMap);
+            locMarker.on('drag', (e) => {
+                $('l-lat').value = e.latlng.lat.toFixed(6);
+                $('l-lng').value = e.latlng.lng.toFixed(6);
+            });
+        } else {
+            locMarker.setLatLng([lat, lng]);
+        }
+    }
+
+    ['l-lat', 'l-lng'].forEach((id) => {
+        $(id).addEventListener('change', () => {
+            const lat = parseFloat($('l-lat').value), lng = parseFloat($('l-lng').value);
+            if (!isNaN(lat) && !isNaN(lng)) placeMarker(lat, lng);
+        });
+    });
+
+    $('btn-gps').addEventListener('click', () => {
+        if (!navigator.geolocation) { status('Geolocation nicht verfügbar.', 'err'); return; }
+        status('Suche GPS-Position...', 'info');
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                placeMarker(pos.coords.latitude, pos.coords.longitude);
+                locMap.setView([pos.coords.latitude, pos.coords.longitude], 6);
+                status('GPS-Position übernommen. Vergiss Ort/Datum nicht!', 'ok');
+            },
+            (err) => status('GPS-Fehler: ' + err.message, 'err'),
+            { enableHighAccuracy: true, timeout: 15000 }
+        );
+    });
+
+    async function saveLocation() {
+        const lat = parseFloat($('l-lat').value), lng = parseFloat($('l-lng').value);
+        if (isNaN(lat) || isNaN(lng)) { status('Ungültige Koordinaten.', 'err'); return; }
+        const data = {
+            lat: lat,
+            lng: lng,
+            date: $('l-date').value || today(),
+            location: $('l-name').value.trim() || 'Unterwegs'
+        };
+        status('Speichere Position...', 'info', true);
+        try {
+            const resp = await gh('/repos/' + OWNER + '/' + REPO + '/contents/location.json?ref=' + BRANCH);
+            const sha = (await resp.json()).sha;
+            await gh('/repos/' + OWNER + '/' + REPO + '/contents/location.json', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: 'Update location: ' + data.location,
+                    content: b64encode(JSON.stringify(data, null, 2) + '\n'),
+                    sha: sha,
+                    branch: BRANCH
+                })
+            });
+            status('Position gespeichert!', 'ok');
+        } catch (e) {
+            status(e.message, 'err');
+        }
+    }
+
+    // ---------- wiring ----------
+    document.querySelectorAll('button[data-view]').forEach((b) => {
+        b.addEventListener('click', () => {
+            const v = b.dataset.view;
+            if (v === 'editor' && currentFile) openEditor(null);
+            show(v);
+        });
+    });
+    $('btn-refresh').addEventListener('click', loadPosts);
+    $('btn-save').addEventListener('click', savePost);
+    $('btn-delete').addEventListener('click', deletePost);
+    $('btn-save-loc').addEventListener('click', saveLocation);
+    $('btn-logout').addEventListener('click', logout);
+    $('btn-save-token').addEventListener('click', async () => {
+        const tok = $('token-input').value.trim();
+        if (!tok) { status('Bitte Token eingeben.', 'err'); return; }
+        status('Prüfe Token...', 'info');
+        try {
+            await tryToken(tok, $('remember-token').checked);
+        } catch (e) {
+            status('Token ungültig: ' + e.message, 'err');
+        }
+    });
+    $('token-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') $('btn-save-token').click();
+    });
+
+    // ---------- init ----------
+    const saved = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
+    if (saved) {
+        tryToken(saved, !!localStorage.getItem(TOKEN_KEY)).catch(() => {
+            status('Gespeichertes Token ungültig - bitte neu anmelden.', 'err');
+        });
+    }
+})();
+</script>
+</body>
+</html>
