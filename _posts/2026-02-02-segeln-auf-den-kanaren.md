@@ -2,6 +2,7 @@
 layout: post
 title: "Segeln auf den Kanaren"
 image: /assets/images/76dd48fcb9575d9c70f2a4846de26611.webp
+thumb: "/assets/images/thumbs/76dd48fcb9575d9c70f2a4846de26611.webp"
 date: 2026-02-02
 modified: 2026-02-02
 ---

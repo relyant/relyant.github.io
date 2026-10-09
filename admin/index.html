@@ -9,9 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="../assets/vendor/leaflet.css">
+<script defer src="../assets/vendor/leaflet.js"></script>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     :root {
@@ -38,7 +37,7 @@
     .wrap { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 16px; }
     header { display: flex; align-items: center; justify-content: space-between; }
     header h1 { font-size: 1.3rem; font-weight: 500; display: flex; align-items: center; gap: 10px; }
-    header h1 .material-icons { color: var(--primary); }
+    header h1 .ic { color: var(--primary); fill: currentColor; }
     .glass { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; backdrop-filter: blur(8px); }
     nav { display: flex; gap: 8px; flex-wrap: wrap; }
     nav button { flex: 1 1 auto; min-height: 44px; }
@@ -55,7 +54,7 @@
     button.danger { color: var(--danger); border-color: rgba(239, 83, 80, 0.4); }
     button.danger:hover { background: rgba(239, 83, 80, 0.15); }
     button:disabled { opacity: 0.5; cursor: wait; }
-    .material-icons.sm { font-size: 18px; }
+    .ic { fill: currentColor; vertical-align: middle; flex-shrink: 0; }
     input, textarea, select {
         font-family: inherit; font-size: 1rem; color: var(--text);
         background: var(--surface2); border: 1px solid var(--border);
@@ -77,7 +76,7 @@
     .post-item .meta { flex: 1; min-width: 0; }
     .post-item .t { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .post-item .d { font-size: 0.8rem; color: var(--text2); }
-    .post-item .material-icons { color: var(--text2); }
+    .post-item .ic { color: var(--text2); }
     #status { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
         background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
         padding: 10px 18px; font-size: 0.9rem; display: none; max-width: 90vw; z-index: 2000; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
@@ -136,22 +135,23 @@
 <body>
 <div class="wrap">
     <header>
-        <h1><span class="material-icons">sailing</span> Admin</h1>
+        <h1><svg class="ic" style="width:1.2em;height:1.2em" viewBox="0 0 24 24" aria-hidden="true"><path d="M11,13.5V2L3,13.5H11z M21,13.5C21,6.5,14.5,1,12.5,1c0,0,1,3,1,6.5s-1,6-1,6H21z M22,15H2c0.31,1.53,1.16,2.84,2.33,3.73 C4.98,18.46,5.55,18.01,6,17.5C6.73,18.34,7.8,19,9,19s2.27-0.66,3-1.5c0.73,0.84,1.8,1.5,3,1.5s2.26-0.66,3-1.5 c0.45,0.51,1.02,0.96,1.67,1.23C20.84,17.84,21.69,16.53,22,15z M22,23v-2h-1c-1.04,0-2.08-0.35-3-1c-1.83,1.3-4.17,1.3-6,0 c-1.83,1.3-4.17,1.3-6,0c-0.91,0.65-1.96,1-3,1H2l0,2h1c1.03,0,2.05-0.25,3-0.75c1.89,1,4.11,1,6,0c1.89,1,4.11,1,6,0h0 c0.95,0.5,1.97,0.75,3,0.75H22z"/></svg> Admin</h1>
         <div>
             <a href="/" style="color:var(--text2);text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
-                <span class="material-icons sm">public</span> Site
+                <svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg> Site
             </a>
             <button id="btn-logout" class="hidden" style="margin-left:10px;" title="Token vergessen">
-                <span class="material-icons sm">logout</span>
+                <svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
             </button>
         </div>
     </header>
 
     <nav id="tabs" class="hidden">
-        <button data-view="posts" class="primary"><span class="material-icons sm">list</span> Posts</button>
-        <button data-view="editor"><span class="material-icons sm">edit_note</span> Neuer Post</button>
-        <button data-view="location"><span class="material-icons sm">place</span> Position</button>
-        <button data-view="patches"><span class="material-icons sm">military_tech</span> Patches</button>
+        <button data-view="posts" class="primary"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg> Posts</button>
+        <button data-view="editor"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M3,10h11v2H3V10z M3,8h11V6H3V8z M3,16h7v-2H3V16z M18.01,12.87l0.71-0.71c0.39-0.39,1.02-0.39,1.41,0l0.71,0.71 c0.39,0.39,0.39,1.02,0,1.41l-0.71,0.71L18.01,12.87z M17.3,13.58l-5.3,5.3V21h2.12l5.3-5.3L17.3,13.58z"/></svg> Neuer Post</button>
+        <button data-view="location"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Position</button>
+        <button data-view="patches"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M17,10.43V2H7v8.43c0,0.35,0.18,0.68,0.49,0.86l4.18,2.51l-0.99,2.34l-3.41,0.29l2.59,2.24L9.07,22L12,20.23L14.93,22
+		l-0.78-3.33l2.59-2.24l-3.41-0.29l-0.99-2.34l4.18-2.51C16.82,11.11,17,10.79,17,10.43z M13,12.23l-1,0.6l-1-0.6V3h2V12.23z"/></svg> Patches</button>
     </nav>
 
     <!-- ============ SETUP (no token) ============ -->
@@ -173,15 +173,15 @@
             <label style="margin:0; display:flex; align-items:center; gap:8px; text-transform:none; font-size:0.9rem;">
                 <input type="checkbox" id="remember-token" checked style="width:auto;"> Auf diesem Gerät merken
             </label>
-            <button class="primary" id="btn-save-token"><span class="material-icons sm">login</span> Anmelden</button>
+            <button class="primary" id="btn-save-token"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M11,7L9.6,8.4l2.6,2.6H2v2h10.2l-2.6,2.6L11,17l5-5L11,7z M20,19h-8v2h8c1.1,0,2-0.9,2-2V5c0-1.1-0.9-2-2-2h-8v2h8V19z"/></svg> Anmelden</button>
         </div>
     </section>
 
     <!-- ============ POSTS ============ -->
     <section id="view-posts" class="glass hidden">
         <div class="toolbar">
-            <button id="btn-refresh"><span class="material-icons sm">refresh</span> Aktualisieren</button>
-            <button class="primary" data-view="editor"><span class="material-icons sm">add</span> Neuer Post</button>
+            <button id="btn-refresh"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg> Aktualisieren</button>
+            <button class="primary" data-view="editor"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Neuer Post</button>
         </div>
         <div id="post-list"><div class="hint">Lade Posts...</div></div>
     </section>
@@ -189,7 +189,7 @@
     <!-- ============ EDITOR ============ -->
     <section id="view-editor" class="glass hidden">
         <div class="toolbar">
-            <button data-view="posts"><span class="material-icons sm">arrow_back</span> Zurück</button>
+            <button data-view="posts"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> Zurück</button>
             <span id="editor-title" style="align-self:center; color:var(--text2); font-size:0.9rem;"></span>
         </div>
         <label for="f-title">Titel</label>
@@ -209,12 +209,12 @@
             <button type="button" data-md="h3" title="Untertitel"><b>H3</b></button>
             <button type="button" data-md="bold" title="Fett"><b>B</b></button>
             <button type="button" data-md="italic" title="Kursiv"><i>I</i></button>
-            <button type="button" data-md="link" title="Link"><span class="material-icons sm">link</span></button>
+            <button type="button" data-md="link" title="Link"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg></button>
         </div>
         <label for="f-body">Text (Markdown)</label>
         <textarea id="f-body" placeholder="Eintrag schreiben..."></textarea>
         <details class="upl">
-            <summary><span class="material-icons sm" style="vertical-align:middle;">image</span> Bilder hochladen (werden zu WebP konvertiert, max. 1920px)</summary>
+            <summary><svg class="ic" style="width:1.2em;height:1.2em;style="vertical-align:middle;"" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg> Bilder hochladen (werden zu WebP konvertiert, max. 1920px)</summary>
             <input type="file" id="f-files" multiple accept="image/*" style="margin-top:10px;">
             <label for="f-alt" style="margin-top:10px;">Bildbeschreibung (Alt-Text, gilt für die hochgeladenen Bilder)</label>
             <input id="f-alt" placeholder="z.B. Sonnenuntergang vor Milna">
@@ -222,8 +222,8 @@
             <div class="hint">Nach dem Upload wird der Markdown-Link an der Cursorposition eingefügt. Das erste Bild wird als Titelbild gesetzt. Alt-Text lässt sich später direkt im Markdown anpassen.</div>
         </details>
         <div class="row" style="margin-top:18px;">
-            <button class="primary" id="btn-save"><span class="material-icons sm">save</span> Veröffentlichen</button>
-            <button class="danger hidden" id="btn-delete"><span class="material-icons sm">delete</span> Löschen</button>
+            <button class="primary" id="btn-save"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> Veröffentlichen</button>
+            <button class="danger hidden" id="btn-delete"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg> Löschen</button>
         </div>
     </section>
 
@@ -238,8 +238,8 @@
             <div><label for="l-date">Datum</label><input type="date" id="l-date"></div>
         </div>
         <div class="row" style="margin-top:14px;">
-            <button id="btn-gps"><span class="material-icons sm">my_location</span> GPS-Position</button>
-            <button class="primary" id="btn-save-loc"><span class="material-icons sm">save</span> Speichern</button>
+            <button id="btn-gps"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg> GPS-Position</button>
+            <button class="primary" id="btn-save-loc"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> Speichern</button>
         </div>
         <div id="loc-map"></div>
         <div class="hint">Karte antippen oder Marker ziehen setzt die Koordinaten. Kacheln decken Mittelmeer + Kanaren ab (Zoom 6); dort draussen bleibt die Karte leer.</div>
@@ -248,7 +248,7 @@
     <!-- ============ PATCHES ============ -->
     <section id="view-patches" class="glass hidden">
         <div class="toolbar">
-            <button data-view="posts"><span class="material-icons sm">arrow_back</span> Zurück</button>
+            <button data-view="posts"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> Zurück</button>
             <span style="align-self:center; color:var(--text2); font-size:0.9rem;">Mission Patches auf der Startseite</span>
         </div>
 
@@ -256,8 +256,8 @@
         <div id="patch-list"><div class="hint">Lade Patches...</div></div>
         <div class="row" style="margin-top:12px; align-items:center;">
             <select id="existing-patch-files" style="flex:1 1 200px;"></select>
-            <button id="btn-add-existing" style="flex:0 0 auto;"><span class="material-icons sm">add</span> Vorhandene</button>
-            <button class="primary" id="btn-save-patches" style="flex:0 0 auto;"><span class="material-icons sm">save</span> Änderungen speichern</button>
+            <button id="btn-add-existing" style="flex:0 0 auto;"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Vorhandene</button>
+            <button class="primary" id="btn-save-patches" style="flex:0 0 auto;"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg> Änderungen speichern</button>
         </div>
         <div class="hint">Reihenfolge, Titel und Link gelten für die Startseite. Ohne Link wird der Patch ohne Verknüpfung angezeigt.</div>
 
@@ -281,7 +281,8 @@
                 <input id="pc-title" placeholder="Leg 5">
                 <label for="pc-link">Link (optional, z.B. PDF)</label>
                 <input id="pc-link" placeholder="/assets/pdf/Leg5.pdf">
-                <button class="primary" id="btn-create-patch" style="margin-top:12px;"><span class="material-icons sm">military_tech</span> Patch speichern &amp; anzeigen</button>
+                <button class="primary" id="btn-create-patch" style="margin-top:12px;"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M17,10.43V2H7v8.43c0,0.35,0.18,0.68,0.49,0.86l4.18,2.51l-0.99,2.34l-3.41,0.29l2.59,2.24L9.07,22L12,20.23L14.93,22
+		l-0.78-3.33l2.59-2.24l-3.41-0.29l-0.99-2.34l4.18-2.51C16.82,11.11,17,10.79,17,10.43z M13,12.23l-1,0.6l-1-0.6V3h2V12.23z"/></svg> Patch speichern &amp; anzeigen</button>
                 <div class="hint">Wird nach <code>assets/patches/&lt;titel&gt;.webp</code> hochgeladen und automatisch in die Anzeige aufgenommen.</div>
             </div>
         </div>
@@ -303,6 +304,7 @@
     const $ = (id) => document.getElementById(id);
     let TOKEN = null;
     let currentFile = null; // {path, sha, name}
+    let editorThumb = '';
     let locMap = null, locMarker = null;
 
     // ---------- helpers ----------
@@ -366,6 +368,7 @@
     function buildPostFile(meta, body) {
         let fm = '---\nlayout: post\ntitle: "' + meta.title.replace(/"/g, '\\"') + '"\ndate: ' + meta.date;
         if (meta.image) fm += '\nimage: "' + meta.image + '"';
+        if (meta.thumb) fm += '\nthumb: "' + meta.thumb + '"';
         return fm + '\n---\n' + body.replace(/^\r?\n/, '');
     }
 
@@ -432,10 +435,10 @@
                 div.className = 'post-item';
                 const img = it.image
                     ? '<img class="thumb" src="' + it.image + '" alt="">'
-                    : '<span class="material-icons" style="font-size:32px;color:var(--text2);">sailing</span>';
+                    : '<svg class="ic" style="width:32px;height:32px;style="color:var(--text2);"" viewBox="0 0 24 24" aria-hidden="true"><path d="M11,13.5V2L3,13.5H11z M21,13.5C21,6.5,14.5,1,12.5,1c0,0,1,3,1,6.5s-1,6-1,6H21z M22,15H2c0.31,1.53,1.16,2.84,2.33,3.73 C4.98,18.46,5.55,18.01,6,17.5C6.73,18.34,7.8,19,9,19s2.27-0.66,3-1.5c0.73,0.84,1.8,1.5,3,1.5s2.26-0.66,3-1.5 c0.45,0.51,1.02,0.96,1.67,1.23C20.84,17.84,21.69,16.53,22,15z M22,23v-2h-1c-1.04,0-2.08-0.35-3-1c-1.83,1.3-4.17,1.3-6,0 c-1.83,1.3-4.17,1.3-6,0c-0.91,0.65-1.96,1-3,1H2l0,2h1c1.03,0,2.05-0.25,3-0.75c1.89,1,4.11,1,6,0c1.89,1,4.11,1,6,0h0 c0.95,0.5,1.97,0.75,3,0.75H22z"/></svg>';
                 div.innerHTML = img +
                     '<div class="meta"><div class="t">' + escapeHtml(it.title) + '</div><div class="d">' + it.date + ' · ' + it.name + '</div></div>' +
-                    '<span class="material-icons sm">chevron_right</span>';
+                    '<svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>';
                 div.addEventListener('click', () => openEditor(it));
                 list.appendChild(div);
             });
@@ -453,6 +456,7 @@
         $('f-title').value = item ? item.title : '';
         $('f-date').value = item ? (item.date || today()) : today();
         $('f-image').value = item ? (item.image || '') : '';
+        editorThumb = item ? (item.thumb || '') : '';
         $('f-body').value = item ? item.body : '';
         $('img-preview').innerHTML = '';
         $('editor-title').textContent = item ? item.name : 'Neuer Post';
@@ -491,7 +495,30 @@
                 branch: BRANCH
             })
         });
-        return '/assets/images/' + name;
+        // thumbnail for the blog list (max edge 320px)
+        const tscale = Math.min(1, 320 / Math.max(w, h));
+        const tCanvas = document.createElement('canvas');
+        tCanvas.width = Math.round(w * tscale); tCanvas.height = Math.round(h * tscale);
+        tCanvas.getContext('2d').drawImage(canvas, 0, 0, tCanvas.width, tCanvas.height);
+        let tBlob = await new Promise((res) => tCanvas.toBlob(res, 'image/webp', 0.8));
+        if (!tBlob) tBlob = await new Promise((res) => tCanvas.toBlob(res, 'image/png'));
+        const tExt = tBlob && tBlob.type === 'image/webp' ? 'webp' : 'png';
+        const tPath = 'assets/images/thumbs/' + name.replace(/\.[^.]+$/, '.' + tExt);
+        const tBuf = new Uint8Array(await tBlob.arrayBuffer());
+        let tBin = '';
+        for (let i = 0; i < tBuf.length; i += 0x8000) {
+            tBin += String.fromCharCode.apply(null, tBuf.subarray(i, i + 0x8000));
+        }
+        await gh('/repos/' + OWNER + '/' + REPO + '/contents/' + tPath, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: 'Add thumbnail ' + tPath.split('/').pop(),
+                content: btoa(tBin),
+                branch: BRANCH
+            })
+        });
+        return { url: '/assets/images/' + name, thumb: '/' + tPath };
     }
 
     async function savePost() {
@@ -499,7 +526,7 @@
         const date = $('f-date').value || today();
         const image = $('f-image').value.trim();
         const body = $('f-body').value;
-        const content = buildPostFile({ title: title, date: date, image: image }, body);
+        const content = buildPostFile({ title: title, date: date, image: image, thumb: editorThumb }, body);
         const slug = slugify(title);
         const isNew = !currentFile;
         const path = isNew ? '_posts/' + date + '-' + slug + '.md' : currentFile.path;
@@ -554,13 +581,14 @@
         try {
             const alt = $('f-alt').value.trim();
             for (const f of files) {
-                const url = await uploadOne(f, baseSlug);
+                const up = await uploadOne(f, baseSlug);
                 const altText = alt || f.name.replace(/\.[^.]+$/, '');
-                const snippet = '![' + altText.replace(/[\[\]]/g, ' ') + '](' + url + ')\n\n';
+                const snippet = '![' + altText.replace(/[\[\]]/g, ' ') + '](' + up.url + ')\n\n';
                 const pos = ta.selectionStart || ta.value.length;
                 ta.value = ta.value.slice(0, pos) + snippet + ta.value.slice(pos);
                 if (!$('f-image').value) {
-                    $('f-image').value = url;
+                    $('f-image').value = up.url;
+                    editorThumb = up.thumb;
                     const prev = document.createElement('img');
                     prev.src = url;
                     $('img-preview').appendChild(prev);
@@ -824,9 +852,9 @@
                 '<img src="' + p.file + '" alt="">' +
                 '<input class="pr-title" value="' + String(p.title || '').replace(/"/g, '&quot;') + '" placeholder="Titel">' +
                 '<input class="pr-link" value="' + String(p.link || '').replace(/"/g, '&quot;') + '" placeholder="Link (leer = keiner)">' +
-                '<button class="pr-up" title="Nach oben"><span class="material-icons sm">arrow_upward</span></button>' +
-                '<button class="pr-down" title="Nach unten"><span class="material-icons sm">arrow_downward</span></button>' +
-                '<button class="pr-del danger" title="Entfernen"><span class="material-icons sm">delete</span></button>';
+                '<button class="pr-up" title="Nach oben"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></svg></button>' +
+                '<button class="pr-down" title="Nach unten"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"></svg></button>' +
+                '<button class="pr-del danger" title="Entfernen"><svg class="ic" style="width:1.2em;height:1.2em;" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></button>';
             row.querySelector('.pr-title').addEventListener('input', (e) => { patchesData[i].title = e.target.value; });
             row.querySelector('.pr-link').addEventListener('input', (e) => { patchesData[i].link = e.target.value; });
             row.querySelector('.pr-up').addEventListener('click', () => {

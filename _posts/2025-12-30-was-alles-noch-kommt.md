@@ -2,6 +2,7 @@
 layout: post
 title: "Was alles noch kommt"
 image: /assets/images/0484475561639aeb4c4a4415c8d261e4.webp
+thumb: "/assets/images/thumbs/0484475561639aeb4c4a4415c8d261e4.webp"
 date: 2025-12-30
 modified: 2025-12-30
 ---

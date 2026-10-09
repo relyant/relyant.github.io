@@ -2,6 +2,7 @@
 layout: post
 title: "Woche 3 von Messina -> Split"
 image: /assets/patches/Leg3.webp
+thumb: "/assets/images/thumbs/Leg3.webp"
 date: 2026-07-28
 modified: 2026-07-28
 ---

@@ -3,6 +3,7 @@ layout: post
 title: "Wieso eine Ovni?"
 date: 2026-01-01
 image: "/assets/images/2026-01-01-wieso-eine-ovni-ti8sm0.webp"
+thumb: "/assets/images/thumbs/2026-01-01-wieso-eine-ovni-ti8sm0.webp"
 ---
 Ein Segelboot ist immer ein Kompromiss – wie wahrscheinlich viele Dinge im Leben. Grosser Salon, aber dafür weniger gutes Verhalten auf dem Meer? Weniger Tiefgang, dafür weniger Leistung hoch am Wind? Günstiges Boot, dafür weniger Sicherheit?
 
